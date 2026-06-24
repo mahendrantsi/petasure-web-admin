@@ -1,0 +1,117 @@
+﻿@model List<Project.Models.Pets.PetsViewModel>
+@{
+    ViewData["Title"] = "Cats";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+<div class="row pageHeader">
+    <div class="">
+        <div class="col-xl-12   ml-3 flex flex-col justify-between md:flex-row md:items-center">
+            <div class="ltablet:max-w-full flex max-w-[425px]  items-center gap-4 text-center md:flex-row md:text-left lg:max-w-full">
+                <div class="nui-avatar-small nui-avatar-lg nui-avatar-full">
+                    <div class="nui-avatar-inner" style="background: rgb(226, 232, 240);font-size: 29px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M64 96c53 0 96 43 96 96l0 85.8c29.7-44.7 77.8-76.2 133.4-84 25.6 60 85.2 102.1 154.6 102.1 10.9 0 21.6-1.1 32-3.1L480 480c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-140.8-136 108.8 56 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-144 0c-53 0-96-43-96-96l0-224c0-16.6-12.6-30.2-28.7-31.8l-6.6-.3C44.6 158.2 32 144.6 32 128 32 110.3 46.3 96 64 96zM533.8 3.2C544.2-5.5 560 1.9 560 15.5L560 128c0 61.9-50.1 112-112 112S336 189.9 336 128l0-112.5c0-13.6 15.8-21 26.2-12.3L416 48 480 48 533.8 3.2zM400 108a20 20 0 1 0 0 40 20 20 0 1 0 0-40zm96 0a20 20 0 1 0 0 40 20 20 0 1 0 0-40z" /></svg>
+                    </div>
+                </div>
+                <div class="text-left">
+                    <h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
+                        <span>Cats</span>
+                    </h3>
+                    <p style="color: #979797;" class="nui-paragraph nui-paragraph-md nui-weight-normal nui-lead-normal">
+                        <span class="text-muted-500">All cats registered on Petasure</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-xl-12 mt-5 mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <!-- Search Form -->
+            <form method="get" asp-action="Index" class="d-flex align-items-center flex-grow-1" style="max-width: 600px;">
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Search by name, sex, phone or microchip number..."
+                       value="@ViewBag.Search" />
+                <button class="btn btn-primary"
+                        type="submit"
+                        style="margin-left: 10px;">
+                    Search
+                </button>
+            </form>
+
+            <!-- Download CSV Button -->
+            <div class="mt-3 mt-md-0">
+                <a asp-action="DownloadUserList"
+                   asp-route-search="@ViewBag.Search"
+                   class="btn btn-success">
+                    Download CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-xl-12">
+        <div class="table-responsive">
+            <table aria-describedby="mydesc" id="SubUser_tbl" class="table tableCutom table-th-nowrap w-100">
+                <thead>
+                    <tr>
+
+                        <th>Name</th>
+                        <th>Sex</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Microchip Number</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.PName</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.PSex</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.ContactNumber</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.Address</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.MicrochipNumber</span>
+                                </div>
+                            </td>
+                            <td>
+
+                                <div class="text-center">
+                                    @* <button type="submit" class="btn btn-success">Save</button> *@
+                                    <a asp-action="PetDetail" asp-route-petId="@item.Id" class="btn btn-secondary">View Detail</a>
+                                </div>
+
+                              
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

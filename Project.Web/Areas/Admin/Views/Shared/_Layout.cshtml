@@ -100,19 +100,53 @@
                                             </a>
                                         </li>
 
-                                        <li class="nav-item dropdown menu-icons">
-                                            <a id="a5" class="nav-link menu-title" href="/Admin/Pets">
-                                                <span class="fas fa-dog"></span>
-                                                <span class="menu-txt">Pets</span>
-                                            </a>
-                                        </li>
+                                    <li class="nav-item dropdown menu-icons">
+                                        <a id="a5" href="javascript:void(0)"
+                                           class="nav-link menu-title d-flex justify-content-between align-items-center"
+                                           data-toggle="collapse"
+                                           data-target="#petsMenu"
+                                           aria-expanded="false">
+                                            <span class="fas fa-dog"></span>
+                                            <span class="menu-txt">Pets</span>
+                                            <span class="fas fa-chevron-down"></span>
+                                        </a>
+                                        <ul id="petsMenu" class="collapse submenu-list">
+                                            <li>
+                                                <a href="/Admin/Pets">
+                                                    <i class="fas fa-dog mr-2"></i> Dogs
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="/Admin/Pets/cats">
+                                                    <i class="fas fa-cat mr-2"></i> Cats
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
 
-                                        <li class="nav-item dropdown menu-icons">
-                                            <a id="a6" class="nav-link menu-title" href="/Admin/MissingPets/">
-                                                <span class="fas fa-dog"></span>
-                                                <span class="menu-txt">Missing Pets</span>
-                                            </a>
-                                        </li>
+                                    <li class="nav-item dropdown menu-icons">
+                                        <a id="a6" href="javascript:void(0)"
+                                           class="nav-link menu-title d-flex justify-content-between align-items-center"
+                                           data-toggle="collapse"
+                                           data-target="#missingPetsMenu"
+                                           aria-expanded="false">
+                                            <span class="fas fa-dog"></span>
+                                            <span class="menu-txt">Missing Pets</span>
+                                            <span class="fas fa-chevron-down"></span>
+                                        </a>
+                                        <ul id="missingPetsMenu" class="collapse submenu-list">
+                                            <li>
+                                                <a href="/Admin/MissingPets">
+                                                    <i class="fas fa-dog mr-2"></i> Dogs
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="/Admin/MissingPets/cats">
+                                                    <i class="fas fa-cat mr-2"></i> Cats
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
 
                                         @if (isAdmin)
                                         {

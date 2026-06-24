@@ -19,5 +19,10 @@ namespace Project.Web.Areas.Admin.Controllers
             var response = missingService.AdminMissingPetInfos().GetAwaiter().GetResult();
             return View(response.Data);
         }
+        public IActionResult Cats()
+        {
+            var response = missingService.AdminMissingPetInfos().GetAwaiter().GetResult();
+            return View(response.Data);
+        }
     }
 }

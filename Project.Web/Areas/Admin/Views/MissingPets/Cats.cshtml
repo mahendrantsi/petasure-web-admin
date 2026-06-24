@@ -1,0 +1,110 @@
+﻿@model List<Project.Models.Pets.MissingPetsViewModel>
+@{
+    ViewData["Title"] = "cats";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+<div class="row pageHeader">
+    <div class="">
+        <div class="col-xl-12   ml-3 flex flex-col justify-between md:flex-row md:items-center">
+            <div class="ltablet:max-w-full flex max-w-[425px]  items-center gap-4 text-center md:flex-row md:text-left lg:max-w-full">
+                <div class="nui-avatar-small nui-avatar-lg nui-avatar-full">
+                    <div class="nui-avatar-inner" style="background: rgb(226, 232, 240);font-size: 29px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M64 96c53 0 96 43 96 96l0 85.8c29.7-44.7 77.8-76.2 133.4-84 25.6 60 85.2 102.1 154.6 102.1 10.9 0 21.6-1.1 32-3.1L480 480c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-140.8-136 108.8 56 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-144 0c-53 0-96-43-96-96l0-224c0-16.6-12.6-30.2-28.7-31.8l-6.6-.3C44.6 158.2 32 144.6 32 128 32 110.3 46.3 96 64 96zM533.8 3.2C544.2-5.5 560 1.9 560 15.5L560 128c0 61.9-50.1 112-112 112S336 189.9 336 128l0-112.5c0-13.6 15.8-21 26.2-12.3L416 48 480 48 533.8 3.2zM400 108a20 20 0 1 0 0 40 20 20 0 1 0 0-40zm96 0a20 20 0 1 0 0 40 20 20 0 1 0 0-40z" /></svg>
+                    </div>
+                </div>
+                <div class="text-left">
+                    <h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
+                        <span>Missing Cats</span>
+                    </h3>
+                    <p style="color: #979797;" class="nui-paragraph nui-paragraph-md nui-weight-normal nui-lead-normal">
+                        <span class="text-muted-500">All cats that have been reported missing</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-12 mb-4">
+        <div class="mb-6 flex flex-row  w-full flex-col items-center justify-end gap-4 sm:flex-row" style=" width: 100%;">
+            <div class=" text-end">
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-12">
+        <div class="table-responsive">
+            <table aria-describedby="mydesc" id="SubUser_tbl" class="table tableCutom table-th-nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>Pet Name</th>
+                        <th>Owner's Name</th>
+                        <th>Phone</th>
+                        <th>Owner's Email</th>
+                        <th>Area Reported Missing</th>
+                        <th>Date Reported</th>
+                        @* <th>Action</th> *@
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.Name</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.OwnerName</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.ContactNo</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.OwnerEmail</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.Address</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.LostDate.ToShortDateString()</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        $('.tableCutom').DataTable({
+            "bLengthChange": false,
+            "bInfo": false,
+            "ordering": false,
+
+            language: {
+                search: "",
+                paginate: {
+                    next: '<i class="fas fa-arrow-right"></i>', // or '→'
+                    previous: '<i class="fas fa-arrow-left"></i>' // or '←'
+                },
+            },
+            initComplete: function () {
+                $('[type="search"]').attr("placeholder", "Search");
+            }
+        });
+    });
+</script>

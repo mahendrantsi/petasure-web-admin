@@ -44,6 +44,14 @@ namespace Project.Web.Areas.Admin.Controllers
             return View(pets.OrderByDescending(a => a.CreatedOn).ToList());
         }
 
+        public IActionResult Cats(string? search)
+        {
+            var response = petService.AdminPetInfos().GetAwaiter().GetResult();
+            var pets = response.Data;
+
+            return View(pets.OrderByDescending(a => a.CreatedOn).ToList());
+        }
+
 
         [HttpGet]
         [CustomAuthorize(Roles = "Admin,SubAdmin,AnonymousUser")]
