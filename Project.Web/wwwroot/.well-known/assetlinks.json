@@ -1,0 +1,50 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ssv.Projectuser",
+      "sha256_cert_fingerprints": [
+        "79:FC:0A:44:D9:16:FB:01:D5:39:BE:3C:25:5D:65:F8:FE:C2:55:D2:67:1A:34:95:72:40:10:6B:40:33:88:19"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ssv.Project",
+      "sha256_cert_fingerprints": [
+        "79:FC:0A:44:D9:16:FB:01:D5:39:BE:3C:25:5D:65:F8:FE:C2:55:D2:67:1A:34:95:72:40:10:6B:40:33:88:19"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ssv.Projectuser",
+      "sha256_cert_fingerprints": [
+        "BF:15:9B:20:8A:97:9F:72:76:6E:94:0B:0A:F1:A1:38:50:D2:8B:97:79:A6:A1:E0:B2:B4:04:3C:ED:2D:5F:1B"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ssv.Project",
+      "sha256_cert_fingerprints": [
+        "3B:86:38:AF:B9:40:D4:CB:E9:6D:45:C0:C5:0D:D6:2D:65:D1:30:24:7B:E6:A0:CC:8D:AC:5F:C3:71:AF:8A:BC"
+      ]
+    }
+  }
+]

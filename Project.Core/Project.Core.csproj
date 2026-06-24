@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Attribute\**" />
+    <Compile Remove="Cryptography\**" />
+    <EmbeddedResource Remove="Attribute\**" />
+    <EmbeddedResource Remove="Cryptography\**" />
+    <None Remove="Attribute\**" />
+    <None Remove="Cryptography\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="CoreMethods\CoreMethods.cs" />
+    <Compile Remove="Enum\EnumPaymentType.cs" />
+    <Compile Remove="Enum\EnumRefundType.cs" />
+    <Compile Remove="Extension\APICoreResponse.cs" />
+    <Compile Remove="Extension\ErrorCode.cs" />
+    <Compile Remove="Extension\ResponseData1.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.Core" Version="1.68.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Project.Logger\Project.Logger.csproj" />
+    <ProjectReference Include="..\Project.Logger\Project.Logger.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resource\ProjectResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ProjectResource.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resource\ProjectResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ProjectResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="CoreMethods\" />
+    <Folder Include="Resource\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,162 @@
+@import "./bootstrap-scss/functions";
+@import "./bootstrap-scss/variables";
+@import "./bootstrap-scss/mixins";
+@import "./bootstrap-scss/root";
+@import "./bootstrap-scss/reboot";
+//@import "./bootstrap-scss/type";
+//@import "./bootstrap-scss/images";
+//@import "./bootstrap-scss/code";
+//@import "./bootstrap-scss/grid";
+//@import "./bootstrap-scss/tables";
+@import "./bootstrap-scss/forms";
+@import "./bootstrap-scss/buttons";
+//@import "./bootstrap-scss/transitions";
+//@import "./bootstrap-scss/dropdown";
+//@import "./bootstrap-scss/button-group";
+//@import "./bootstrap-scss/input-group";
+//@import "./bootstrap-scss/custom-forms";
+//@import "./bootstrap-scss/nav";
+//@import "./bootstrap-scss/navbar";
+//@import "./bootstrap-scss/card";
+//@import "./bootstrap-scss/breadcrumb";
+//@import "./bootstrap-scss/pagination";
+//@import "./bootstrap-scss/badge";
+//@import "./bootstrap-scss/jumbotron";
+//@import "./bootstrap-scss/alert";
+//@import "./bootstrap-scss/progress";
+//@import "./bootstrap-scss/media";
+//@import "./bootstrap-scss/list-group";
+//@import "./bootstrap-scss/close";
+//@import "./bootstrap-scss/toasts";
+//@import "./bootstrap-scss/modal";
+//@import "./bootstrap-scss/tooltip";
+//@import "./bootstrap-scss/popover";
+//@import "./bootstrap-scss/carousel";
+//@import "./bootstrap-scss/spinners";
+@import "./bootstrap-scss/utilities";
+//@import "./bootstrap-scss/print";
+//@import "./bootstrap-scss/bootstrap.scss";
+@import "./variables";
+@import "./mixins";
+@import "./base";
+body {
+    background: url(../images/auth-bg.png) 0 0 no-repeat;
+    background-color: #383838;
+    background-size: cover;
+    // @media screen and (max-width: 767.98px) {
+    //   background-image: url(../images/login-bg-small.jpg);
+    // }
+}
+
+.login-form {
+    background: rgba(255, 255, 255, 1);
+    //border: solid 1px rgba($theme-bordercolor, 0.4);
+    width: 408px;
+    max-width: 100%;
+    @include border-radius($border-radius10);
+    padding: 35px 35px 16px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+    @media screen and (max-width: 767.98px) {
+        margin: auto 15px;
+    }
+    .logo-img {
+        width: 200px;
+        height: auto;
+        margin-top: 0px;
+        margin-bottom: 30px;
+        @media screen and (max-width: 767.98px) {
+            width: 123px;
+            margin-bottom: 14px;
+        }
+    }
+    .login-signin {
+        .show-password {
+            background: url(../images/password-visibility.svg) 0 0 no-repeat;
+            position: absolute;
+            top: 50%;
+            margin-top: -12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+        }
+        h3 {
+            color: $theme-redcolor;
+            font-weight: 300;
+            text-align: center;
+            font-size: 5.42rem;
+            line-height: 6.5rem;
+            margin: 0 0 22px;
+            @media screen and (max-width: 767.98px) {
+                font-size: 3.42rem;
+                line-height: 4.14rem;
+                margin-bottom: 18px;
+            }
+        }
+        .form-group {
+            margin-bottom: 22px;
+            @media screen and (max-width: 767.98px) {
+                margin-bottom: 17px;
+                &.last-child,
+                &:last-child {
+                    margin-top: 31px;
+                }
+            }
+        }
+        .form-control {
+            background: rgba(255, 255, 255, 1);
+            border-radius: 0px;
+            height: 44px;
+            padding: 0.742rem 0;
+            color: rgba(126, 126, 126, 1);
+            font-weight: 500;
+            line-height: 44px;
+            border: none;
+            border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+            &:-webkit-autofill,
+            &:-webkit-autofill:hover,
+            &:-webkit-autofill:focus {
+                -webkit-box-shadow: 0 0 0px 1000px #fafafa inset;
+            }
+            @media screen and (max-width: 767.98px) {
+                height: calc(2.537em + 0.75rem + 2px);
+                padding: 0.75rem 1.142rem;
+            }
+            @include placeholder {
+                color: rgba(126, 126, 126, 0.5);
+                text-transform: capitalize;
+            }
+            &:hover,
+            &:focus {
+                box-shadow: none;
+            }
+        }
+        .text-forget {
+            color: #7e7e7e;
+            font-size: 1rem;
+            line-height: 1.214;
+            font-style: italic;
+            font-weight: 500;
+            &:hover {
+                color: #7e7e7e;
+            }
+        }
+        .btn-login {
+            text-transform: uppercase;
+            font-size: 0.9285rem;
+            line-height: 1.142;
+            padding: 9px 23px;
+            font-weight: 500;
+        }
+    }
+    p {
+        color: #7e7e7e;
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+    }
+}
+
+.btn-login {
+    @extend %crm-btn-login;
+}

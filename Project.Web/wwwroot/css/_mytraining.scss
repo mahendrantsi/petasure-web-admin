@@ -1,0 +1,325 @@
+.my-training {
+  padding-top: 30px;
+  small {
+    @media screen and (max-width: 767.98px) {
+      display: none;
+    }
+  }
+  @media screen and (max-width: 767.98px) {
+    padding-bottom: 70px;
+  }
+  .page-heading {
+    @extend %crm-page-heading;
+
+    @media screen and (min-width: 768px) {
+      padding-left: 50px;
+      padding-right: 50px;
+    }
+  }
+  .row.row-large {
+    margin-left: -38px;
+    margin-right: -38px;
+    [class*="col-"] {
+      padding-left: 38px;
+      padding-right: 38px;
+    }
+  }
+
+  .crm-card {
+    padding: 48px 50px;
+    @media screen and (max-width: 991.98px) {
+      padding: 48px 25px 0;
+    }
+  }
+  .resume-list {
+    @media screen and (max-width: 991.98px) {
+      margin-top: 25px;
+    }
+    .title {
+      font-size: 14px;
+      font-weight: 500;
+
+      line-height: 17px;
+      color: $theme-zblack;
+      text-transform: uppercase;
+      margin-bottom: 23px;
+    }
+    ul {
+      li {
+        margin-bottom: 16px;
+        a {
+          font-size: 14px;
+          color: $theme-skyblue1;
+          font-weight: 500;
+          line-height: 17px;
+
+          text-transform: capitalize;
+        }
+      }
+    }
+  }
+
+  .assignments {
+    margin-top: 50px;
+    @media screen and (min-width: 576px) {
+      display: flex;
+    }
+    @media screen and (max-width: 991.98px) {
+      margin-top: 20px;
+    }
+    @media screen and (min-width: 768px) {
+      align-items: center;
+    }
+    .title {
+      font-size: 14px;
+      color: rgba($theme-bluecolor, 0.5);
+      line-height: 17px;
+
+      font-weight: 500;
+      text-transform: uppercase;
+      margin-right: 33px;
+      @media screen and (max-width: 991.98px) {
+        margin-right: 10px;
+      }
+    }
+    ul.sorting {
+      @media screen and (max-width: 991.98px) {
+        position: relative;
+        top: -3px;
+      }
+      @media screen and (max-width: 575.98px) {
+        top: 3px;
+      }
+      li {
+        display: inline-block;
+        margin-right: 25px;
+        @media screen and (max-width: 991.98px) {
+          margin-right: 10px;
+        }
+        a {
+          font-size: 14px;
+          color: rgba($theme-bluecolor, 0.5);
+          line-height: 17px;
+
+          font-weight: 500;
+          text-transform: lowercase;
+          &.active,
+          &:hover {
+            color: rgba($theme-bluecolor, 1);
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+
+  .course-carousel {
+    margin: 22px -50px 0;
+    padding: 43px 50px 9px;
+    border: solid 1px #d8d8d8;
+    background: #f3f4f6;
+    @media screen and (max-width: 991.98px) {
+      padding: 20px 25px 20px;
+      margin-left: -25px;
+      margin-right: -25px;
+    }
+    &.bg-white {
+      background: $theme-white;
+      border: none;
+      padding-top: 20px;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+    .card-header {
+      @media screen and (max-width: 991.98px) {
+        display: block;
+      }
+      h5 {
+        font-weight: 600;
+        @media screen and (max-width: 991.98px) {
+          margin-bottom: 10px !important;
+        }
+      }
+      .number {
+        font-size: 14px;
+        color: $theme-zblack;
+        line-height: 17px;
+        margin-left: 30px;
+        margin-right: 15px;
+        @media screen and (max-width: 991.98px) {
+          margin-left: 0px;
+          margin-right: 15px;
+        }
+      }
+      .progress {
+        @extend %crm-progress-bar;
+        min-width: 230px;
+      }
+    }
+  }
+  .jcarousel-wrapper {
+    margin: 33px auto 0;
+    position: relative;
+
+    @media screen and (max-width: 767.98px) {
+      margin-top: 10px;
+    }
+    .jcarousel {
+      position: relative;
+      overflow: hidden;
+      //   width: 100%;
+      margin-left: -10px;
+      margin-right: -10px;
+      ul {
+        width: 10000em;
+        position: relative;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        width: 200px;
+        float: left;
+
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+
+        .inner-box {
+          margin-left: 10px;
+          margin-right: 10px;
+          @extend %crm-card-style;
+          border-radius: 12px;
+          padding: 0;
+
+          @media screen and (max-width: 991.98px) {
+            margin-bottom: 5px;
+          }
+        }
+        .box-text {
+          padding: 23px 23px 32px;
+          h5 {
+            margin-bottom: 30px;
+            color: $theme-skyblue1;
+            font-size: 18.5px;
+            font-weight: 500;
+            line-height: 25px;
+
+            margin-bottom: 19px;
+            a {
+              color: $theme-skyblue1;
+            }
+          }
+          .status {
+            font-size: 12px;
+            color: $theme-zblack;
+            font-weight: 600;
+
+            text-transform: uppercase;
+            display: inline-block;
+            &.due {
+              color: $theme-dark-redcolor;
+            }
+            &.complete {
+              color: #19a200;
+              background: url(../images/icon-table-check.svg) right 50% no-repeat;
+              padding-right: 15px;
+            }
+          }
+        }
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto !important;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+
+      /** Carousel Pagination **/
+
+      .jcarousel-pagination {
+        position: absolute;
+        bottom: -40px;
+        left: 50%;
+        -webkit-transform: translate(-50%, 0);
+        -ms-transform: translate(-50%, 0);
+        transform: translate(-50%, 0);
+        margin: 0;
+        a {
+          text-decoration: none;
+          display: inline-block;
+          font-size: 11px;
+          height: 10px;
+          width: 10px;
+          line-height: 10px;
+          background: #fff;
+          color: #4e443c;
+          border-radius: 10px;
+          text-indent: -9999px;
+          margin-right: 7px;
+          -webkit-box-shadow: 0 0 2px #4e443c;
+          -moz-box-shadow: 0 0 2px #4e443c;
+          box-shadow: 0 0 2px #4e443c;
+          &.active {
+            background: #4e443c;
+            color: #fff;
+            opacity: 1;
+            -webkit-box-shadow: 0 0 2px #f0efe7;
+            -moz-box-shadow: 0 0 2px #f0efe7;
+            box-shadow: 0 0 2px #f0efe7;
+          }
+        }
+      }
+    }
+  }
+
+  .carousel-arrows {
+    width: 36px;
+    height: 15px;
+    @media screen and (max-width: 991.98px) {
+      margin-left: auto;
+      margin-top: -16px;
+    }
+    @media screen and (max-width: 575.98px) {
+      margin-top: 5px;
+    }
+    position: relative;
+    .jcarousel-control-prev,
+    .jcarousel-control-next {
+      position: absolute;
+      top: 50%;
+      margin-top: -7.5px;
+      width: 10px;
+      height: 15px;
+      background: url(../images/progress-right-dark.svg) 0 0 no-repeat;
+      opacity: 1;
+
+      &:hover {
+        opacity: 1;
+      }
+      &.disabled {
+        opacity: 0.21;
+        cursor: default;
+        pointer-events: none;
+      }
+    }
+
+    .jcarousel-control-prev {
+      left: 0;
+      transform: rotate(-180deg);
+    }
+
+    .jcarousel-control-next {
+      right: 0;
+    }
+    .opacity1 {
+      opacity: 1;
+    }
+    .active {
+      opacity: 1;
+    }
+  }
+}

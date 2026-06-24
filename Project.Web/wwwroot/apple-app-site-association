@@ -1,0 +1,23 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "42C5FY5LCQ.com.ssv.Projectuser",
+        "paths": [ "/Payment/PaymentCallbackUser/*" ]
+      },
+      {
+        "appID": "42C5FY5LCQ.com.ssv.Project",
+        "paths": [ "/Home/PaymentCallback/*" ]
+      },
+      {
+        "appID": "42C5FY5LCQ.com.ssv.Projectuser",
+        "paths": [ "/PaymentDetails/QRInfo/*" ]
+      },
+      {
+        "appID": "42C5FY5LCQ.com.ssv.Project",
+        "paths": [ "/PaymentDetails/QRInfo/*" ]
+      }
+    ]
+  }
+}

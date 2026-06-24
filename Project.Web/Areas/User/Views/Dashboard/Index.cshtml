@@ -1,0 +1,122 @@
+﻿@model Project.Models.AdminModel.DashboardViewModel
+
+
+<div class="row dasbhoard-view">
+    <div class="col-sm-12 nui-container">
+        <div class="page-heading nui-avatar">
+            <div class="row">
+                <div class="col-xl-1 col-lg-2 col-md-2">
+                    <div class="nui-avatar-inner" >
+                        @if (Model.UserProfile!=null)
+                        {
+                            <img id="imguserprofile" src="@Model.UserProfile" class="nui-avatar-img" alt="Image" onerror="this.src='/images/users1.png'">
+                        }
+                        else
+                        {
+                            <img id="imguserprofile" src="~/images/user.svg" class="nui-avatar-img" alt="Image" onerror="this.src='/images/users1.png'">
+
+                        }
+                    </div>
+                </div>
+                <div class="col-xl-6 col-sm-9 col-lg-9 col-md-9">
+                    <div>
+                        <h2 class="nui-heading">
+                            <span>Welcome back, @Model.UserName</span>
+                        </h2>
+                        <p class="nui-paragraph">
+                            <span class="text-muted-500"> Happy to see you again on your dashboard. </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="row dasbhoard-view quick-stats">
+    <div class="col-md-12 col-xl-6">
+        <div class="card crm-card flex-fill">
+            <div class="card-heading">
+                Your Quick Stats
+            </div>
+            <div class="inner">
+                <div class="box">
+                    <div class="card-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-xl-6">
+        <div class="card crm-card flex-fill">
+
+            <div class="card-heading">
+                Monthly Transactions (Sum of Amount)
+            </div>
+            <div id="Container1" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row dasbhoard-view">
+    <div class="col-md-12 col-xl-6">
+        <div class="card crm-card flex-fill">
+            <div class="card-heading">
+               Last 30 days transaction count
+            </div>
+            <div id="Container2" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-xl-6">
+        <div class="card crm-card flex-fill">
+            <div class="card-heading">
+               Spend to received money ratio
+            </div>
+            <div id="Container3" style="text-align: center;">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 col-xl-12">
+        <div class="card crm-card flex-fill bg-full">
+            <div class="inner">
+                <div class="card-heading">
+                    Hey @Model.UserName, you're doing great.
+                </div>
+                <p>
+                    Start updating your profile now
+                </p>
+                <a href="/User/Account/Profile" class="router-link-active hover:underline"> Learn More </a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/scripts/highcharts/dashboardchart.js" asp-append-version="true"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+    $(document).ready(function () {
+        var users = @Json.Serialize(Model.LstMonthlyUsers);
+
+        
+
+
+
+        @if (Model.UserProfile != null)
+        {
+        @:localStorage.setItem("UserProfile", "@Model.UserProfile");
+        }
+        else
+        {
+            @:localStorage.setItem("UserProfile", "/images/user.svg");
+        }
+            localStorage.setItem('activeElement', "a112344312")
+            $("#imguserprofileMENU").attr("src", localStorage.getItem("UserProfile"));            
+        
+    });
+
+</script>

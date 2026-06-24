@@ -1,0 +1,380 @@
+﻿@{
+    Layout = "_Layout";
+    var iKey = "https://cdn.tiny.cloud/1/z7sghkso19w7cp5vld8ji9mesiuzfsukevmh56nw4jre3tsl/tinymce/6/tinymce.min.js";
+
+
+    string fullPath = Context.Request.Path.Value;
+    int index = fullPath.LastIndexOf("/") + 1;
+    string pageMethod = fullPath.Substring((index), fullPath.Length - index);
+}
+<style>
+    .nui-avatar.nui-avatar-md {
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .tag-Deactivation {
+        background: rgba(245,158,11,.2) !important;
+        color: rgb(245,158,11) !important;
+    }
+
+    .tag-Enquiry {
+        background: rgba(14,165,233,.2) !important;
+        color: rgb(14,165,233) !important;
+    }
+
+    .page-main-header {
+        background: #fff;
+        width: calc(100% - 287px);
+    }
+
+    .page-body-wrapper.sidebar-icon .page-body {
+        padding: 0
+    }
+
+
+    .pageHeader {
+        background: #fff;
+        padding: 0 10px 0px 20px
+    }
+
+    .tabs > li > a {
+        font-size: 15px;
+        line-height: 1.25rem;
+        padding: 16px 12px;
+        color: rgb(30, 41, 59);
+        text-decoration: none;
+    }
+
+        .tabs > li > a.active {
+            font-weight: 500;
+            border-bottom: 2px solid rgb(139, 92, 246);
+        }
+
+    [type="search"] {
+        border-radius: 36px !important;
+        min-width: 289px;
+        min-height: 43px;
+        padding: 21px !important;
+    }
+
+    @@media (max-width: 767px) {
+        .page-main-header {
+            width: 100% !important;
+        }
+
+        .pageHeader {
+            padding: 0
+        }
+
+        .mb-5 {
+            margin-bottom: 2rem !important
+        }
+    }
+
+    .thmessage{
+        width:30%;
+    }
+</style>
+<div class="row pageHeader">
+    <div class="">
+        <div class="col-xl-12 mb-5 ml-3 flex flex-col justify-between md:flex-row md:items-center">
+            <div class="ltablet:max-w-full flex max-w-[425px]  items-center gap-4 text-center md:flex-row md:text-left lg:max-w-full">
+                <div class="nui-avatar-small nui-avatar-lg nui-avatar-full">
+                    <div class="nui-avatar-inner" style="background:#ef229b">
+                        <i class="fa fa-comment" style="color:#fff;font-size:25px;"></i>
+                    </div>
+                </div>
+                <div class="text-left">
+                    <h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
+                        <span>Enquiries</span>
+                    </h3><p style="color: #979797;" class="nui-paragraph nui-paragraph-md nui-weight-normal nui-lead-normal">
+                        <span class="text-muted-500">All information regarding enquiry details</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="background:#fff;border-bottom: 1px solid #e9e7e7;">
+    <div class="col-12 col-md-12">
+      @*   <ul class="tabs flex" style="margin-left:20px">
+            <li><a class="@((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus ==Project.Core.Enum.EnumEnquiryViewType.All ? "active" :"")" href="/Admin/ContentManagement/Enquiry?type=All">All</a></li>
+            <li><a class="@((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus ==Project.Core.Enum.EnumEnquiryViewType.Enquiry ? "active" :"")" href="/Admin/ContentManagement/Enquiry?type=Enquiry">Enquiry</a></li>
+            <li><a class="@((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus ==Project.Core.Enum.EnumEnquiryViewType.Deactivation? "active" :"")" href="/Admin/ContentManagement/Enquiry?type=Deactivation">Account Deactivation</a></li>
+        </ul> *@
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-12 ">
+        <div class="col-xl-12 mb-4">
+            <div class="mb-6 flex flex-row  w-full flex-col items-center justify-end gap-4 sm:flex-row" style=" width: 100%;">
+                <div class=" text-end">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-12">
+            <div class="table-responsive">
+                <table aria-describedby="mydesc" id="AllTransactions" class="table  w-100 ">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Subject</th>
+                            <th class="thmessage">Message</th>
+                            <th>Status</th>
+                            <th style="text-align:right;" >Received</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="detailsModal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Enquiry Details</h5>
+                <button type="button" class="close CloseModal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body back-conatiner" id="detailsPartial" style="padding:12px">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="DeactivateModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="EnqResponse">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Response Details</h5>
+                <button type="button" class="close CloseModal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body back-conatiner" id="EnqResponseContainer" style="padding:12px">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib//DataTables/DataTables-1.10.21/js/jquery.dataTables.min.js"></script>
+
+
+<script src="@iKey" referrerpolicy="origin"></script>
+<script>
+
+    $(document).on('change', '.sendMail', function () {
+
+        if ($(this).is(':checked')) {
+            $('.answereContainer').show();
+        }
+        else {
+            $('.answereContainer').hide();
+        }
+
+    });
+
+    $(document).on('click', '.submitEnqAnswer', function (e) {
+        console.log(tinyMCE.get('Answer').getContent());
+        $.post("/Admin/ContentManagement/SubmitEnquiryResponse", { EnquiryID: $("#enqID").val(), Answer: tinyMCE.get('Answer').getContent(), SendMail: $("#sendMail").is(':checked'), Status: $("#Status :selected").val(), PlainAnswer: $.trim(tinyMCE.get('Answer').getContent({ format: 'text' })) },
+            function (data) {
+                if (data.isSuccess) {
+                    $("#DeactivateModal").modal("hide");
+                    Swal.fire({ title: "Success", text: data.message, icon: "success" });
+                    $('#AllTransactions').DataTable().ajax.reload(null, false);
+                }
+                else {
+                    Swal.fire({ title: "Operation Failed!", text: "Try again later.", icon: "error" });
+                }
+                e.preventDefault();
+            }
+        );
+    });
+
+    $(document).on('click', '.btnEnquiryResponse', function (e) {
+        $.get("/Admin/ContentManagement/GetEnquiryResponseList?enquiryID=" + $(this).attr("data-item"),
+            function (data) {
+                $("#EnqResponseContainer").html(data);
+                $("#EnqResponse").modal({ backdrop: 'static', keyboard: false }, "show");
+            }
+        );
+    });
+
+
+    $(document).ready(function () {
+        $('#AllTransactions').DataTable({
+            "processing": true,
+            "serverSide": true,
+            ordering: true,
+            "order": [[3, "desc"]],
+            searching: true,
+            "lengthChange": false,
+            "pageLength": 10,
+            "ordering": false,
+            language: {
+                search: "",
+                paginate: { next: '<i class="fas fa-arrow-right">', previous: '<i class="fas fa-arrow-left">', },
+                "zeroRecords": "<center>No record(s) found !</center>",
+            },
+            responsive: true,
+            "order": [[0, "desc"]],
+            "ajax": { 
+                url: "/Admin/ContentManagement/GetEnquiryList?type=" + "@(((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus).ToString())",
+                type: "POST",
+                datatype: "json",
+                complete: function (xhr, responseText) {}
+            },
+            "columns": [
+                {
+                    "data": "name", "name": "name",
+                    "render": function (data, type, row, item) {
+                        return '<div v class="bold_big"> <span>' + row.name + '</span></div>';
+                    }
+                },
+                {
+                    "data": "email", "email": "email",
+                    "render": function (data, type, row, item) {
+                        return '<div v class="bold_big"> <span>' + row.email + '</span></div>';
+                    }
+                },
+                {
+                    "data": "phoneNo", "name": "phoneNo",
+                    "render": function (data, type, row, item) {
+                        return '<div v class="bold_big"> <span>' + row.phoneNo + '</span></div>';
+                    }
+                },
+                {
+                    "data": "subject", "subject": "subject",
+                    "render": function (data, type, row, item) {
+                        return '<div v class="bold_big"> <span>' + row.subject + '</span></div>';
+                    }
+                },
+                {
+                    "data": "message", "name": "message",
+                    "render": function (data, type, row, item) {
+                        return '<div v class="bold_big"> <span>' + row.description.substring(0,150) + '</span></div>';
+                    }
+                },
+                {
+                    "data": "status", "name": "status",
+                    "render": function (data, type, row, item) {
+
+                        if (row.status == 1) {
+                            return '<span class="status tag-info">Unread</span>';
+                        }
+                        else if (row.status == 3) {
+                            return '<span class="status tag-warning">DeActivated</span>';
+                        }
+                        else if (row.status == 4) {
+                            return '<span class="status tag-danger">Rejected</span>';
+                        }
+                        else if (row.status == 5) {
+                            return '<span class="status tag-info">Open</span>';
+                        }
+                        else if (row.status == 6) {
+                            return '<span class="status tag-warning">Processing</span>';
+                        }
+                        else if (row.status == 7) {
+                            return '<span class="status tag-success">Completed</span>';
+                        }
+                        else {
+                            return '<span class="status tag-success">Read</span>';
+                        }
+
+                    }
+                },
+                {
+                    "data": "sendOn", "name": "sendOn",
+                    "render": function (data, type, row, item) {
+                        return '<div v class="bold_big"> <span>' + row.sendOn + '</span></div>';
+                    }
+                },
+            ],
+            "initComplete": function (settings, json) {
+                $(".dataTables_filter input").attr("placeholder", ' Search');
+            }
+        });
+    });
+
+    function ViewDetails(elem) {
+        var id = $(elem).attr("data-id");
+        try {
+            tinyMCE.get('Answer').remove()
+        }
+        catch (e) {
+        }
+        $.post("/Admin/ContentManagement/GetEnquiryRequest", { id: id, },
+            function (data) {
+                $("#DeactivateModal").html(data);
+                $("#DeactivateModal").modal({ backdrop: 'static', keyboard: false }, "show");
+
+                var ans = tinyMCE.get('Answer');
+                if (ans == null) {
+                    tinymce.init({
+                        selector: '#Answer',
+                        height: "200",
+                        menubar: false,
+                        content_css: ['//fonts.googleapis.com/css?family=Lato:300,300i,400,400i'],
+                        plugins: ['advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
+                            'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
+                            'media', 'emoticons', 'template', 'help', 'preview', 'link', 'table', 'code',
+                        ],
+                        toolbar1: 'bold italic alignleft aligncenter alignright alignjustify | fontsize fontfamily styles ',  //undo redo |
+                    });
+                }
+            }
+        );
+    }
+
+    function OpenDeactivateModal(elem) {
+        var id = $(elem).attr("data-id");
+        $.post("/Admin/ContentManagement/GetEnquiry", { id: id, },
+            function (data) {
+                $("#DeactivateModal").html(data);
+                $("#DeactivateModal").modal("show");
+            }
+        );
+    }
+
+    function DeactivateAccount(istatus) {
+
+        Swal.fire({
+            title: (istatus ? "Do you want to deactivate the Account?" : "Do you want to reject this request?"),
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                $(".enqCtrl").prop("disabled", true);
+                var id = $('#UserId').val();
+                var EnquiryId = $('#EnquiryId').val();
+                $("#DeactivateModal").modal("show");
+
+                $.post("/Admin/Account/DeActivateAccount", { userId: id, EnquiryId: EnquiryId, type: istatus },
+                    function (data) {
+                        if (data.isSuccess) {
+                            Swal.fire({ title: "Account Deactivated Successfully", text: "Account is Deactivated.", icon: "success" });
+                            $("#DeactivateModal").modal("hide");
+                            window.location.href = window.location.href;
+                        }
+                        else {
+                            Swal.fire({ title: "Operation Failed!", text: "Try again later.", icon: "error" });
+                        }
+                    }
+                );
+            }
+        });
+
+    }
+</script>

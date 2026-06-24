@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20240319114348_BranchStaff.cs" />
+    <Compile Remove="Migrations\20240319114348_BranchStaff.Designer.cs" />
+    <Compile Remove="Migrations\20240320051242_StaffUpdate.cs" />
+    <Compile Remove="Migrations\20240320051242_StaffUpdate.Designer.cs" />
+    <Compile Remove="Migrations\20240320084804_StaffUpdate2.cs" />
+    <Compile Remove="Migrations\20240320084804_StaffUpdate2.Designer.cs" />
+    <Compile Remove="Migrations\20240320123924_branchtableupdate.cs" />
+    <Compile Remove="Migrations\20240320123924_branchtableupdate.Designer.cs" />
+    <Compile Remove="Migrations\20240506051536_rename-table_name_ReferralRules_to_RewardRules.cs" />
+    <Compile Remove="Migrations\20240506051536_rename-table_name_ReferralRules_to_RewardRules.Designer.cs" />
+    <Compile Remove="Migrations\20240506064005_rename_column_name_table_RewardRules.cs" />
+    <Compile Remove="Migrations\20240506064005_rename_column_name_table_RewardRules.Designer.cs" />
+    <Compile Remove="Migrations\20240506064851_Add_RewardAvail_Tabe.cs" />
+    <Compile Remove="Migrations\20240506064851_Add_RewardAvail_Tabe.Designer.cs" />
+    <Compile Remove="Migrations\20240506065043_RenameColumn_RewardRuleID_RewardAvail.cs" />
+    <Compile Remove="Migrations\20240506065043_RenameColumn_RewardRuleID_RewardAvail.Designer.cs" />
+    <Compile Remove="Migrations\20240506124918_update_RewardRule_Amount_Transaction_Column.cs" />
+    <Compile Remove="Migrations\20240506124918_update_RewardRule_Amount_Transaction_Column.Designer.cs" />
+    <Compile Remove="Migrations\20240507132228_AddNewTable_Rewards.cs" />
+    <Compile Remove="Migrations\20240507132228_AddNewTable_Rewards.Designer.cs" />
+    <Compile Remove="Migrations\20240507133838_update_RewardsRule_Amount_Column.cs" />
+    <Compile Remove="Migrations\20240507133838_update_RewardsRule_Amount_Column.Designer.cs" />
+    <Compile Remove="Migrations\20240508060200_Add_RewardsRule_LoyaltyPoints_Column.cs" />
+    <Compile Remove="Migrations\20240508060200_Add_RewardsRule_LoyaltyPoints_Column.Designer.cs" />
+    <Compile Remove="Migrations\20240509132654_RewardAvail_Table_columns_Update.cs" />
+    <Compile Remove="Migrations\20240509132654_RewardAvail_Table_columns_Update.Designer.cs" />
+    <Compile Remove="Migrations\20240510051948_update_RefUserID_UserProfile.cs" />
+    <Compile Remove="Migrations\20240510051948_update_RefUserID_UserProfile.Designer.cs" />
+    <Compile Remove="Migrations\20240513084830_add_table_UserCapping.cs" />
+    <Compile Remove="Migrations\20240513084830_add_table_UserCapping.Designer.cs" />
+    <Compile Remove="Migrations\20240513104658_Add_column_Reward_RewardAvail.cs" />
+    <Compile Remove="Migrations\20240513104658_Add_column_Reward_RewardAvail.Designer.cs" />
+    <Compile Remove="Migrations\20240514051647_Add_UserReward_table.cs" />
+    <Compile Remove="Migrations\20240514051647_Add_UserReward_table.Designer.cs" />
+    <Compile Remove="Migrations\20240514111619_add_Column_referralUserID_UserTable.cs" />
+    <Compile Remove="Migrations\20240514111619_add_Column_referralUserID_UserTable.Designer.cs" />
+    <Compile Remove="Migrations\20240514113228_Rename_column_table_userMapping.cs" />
+    <Compile Remove="Migrations\20240514113228_Rename_column_table_userMapping.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Project.Core\Project.Core.csproj" />
+    <ProjectReference Include="..\Project.Core\Project.Core.csproj" />
+    <ProjectReference Include="..\Project.Core\Project.Core.csproj" />
+  </ItemGroup>
+
+</Project>

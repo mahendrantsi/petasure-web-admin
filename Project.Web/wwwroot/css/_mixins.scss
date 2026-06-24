@@ -1,0 +1,259 @@
+// Box Shadow
+@mixin box-shadow($shadow...) {
+    -webkit-box-shadow: $shadow;
+    -moz-box-shadow: $shadow;
+    -o-box-shadow: $shadow;
+    box-shadow: $shadow;
+}
+
+// Single side border-radius
+@mixin border-radius($radius...) {
+    -webkit-border-radius: $radius;
+    -moz-border-radius: $radius;
+    border-radius: $radius;
+}
+
+@mixin optional-at-root($sel) {
+    @at-root #{if(not &, $sel, selector-append(&, $sel))} {
+        @content;
+    }
+}
+
+@mixin placeholder {
+    @include optional-at-root("::-webkit-input-placeholder") {
+        @content;
+    }
+    @include optional-at-root(":-moz-placeholder") {
+        @content;
+    }
+    @include optional-at-root("::-moz-placeholder") {
+        @content;
+    }
+    @include optional-at-root(":-ms-input-placeholder") {
+        @content;
+    }
+}
+
+%crm-btn-login {
+    background-color: #00b28f;
+    border-color: #00b28f;
+    color: $theme-white;
+    border-radius: 0.285rem;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+    &:hover,
+    &:active,
+    &:focus,
+    &:visited {
+        color: $theme-white;
+        background-color: #00b28f;
+        border-color: #00b28f;
+    }
+}
+
+%crm-btn-base {
+    border-radius: 5px;
+    padding: 12px 20px;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 12px;
+    &.btn-icon {
+        padding: 6px 7px 6px;
+        img {
+            max-width: 14px;
+        }
+    }
+}
+
+%crm-btn-black {
+    background-color: $theme-blackcolor1;
+    border-color: $theme-blackcolor1;
+    color: $theme-white;
+    @extend %crm-btn-base;
+    padding: 12px 20px;
+    @media screen and (max-width: 767.98px) {
+        padding: 12px 10px;
+    }
+    @include box-shadow($crm-card-shadow-new);
+    &:hover,
+    &:active,
+    &:focus,
+    &:visited {
+        color: $theme-white;
+        background-color: rgba($theme-blackcolor1, 0.9);
+        border-color: rgba($theme-blackcolor1, 0.9);
+        box-shadow: none;
+    }
+    &.disabled {
+        background-color: rgba($theme-blackcolor1, 0.39);
+        border-color: rgba($theme-blackcolor1, 0.39);
+        color: rgba($theme-white, 0.39);
+        opacity: 1;
+    }
+    &.btn-transparent {
+        background-color: transparent;
+        border-color: transparent;
+        font-style: italic;
+        text-transform: inherit;
+        font-size: 15px;
+    }
+    &.btn-sm {
+        padding: 8px 12px;
+    }
+}
+
+%crm-btn-danger {
+    background-color: #f64e60;
+    border-color: #f64e60;
+    color: $theme-white;
+    @extend %crm-btn-base;
+    @media screen and (max-width: 767.98px) {
+        padding: 12px 10px;
+    }
+    @include box-shadow($crm-card-shadow-new);
+    &:hover,
+    &:active,
+    &:focus,
+    &:visited {
+        color: $theme-white;
+        background-color: #ee2d41;
+        border-color: #ee2d41;
+    }
+    &.btn-sm {
+        padding: 8px 12px;
+    }
+}
+
+%crm-btn-white {
+    background-color: $theme-white;
+    border-color: $theme-white;
+    color: #212529;
+    @extend %crm-btn-base;
+    padding: 12px 20px;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
+    @media screen and (max-width: 767.98px) {
+        padding: 12px 10px;
+    }
+    &:hover,
+    &:active,
+    &:focus,
+    &:visited {
+        color: #212529;
+        background-color: rgba(33, 37, 41, 0.03);
+        border-color: rgba(33, 37, 41, 0.03);
+        outline: none !important;
+        @include box-shadow($crm-card-shadow-new);
+    }
+    &.disabled {
+        background-color: rgba(33, 37, 41, 0.15);
+        border-color: rgba(33, 37, 41, 0.1);
+        color: rgba(33, 37, 41, 0.39);
+        opacity: 1;
+        cursor: none;
+    }
+    &.btn-transparent {
+        background-color: transparent;
+        border-color: transparent;
+        font-style: italic;
+        text-transform: inherit;
+        font-size: 15px;
+    }
+}
+
+%crm-btn-yellow {
+    background-color: $theme-yellow;
+    border-color: $theme-yellow;
+    color: $theme-white;
+    @extend %crm-btn-base;
+    @include box-shadow($crm-card-shadow-new);
+    &:hover,
+    &:active,
+    &:focus,
+    &:visited {
+        color: $theme-white;
+        background-color: $theme-yellow;
+        border-color: $theme-yellow;
+    }
+}
+
+%crm-card-style {
+    padding: 20px;
+    @include box-shadow($crm-card-shadow-new);
+    margin-bottom: $crm-card-margin * 1.523;
+    background-color: $theme-white;
+    position: relative;
+    border-radius: 5px;
+    @media screen and (max-width: 767.98px) {
+        padding: 20px;
+    }
+}
+
+%crm-progress-bar {
+    min-width: 181px;
+    max-height: 11px;
+    background: #dbdcdd;
+    display: flex;
+    justify-content: space-between;
+    .progress-bar {
+        background-color: transparent;
+    }
+    .complete {
+        background: transparent linear-gradient(270deg, #00d8b6 0%, #028eaf 100%) 0% 0% no-repeat padding-box;
+    }
+    .overdue {
+        background: transparent linear-gradient(90deg, #c8285c 0%, #eb643f 100%) 0% 0% no-repeat padding-box;
+    }
+}
+
+%crm-page-heading {
+    padding: 15px 15px;
+    z-index: 2;
+    margin-bottom: 40px;
+    background: white;
+    border-radius: 5px;
+    font-size: 18px;
+    line-height: 1.1;
+    font-weight: 600;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.10);
+    @media screen and (max-width: 991.98px) {
+        margin-bottom: 20px;
+    }
+    &.less-margin {
+        margin-bottom: 30px;
+        @media screen and (max-width: 991.98px) {
+            margin-bottom: 20px;
+        }
+    }
+}
+
+%crm-table-type-2 {
+    border: 1px solid #dee2e6;
+    th,
+    td {
+        padding: 0.75rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+        //border: 1px solid #dee2e6;
+    }
+    th {
+        font-size: 14px;
+        font-weight: 500;
+        background: #f9fafa;
+        border-bottom: solid 1px #dee2e6 !important;
+    }
+    td {
+        font-size: 14px;
+        font-weight: 300;
+        vertical-align: middle;
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+    tr:nth-child(odd) td {
+        background: #fff;
+    }
+    tr:nth-child(even) td {
+        background: #fdfdfd
+    }
+    tr:hover td {
+        background: #f7f7f7
+    }
+}

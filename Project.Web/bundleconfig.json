@@ -1,0 +1,28 @@
+[
+  {
+    "outputFileName": "wwwroot/js/site.min.js",
+    "inputFiles": [ "wwwroot/scripts/modernizr.custom.28468.js", "wwwroot/scripts/jquery-3.5.1.min.js", "wwwroot/scripts/jquery.cslider.js", "wwwroot/scripts/bootstrap.min.js", "wwwroot/scripts/wow.js", "wwwroot/scripts/custom.js", "wwwroot/lib/jquery-validation/dist/jquery.validate.min.js", "wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+
+  {
+    "outputFileName": "wwwroot/css/site.min.css",
+    "inputFiles": [ "wwwroot/css/style.css", "wwwroot/css/animate.css" ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+
+  {
+    "outputFileName": "wwwroot/scripts/tinymce/editor.js",
+    "inputFiles": [ "wwwroot/scripts/tinymce/tinymce.js"],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  }
+]  

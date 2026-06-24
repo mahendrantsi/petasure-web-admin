@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>156f29f6-648b-4207-932b-b9e9b846759d</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="UploadedFiles\**" />
+    <Content Remove="UploadedFiles\**" />
+    <EmbeddedResource Remove="UploadedFiles\**" />
+    <EntityDeploy Remove="UploadedFiles\**" />
+    <None Remove="UploadedFiles\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="ServiceStack" Version="5.11.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.1.4" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.11.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartPay.Core\SmartPay.Core.csproj" />
+    <ProjectReference Include="..\SmartPay.Data\SmartPay.Data.csproj" />
+    <ProjectReference Include="..\SmartPay.Logger\SmartPay.Logger.csproj" />
+    <ProjectReference Include="..\SmartPay.Middleware\SmartPay.Middleware.csproj" />
+    <ProjectReference Include="..\SmartPay.Models\SmartPay.Models.csproj" />
+    <ProjectReference Include="..\SmartPay.Persistence\SmartPay.Persistence.csproj" />
+    <ProjectReference Include="..\SmartPay.Services\SmartPay.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="APIResource\APIResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>APIResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="APIResource\APIResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>APIResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+
+</Project>

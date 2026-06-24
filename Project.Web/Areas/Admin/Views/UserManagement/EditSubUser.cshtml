@@ -1,0 +1,458 @@
+﻿@model Project.Models.CommonModel.RegisterViewModel
+@{
+    Layout = "_Layout";
+}
+<style>
+        .noImg img{
+      display:none;
+    }
+    .nui-avatar.nui-avatar-md {
+        color: #fff;
+        font-weight: bold;
+    }
+
+    
+    .page-main-header {
+        background: #fff;
+        width: calc(100% - 287px);
+    }
+
+    .page-body-wrapper.sidebar-icon .page-body {
+        padding: 0
+    }
+
+
+    .pageHeader {
+        background: #fff;
+        padding: 0 10px 0px 20px
+    }  
+
+    @@media (max-width: 767px) {
+        .page-main-header {
+            width: 100% !important;
+        }
+
+        .pageHeader {
+            padding: 0
+        } 
+    }
+    #ParentBusiness {
+        padding-inline-start: 2.7rem !important;
+    }
+
+    .ac_list > img {
+        width: 30px;
+        height: 30px;
+        margin: 0 5px;
+        border-radius: 100%;
+    }
+
+    .searchBusinessImg {
+        position: absolute;
+        top: 8px;
+        left: 4px;
+        z-index: 9999;
+    }
+
+    .search-img-size {
+        height: 2rem !important;
+        width: 2rem !important;
+    }
+
+    #BusinessCategoryName-error {
+        padding-left: 18px;
+    }
+
+    .adminDoc .form-control {
+        background: transparent;
+        border-radius: 0.375rem;
+        height: 44px;
+        padding: 0.742rem 0;
+        color: #7e7e7e;
+        font-weight: 500;
+        border: solid 1px rgb(203 213 225);
+        font-size: .875rem;
+        line-height: 1.25rem;
+        padding-bottom: 0.5rem;
+        padding-inline-end: 1rem;
+        padding-top: 0.5rem;
+        padding-inline-start: 2.5rem;
+        box-shadow: none;
+        outline: none;
+    }
+
+    .adminDoc .input-box {
+        position: relative;
+    }
+        /*    .adminDoc .withLabel inform i {
+                                                                                        position: absolute;
+                                                                                        z-index: 1 !important;
+                                                                                        color: #c2c8da;
+                                                                                        font-size: 16px;
+                                                                                        top: 9px !important;
+                                                                                        left: 10px;
+                                                                                    }*/
+
+        .adminDoc .input-box input {
+            padding-inline-start: 2.5rem !important;
+        }
+
+        .adminDoc .input-box i {
+            position: absolute;
+            color: #c2c8da;
+            font-size: 16px;
+            top: 15px;
+            left: 10px;
+        }
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+    }
+
+    img.img-flag {
+        height: 25px;
+        width: 25px;
+    }
+
+    .relative {
+        position: relative;
+    }
+
+    .inform {
+        position: absolute;
+        left: 87% !important;
+        width: 10px;
+        border: 1px solid #bebdbd;
+        width: 15px;
+        height: 15px;
+        border-radius: 100%;
+        text-align: center;
+        font-size: 9px !important;
+        line-height: 13px;
+        background: #dcd9d9;
+        color: #959595 !important;
+        top: -37px !important;
+    }
+
+</style>
+<link href="~/css/custom-select.css" rel="stylesheet" />
+
+<div class="row pageHeader" style="border-bottom: 1px solid #e9e7e7;">
+    <div class="">
+        <div class="col-xl-12 mb-5 ml-3 flex flex-col justify-between md:flex-row md:items-center">
+            <div class="ltablet:max-w-full flex max-w-[425px] flex-col items-center gap-4 text-center md:flex-row md:text-left lg:max-w-full">
+                <div class="nui-avatar-small nui-avatar-lg nui-avatar-full">
+                    <div class="nui-avatar-inner" style="background: rgb(226, 232, 240);font-size: 29px;">
+                        <svg data-v-b4402e20="" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="icon me-2 size-5" width="1em" height="1em" viewBox="0 0 256 256"><g fill="currentColor"><path d="M216 113.07v53.22a8 8 0 0 1-2 5.31c-11.3 12.59-38.9 36.4-86 36.4s-74.68-23.81-86-36.4a8 8 0 0 1-2-5.31v-53.22L128 160Z" opacity=".2"></path><path d="m251.76 88.94l-120-64a8 8 0 0 0-7.52 0l-120 64a8 8 0 0 0 0 14.12L32 117.87v48.42a15.9 15.9 0 0 0 4.06 10.65C49.16 191.53 78.51 216 128 216a130 130 0 0 0 48-8.76V240a8 8 0 0 0 16 0v-40.49a115.6 115.6 0 0 0 27.94-22.57a15.9 15.9 0 0 0 4.06-10.65v-48.42l27.76-14.81a8 8 0 0 0 0-14.12M128 200c-43.27 0-68.72-21.14-80-33.71V126.4l76.24 40.66a8 8 0 0 0 7.52 0L176 143.47v46.34c-12.6 5.88-28.48 10.19-48 10.19m80-33.75a97.8 97.8 0 0 1-16 14.25v-45.57l16-8.53Zm-20-47.31l-.22-.13l-56-29.87a8 8 0 0 0-7.52 14.12L171 128l-43 22.93L25 96l103-54.93L231 96Z"></path></g></svg>
+                    </div>
+                </div>
+                <div class="text-left">
+                    <h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
+                        <span>Edit Sub Admin Users</span>
+                    </h3><p style="color: #979797;" class="nui-paragraph nui-paragraph-md nui-weight-normal nui-lead-normal">
+                        <span class="text-muted-500">check/update details sub admin users </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+  
+
+
+<div class="row form-icon mt-4">
+    <div class="col-xl-12 col-md-12">
+        <div class="card crm-card flex-fill">
+
+            <legend class="mb-6">
+                <p class="nui-heading nui-heading-md nui-weight-medium nui-lead-none" style="margin-bottom: 5px;" tag="h3">Sub Admin Details</p>
+                <p class="nui-text nui-content-xs nui-weight-normal nui-lead-normal text-muted-400" style="font-size: 13px;">Basic Info</p>
+            </legend>
+
+            <form id="menuForm" asp-action="EditSubUser" asp-controller="UserManagement" asp-area="Admin" method="post">
+
+                <div class="card-body">
+                    <div class="form-horizontal form-type-1">
+                        <div class="row">
+                            <input type="hidden" asp-for="Id" />
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <label class="col-form-label d-block">Email :</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control whitespace" asp-for="@Model.Username" type="text" autocomplete="off" placeholder="Email" readonly="readonly" />
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                            
+                            </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+
+                                    <div class="col-md-4">
+                                      <label class="col-form-label d-block">First Name :</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control whitespace" asp-for="@Model.FirstName" type="text" autocomplete="off" placeholder="First Name" />
+                                            
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span asp-validation-for="@Model.FirstName" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+
+                                        <label class="col-form-label d-block">Last Name :</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control whitespace" asp-for="@Model.LastName" type="text" autocomplete="off" placeholder="Last Name" />
+                                            
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span asp-validation-for="@Model.LastName" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+
+                                    <div class="col-md-4">
+                                        <label class="col-form-label d-block">Email :</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control" asp-for="@Model.Email" type="text" placeholder="Email" autocomplete="off" />
+                                            
+                                            <i class="fa fa-envelope"></i>
+                                        </div>
+                                        <span asp-validation-for="@Model.Email" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row custom-drop-country">
+                                    <div class="col-md-4">
+
+                                        <label class="col-form-label d-block">Phone No :</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="col-md-12 col-xl-12 col-12">
+                                                <input class="form-control numbersOnly" asp-for="PhoneNumber" type="text" placeholder="Phone Number"
+                                                       name="PhoneNumber" autocomplete="off" maxlength="10" pattern="\d*" />
+                                                <span asp-validation-for="PhoneNumber" class="text-danger d-block"></span>
+                                            </div>
+                                        </div>
+                                        <span asp-validation-for="@Model.PhoneNumber" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row input-checkbox">
+                                    <div class="col-md-4">
+                                        <label class="d-block col-form-label">Active:</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                        <div class="input-box">
+                                            <div>
+                                                <input asp-for="IsActive" type="checkbox"    name="IsActive" autocomplete="off" />
+                                                <label for="IsActive"> Change Status of User</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class=" hidden-tab" id="ChangePassword">
+                                    <div class="row">
+                                        <div class="col-xl-6 col-sm-6">
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <label class="d-block col-form-label">Confirm Password:</label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                    <div class="input-box">
+                                                        <input class="form-control" asp-for="Password" type="password" placeholder="Password"
+                                                        name="Password" autocomplete="off" />
+                                                       
+                                                        <i class="fas fa-lock"></i>
+                                                    </div>
+                                                    <span asp-validation-for="Password" class="text-danger d-block"></span>
+                                                </div>
+                                            </div>
+
+
+                                             
+                                        </div>
+                                        <div class="col-xl-6 col-sm-6">
+                                            <div class="form-group row">
+                                                <div class="col-md-4">
+                                                    <label class="d-block col-form-label">Confirm Password:</label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                    <div class="input-box">
+                                                        <input class="form-control" asp-for="ConfirmPassword" type="password" placeholder="Confirm Password"
+                                                               name="ConfirmPassword" autocomplete="off" />
+                                                       
+                                                        <i class="fas fa-lock"></i>
+                                                    </div>
+                                                    <span asp-validation-for="ConfirmPassword" class="text-danger d-block"></span>
+                                                </div>
+                                            </div>
+                                             
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-0">
+                                <div class="col-xl-6 col-md-12 text-center btn-group">
+                                <div class=" row">
+                                    <div class="col-6">
+                                        <input type="submit" class="btn btn-primary btn-dark" value="Update" style="width:100px">
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="/admin/UserManagement/SubUser" class="btn btn-secondary valid" style="width:100px">Cancel</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+@*<div class="row">
+    <div class="col-xl-12 d-flex">
+        <div class="card crm-card flex-fill">
+            <div class="card-header ">
+                <div class="heading">
+                    Update Sub User
+                </div>
+            </div>
+            <form id="menuForm" asp-action="EditSubUser" asp-controller="UserManagement" asp-area="Admin" method="post">
+
+                <div class="card-body">
+                    <div class="form-horizontal form-type-1">
+                        <div class="row">
+
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <input type="hidden" asp-for="Id" />
+                                    <label class="col-md-4 col-form-label">First Name :</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control whitespace" asp-for="FirstName" type="text" maxlength="50" placeholder="First Name"
+                                               name="FirstName" autocomplete="off" required />
+                                        <span asp-validation-for="FirstName" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Last Name :</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control whitespace" asp-for="LastName" type="text" maxlength="20" placeholder="Last Name"
+                                               name="LastName" autocomplete="off" />
+                                        <span asp-validation-for="LastName" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Email :</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control" asp-for="Email" type="text" placeholder="Email"
+                                               name="Email" autocomplete="off" />
+                                        <span asp-validation-for="Email" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Phone No :</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control numbersOnly" asp-for="PhoneNumber" type="text" maxlength="12" minlength="10" placeholder="Phone Number"
+                                               name="PhoneNumber" autocomplete="off" />
+                                        <span asp-validation-for="PhoneNumber" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Change Password :</label>
+                                    <div class="col-md-8">
+                                        <input asp-for="IsChangePassword" type="checkbox" placeholder="Email"
+                                               name="IsChangePassword" autocomplete="off" />
+                                        <span asp-validation-for="IsChangePassword" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row hidden-tab" id="ChangePassword">
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Password :</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control" asp-for="Password" type="password" placeholder="Password"
+                                               name="Password" autocomplete="off" />
+                                        <span asp-validation-for="Password" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Confirm Password:</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control" asp-for="ConfirmPassword" type="password" placeholder="Confirm Password"
+                                               name="ConfirmPassword" autocomplete="off" />
+                                        <span asp-validation-for="ConfirmPassword" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group row mb-0">
+                            <div class="col-md-12 text-center">
+                                <input type="submit" class="btn btn-dark" value="Update">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>*@
+<script nonce="@Context.Items["nonce"]">
+    $('#IsChangePassword').on('click', function () {
+        $('#ChangePassword').toggle();
+    });
+</script>
+@section Scripts{
+    <script src="~/js/customselect.js"></script>
+}

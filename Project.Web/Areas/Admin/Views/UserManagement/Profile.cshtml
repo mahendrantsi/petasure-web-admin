@@ -1,0 +1,173 @@
+﻿
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+@using Project.Core.Enum;
+@using Project.Models.ProfileModel;
+@model Project.Models.CommonModel.RegisterViewUserModel
+
+
+<link href="~/css/custom-select.css" rel="stylesheet" />
+
+<form id="menuForm" asp-controller="Account" asp-area="User" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        @*<div class="col-md-12 col-xl-8 d-flex">*@
+        <div class="col-md-12 col-xl-12 d-flex">
+
+            <div class="card crm-card flex-fill">
+                <div class="card-header ">
+                    <div class="heading">
+                        Profile Details
+                    </div>
+                    <div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-horizontal form-type-1">
+                        <div class="row">
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label"><b>Username </b></label>
+                                    <div class="col-md-8">
+                                        <span style="    line-height: 41px;">@Model.Username</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label"><b>Email </b> </label>
+                                    <div class="col-md-8">
+                                        <span style="line-height: 41px;">@Model.Email</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+
+
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label"><b>First Name  </b></label>
+                                    <div class="col-md-8">
+                                        <input type="hidden" asp-for="Id" />
+                                        <span style="line-height: 41px;">@Model.FirstName</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label"><b>Last Name  </b></label>
+                                    <div class="col-md-8">
+                                        <span style="line-height: 41px;">@Model.LastName</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+</form>
+
+<script>
+    $(".AddBankAccountDetails").click(function (e) {
+        debugger;
+        e.preventDefault();
+
+        var isValid = true;
+        $('.accountdetails input').each(function () {
+            if (!$(this).valid()) {
+                isValid = false;
+                return false;
+            }
+        });
+        if (isValid) {
+            console.log("valid");
+            $('.loader').show();
+
+            var selectedOption = $("#BankId option:selected").data('bank');
+            console.log($("#BankId option:selected").data('bank'));
+            var data = {
+                Value: selectedOption.value,
+                Text: selectedOption.text,
+                EnvironmentType: selectedOption.environmentType,
+                CredentialsType: selectedOption.credentialsType,
+                IconUrl: selectedOption.iconUrl,
+                LogoUrl: selectedOption.logoUrl,
+                AccountNo: $("#accountNo").val(),
+                SortCode: $("#sortCode").val(),
+                Selected: true,
+                Countries: selectedOption.countries,
+                IsPrimary: $("#IsPrimary").is(':checked')
+            };
+
+            console.log(data);
+
+            $.ajax({
+                type: "POST",
+                url: '/User/Account/SaveBankDetails',
+                data: JSON.stringify(data),
+                contentType: "application/json",
+
+                success: function (response) {
+                    console.log(response);
+                    if (response.isSuccess) {
+                        $.get("/User/Account/GetBankDetails", function (res) {
+                            if (res) {
+                                $('#BankDetails').html(res);
+
+                                // Clear the values
+                                $("#accountNo").val('');
+                                $("#sortCode").val('');
+                                $("#BankId").val('0');
+                                $('#AddBankModal').modal('hide');
+                                $('.loader').hide();
+                            }
+                        });
+                    }
+                    else {
+
+                    }
+                },
+                error: function (error) {
+                    console.log("Error: ", error);
+                    $('.loader').hide();
+                },
+                failure: function (error) {
+                    console.log("Error: ", error);
+                    $('.loader').hide();
+                }
+            });
+        }
+    });
+
+
+    @if (ViewBag.Message is not null)
+    {
+        @if ((bool)(ViewBag.Message))
+        {
+            @:Swal.fire('Success', 'Account deactivation request submitted successfully', 'success');
+            @:$('input[type="text"],textarea').val('');
+        }
+        else
+        {
+            @:Swal.fire('Oops', 'Something went wrong, please try again', 'error');
+        }
+    }
+</script>
+
+
+
+<script src="~/scripts/printdiv.js"></script>
+@section Scripts {
+    <script src="~/sitejs/profilemanagement.js" asp-append-version="true"></script>
+    <script src="~/js/customselect.js"></script>
+}
+

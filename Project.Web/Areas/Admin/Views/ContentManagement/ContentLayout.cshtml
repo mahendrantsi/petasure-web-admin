@@ -1,0 +1,469 @@
+﻿@using Project.Core.Enum;
+@using Project.Models.Content;
+@using Project.Web.Areas.Admin.Controllers;
+@model ContentViewModel
+@{
+    Layout = "_Layout";
+    var iKey = "https://cdn.tiny.cloud/1/z7sghkso19w7cp5vld8ji9mesiuzfsukevmh56nw4jre3tsl/tinymce/6/tinymce.min.js";
+}
+
+<style>
+    #divContainer .ck-editor{
+        width:1000px;
+    }
+    #divContainer .ck-content{
+        height:300px;
+    }
+</style>
+
+<button type="button" class="btn btn-primary btn-dark" style="float:right;" id="btnSave"><span>Save</span></button>
+<h5>Write your content</h5>
+<br />
+<div class="row" id="divContainer">
+    
+    <textarea id="txtContent1" asp-for="Content" rows="20"></textarea>
+</div>
+@* <div class="row ">
+
+    <div class="col-xl-3">
+        <div class="card">
+            <div class="card-header">Select Template</div>
+            <div class="card-body drag-inner-list" id="1" style="padding: 6px;">
+
+                <div class="drag-item draggable" data-item="imagetextlayout">
+                    <img src="~/images/layoutimages/imagetextlayout.jpg" alt="Image" />
+                </div>
+
+                <div class="drag-item draggable" data-item="textlayout"> <img src="~/images/layoutimages/textlayout.jpg" alt="Image" /></div>
+
+                <div class="drag-item draggable" data-item="textimagelayout"> <img src="~/images/layoutimages/textimagelayout.jpg" alt="Image" /></div>
+
+                <div class="drag-item draggable" data-item="sixsection"> <img src="~/images/layoutimages/ThreeSectionSix.jpg" alt="Image" /></div>
+
+                <div class="drag-item draggable" data-item="foursectioneight"> <img src="~/images/layoutimages/foursectioneight.jpg" alt="Image" /></div>
+                 
+                <div class="drag-item draggable" data-item="FullWidthImage"> <img src="/images/layoutimages/fullwidthimage.jpg" alt="Image" /></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-xl-9">
+        <div class="card">
+            <div class="card-body ">
+                @if (string.IsNullOrEmpty(Model.Content))
+                {
+                    <div class="droppable emptyController initialDrag"></div>
+                }
+                else
+                {
+                    <div class=" emptyController SetDetails">@Html.Raw(Model.Content)</div>
+                    
+                }
+                
+            </div>
+        </div>
+    </div>
+
+</div> *@
+
+<div class="modal fade" data-bs-backdrop="static" id="contentEditModel" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Update Content</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <textarea id="txtContent">  </textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary btn-dark" id="btnSetContent">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-bs-backdrop="static" id="imageEditModel" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Update Image</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <input type="file" id="uploadImage" />
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary btn-dark" id="btnSetImage">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" data-bs-backdrop="static" id="SavePopup" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content"> 
+            <form role="form" class="form-icon" asp-action="AddEditContent" asp-controller="ContentManagement" method="post">
+                <input type="hidden"  asp-for="@Model.Id" />
+                <input type="hidden"  asp-for="@Model.Content" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Save Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row"> 
+                        <div class="col-md-4"> 
+                            <label class="col-form-label d-block">Name </label>
+                            </div>
+                            <div class="col-md-8">
+                            <div class="input-box">
+                                <input class="form-control whitespace" asp-for="@Model.Name" type="text"   placeholder="Name"  autocomplete="off"   />
+                                
+                                <i class="fas fa-pen"></i>
+                            </div>
+                            <span asp-validation-for="@Model.Name" class="text-danger d-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <label class="col-form-label d-block">Description </label>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="input-box">
+                                <input class="form-control whitespace" asp-for="@Model.Description" type="text" placeholder="Description" TextMode="MultiLine" autocomplete="off"   />
+                                
+                                <i class="fas fa-pen"></i>
+                            </div>
+                            <span asp-validation-for="@Model.Description" class="text-danger d-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <label class="col-form-label d-block">Active</label>
+                             </div>
+                        <div class="col-md-8">
+                            <div class=" form-switch">
+                                <input class="form-check-input"  asp-for="@Model.IsActive" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">Active / Inactive</label>
+                                
+                            </div> 
+                            <span asp-validation-for="@Model.IsActive" class="text-danger d-block"></span>
+                        </div>
+                    </div>
+                    
+
+                     
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-dark">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script src="@iKey" referrerpolicy="origin" ></script>
+
+
+<script src="~/scripts/jquery-ui.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/12.0.0/classic/ckeditor.js"></script>
+<script>
+    var myEditor;
+    ClassicEditor
+        .create(document.querySelector('#txtContent1'), {
+            removePlugins: ['CKFinderUploadAdapter', 'CKFinder', 'EasyImage', 'Image', 'ImageCaption', 'ImageStyle', 'ImageToolbar', 'ImageUpload', 'MediaEmbed'],
+        })
+        .then(editor => {
+            console.log('Editor was initialized', editor);
+            myEditor = editor;
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    // tinymce.init({
+    //     selector: '#txtContent1',
+    //     height: "450",
+    //     menubar: false,
+    //     content_css: [
+    //         '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i'],
+    //     //, '/assets/css/DocumentEditor.css'],
+
+    //     plugins: ['advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
+    //         'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
+    //         'media', 'emoticons', 'template', 'help', 'preview', 'link', 'table', 'code',
+    //     ],
+
+    //     toolbar1: 'bold italic alignleft aligncenter alignright alignjustify | fontsize fontfamily styles ',  //undo redo |
+    //     toolbar2: 'bullist numlist outdent indent | image forecolor backcolor | link table | removeformat | code', //link emoticons
+    // });
+    tinymce.init({
+        selector: '#txtContent',
+        height: "450",
+        menubar: false,
+        content_css: [
+            '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i'],
+            //, '/assets/css/DocumentEditor.css'],
+
+        plugins: ['advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
+            'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
+            'media', 'emoticons', 'template', 'help', 'preview', 'link', 'table', 'code',
+        ],
+
+        toolbar1: 'bold italic alignleft aligncenter alignright alignjustify | fontsize fontfamily styles ',  //undo redo |
+        toolbar2: 'bullist numlist outdent indent | image forecolor backcolor | link table | removeformat | code', //link emoticons
+    });
+</script>
+
+<script>
+
+   
+    $(document).on('focusin', function (e) {
+        var target = $(e.target);
+        if (target.closest(".mce-window").length || target.closest(".tox-dialog").length) {
+            e.stopImmediatePropagation();
+            target = null;
+        }
+    });
+    $("#btnSave").click(function(){ 
+        var html="";
+        $(".contactsection").each(function(){
+            html +=  $(this).prop('outerHTML');
+        });
+
+        // if(html =="") {
+        //     showError("Please create your page via dragging some templates first.");
+        //     return false;
+        // }
+        debugger;
+        if ($('#Id').val() != '') {
+            //save directly
+        }
+        $("#Content").val(myEditor.getData());
+        $("#SavePopup").modal("show"); 
+    });
+
+    
+
+    $(document).on("click", '.contentAction.btn-danger ', function () {
+        $(this).closest(".contactsection").prev(".droppable").remove();
+        $(this).closest(".contactsection").remove();
+        if ($(".contactsection").length == 0) {
+            $(".droppable").remove();
+            addInit();
+        }
+    });
+
+    var currnetEditContainer = null;
+
+    $(document).on("click", '.contentAction.btn-content ', function () {
+        $("#contentEditModel").modal("show");
+        tinyMCE.activeEditor.setContent('');
+        currnetEditContainer = $(this).closest('.ContentEditable');
+
+        if (tinymce.activeEditor != null)
+            tinymce.activeEditor.insertContent(currnetEditContainer.html());
+    });
+
+    $(document).on("click", '#btn-addcontent', function () {
+        $("#contentEditModel").modal("show");
+        tinyMCE.activeEditor.setContent('');
+        currnetEditContainer = $(this).closest('.ContentEditable');
+
+        if (tinymce.activeEditor != null)
+            tinymce.activeEditor.insertContent(currnetEditContainer.html());
+    });
+
+    $(document).on("click", '.contentAction.btn-image ', function () {
+        currnetEditContainer = $(this).closest('.ImageEditable');
+        $("#imageEditModel").modal("show");
+    });
+
+
+
+    $(document).ready(function () {
+
+        $('.SetDetails').find('section').each(function(i,j){
+            if(i==0)
+                $(this).before('<div class="droppable"></div>');
+            $(this).addClass("contactsection");
+            $(this).after('<div class="droppable"></div>'); 
+        });
+        SetHoverEvent();
+
+
+        $("#btnSetContent").click(function () {
+            $(currnetEditContainer).html(tinymce.activeEditor.getContent());
+            $("#contentEditModel").modal("hide");
+        });
+
+        $("#btnSetImage").click(function () {
+            uploadTempFile()
+            $("#imageEditModel").modal("hide");
+        });
+
+        $('#btnreset').on('click', function (e) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Are you sure?",
+                text: "your inserted content would be lost in case of reset!",
+                type: "warning",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, reset it!",
+                closeOnConfirm: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $(".emptyController").find("section,.droppable").remove();
+                    addInit();
+                }
+            });
+        }); 
+    });
+
+    function initDroppable($elements) {
+        $elements.droppable({
+            activeClass: "ui-state-default",
+            hoverClass: "ui-drop-hover",
+            accept: ":not(.ui-sortable-helper)",
+
+            over: function (event, ui) {
+                var $this = $(this);
+            },
+            drop: function (event, ui) {
+                var $this = $(this);
+                var droppable = $(this);
+                var draggable = ui.draggable;
+
+
+                fetch("/html/" + draggable.attr("data-item") + ".html?" + Math.random())
+                    .then(response => response.text())
+                    .then(data => {
+                        droppable.append('<div class="droppable"></div>' + data + '<div class="droppable"></div>')
+                    }).then(resp => {
+
+                        $(".emptyController").removeClass("droppable");
+                        $(".emptyController").removeClass("initialDrag");
+
+                        $(".emptyController").removeClass("ui-droppable");
+                        droppable.droppable('disable')
+                        initDroppable($(".droppable"));
+                        SetHoverEvent();
+
+
+                    })
+                    .catch(error => {
+                        console.error("Error fetching HTML content: " + error);
+                    });
+
+
+            }
+        });
+    }
+
+
+    $(function () {
+        $(".draggable").draggable({
+            appendTo: "body",
+            helper: "clone",
+            cursor: "move",
+            revert: "invalid"
+        });
+
+        initDroppable($(".droppable")); 
+    });
+
+     function addInit() {
+        $(".emptyController").addClass("droppable");
+        $(".emptyController").addClass("initialDrag");
+       // $(".emptyController").droppable('enable');
+        initDroppable($(".droppable"));
+        $(".emptyController").droppable('enable');
+    }
+</script>
+
+<Script>
+
+    function SetHoverEvent()
+    {
+
+        $('.contactsection').mouseenter(function () {
+            //$(this).css("border", '2px dotted #ccc');
+            $(this).append('<button type="button" class=" contentAction btn btn-danger    btn-circle"><i class="fa fa-trash"></i></button>');
+            $(this).find(".ContentEditable").append('<button type="button" class="contentAction contentAction2 btn btn-info  btn-content  btn-circle"><i  class="fa fa-pen"></i></button>');
+
+            $(this).find(".ImageEditable").append('<button type="button" class="contentAction contentAction2 btn btn-info btn-image  btn-circle"><i  class="fa fa-image"></i></button>');
+
+        }).mouseleave(function () {
+            $(this).css("border", "none");
+            $(this).find(".contentAction").remove();
+        });
+    }
+
+    function uploadTempFile() {
+        var formData = new FormData();
+        debugger;
+        if ($('#uploadImage').val() == "") {
+            showError("Please select file.");
+            return false;
+        }
+        else {
+            var file = $('#uploadImage')[0].files[0];
+            var sFileName = file.name;
+            var sFileExtension = sFileName.split('.')[sFileName.split('.').length - 1].toLowerCase();
+            var iFileSize = file.size;
+            console.log(file.size);
+            var iConvert = (file.size / 209715).toFixed(2);
+
+            /// OR together the accepted extensions and NOT it. Then OR the size cond.
+            /// It's easier to see this way, but just a suggestion - no requirement.
+            if (!(sFileExtension === "jpg" || sFileExtension === "jpeg" || sFileExtension === "png") || iFileSize > 10485760) {
+                showError("Please make sure your file is in jpg, jpeg, png format and less than 2 MB.");
+                return;
+            }
+        }
+
+        formData.append('file', $('#uploadImage')[0].files[0]);
+
+        $.ajax({
+            type: "POST",
+            url: "/admin/ContentManagement/UploadTempDocFile",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                if (res.isSuccess) {
+
+                    $(currnetEditContainer).find('img').attr("src", "/images/layoutdata/" + res.fileName);
+                }
+                else {
+                    showFormValidationError("Unable to upload file.");
+                }
+            },
+            error: function (e) {
+                console.log(e);
+            },
+            complete: function (data) {
+            }
+        });
+
+    }
+   
+
+</Script>

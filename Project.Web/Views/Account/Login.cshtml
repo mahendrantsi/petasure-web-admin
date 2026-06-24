@@ -1,0 +1,87 @@
+﻿@model Project.Models.CommonModel.LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = "_OuterLayout";
+}
+<style>
+    .form-control.input-validation-error{border:1px solid red!important} .btn:hover { color: #FFF;text-decoration: none; }
+</style>
+
+
+<div class="login login-3 login-signin-on d-flex flex-row-fluid" id="login">
+    <div class="d-flex flex-center bgi-size-cover bgi-no-repeat flex-row-fluid">
+        <div class="login-form  p-7 position-relative overflow-hidden">
+            <div class="d-flex flex-center mb-15">
+                <a asp-area=""> <img src="~/images/petasure_logo.svg" class="logo-img" alt="Image" /> </a>
+            </div>
+            <h2  class="mb-0"> Welcome</h2>
+            <p class="mb-4" >Enter your account details to sign in</p>
+            <div class="login-signin">
+
+                <form method="post" class="form fv-plugins-bootstrap fv-plugins-framework" asp-area="" asp-controller="Account" asp-action="Login">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group withLabel">
+                        <label class="nforLabel">Email</label>
+                        <input class="form-control placeholder-white" asp-for="Email" type="textplaceholder=" Email" autofocus placeholder="Email address" autocomplete="off" />
+                        <i class="fas fa-user"></i>
+                        <span asp-validation-for="Email" class="text-danger d-block"></span>
+                    </div>
+              
+                    <div class="form-group withLabel">
+                        <label class="nforLabel">Password</label>
+                        <input class="form-control placeholder-white" asp-for="Password" type="password" placeholder="Password"   autocomplete="off" required />
+                        <i class="fas fa-lock"></i>
+                        <span asp-validation-for="Password" class="text-danger d-block"></span>
+                    </div>
+                    <div class="form-group last-child row d-flex flex-wrap justify-content-between align-items-center px-8 ">
+                        <div class="col-12 col-xl-12 col-md-12 text-left mb-2">
+                            <a asp-area="" asp-controller="Account" asp-action="ForgotPassword" id="login_forgot" class="text-forget">Forgot Password?</a>
+                        </div>
+                        <div class="col-12 col-xl-12 col-md-12 text-right">
+                            <button class="btn btn-custom2" style="background-color:#1C59A9;" type="submit">Login</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    // document.getElementById("registrationLink").addEventListener("click", function (event) {
+    //     // Prevent the default behavior of the link (i.e., navigating to the registration page)
+    //     event.preventDefault();
+
+    //     // Generate an 8-digit code
+    //     var registrationCode = Math.floor(10000000 + Math.random() * 90000000);
+
+    //     // Store the code in a session storage to pass it to the registration page
+    //     sessionStorage.setItem("registrationCode", registrationCode);
+
+    //     // Redirect to the registration page
+    //     window.location.href = "/account/register";
+    // });
+    //var obj = {
+    //        "test": { "transactionId": "test", "transactionStatus": "test1" }
+    //    };
+    //    var obj1 = {
+    //        "transactionId": "test", "transactionStatus": "test1"
+    //    };
+
+    //    var abc = JSON.stringify(obj);
+    //    $.ajax({
+    //        url: '/Home/UpdateTransaction',
+    //        type: 'POST',
+    //        dataType: 'json',
+    //        data: obj1,
+    //        contentType: "application/json; charset=utf-8",
+    //        success: function (result) {
+    //            alert(result);
+    //        },
+    //        error: function (xhr) {
+    //            alert('Error: ' + xhr.statusText);
+    //        }
+    //    });
+</script>

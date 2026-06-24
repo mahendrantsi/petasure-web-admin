@@ -1,0 +1,126 @@
+﻿@using NToastNotify;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/favicon.png">
+    <title>@ViewData["Title"] Petasure</title>
+    <script src="~/js/site.min.js"></script>
+
+    <link href="~/css/site.min.css" rel="stylesheet" />
+    <link href="~/css/custom.css" type="text/css" rel="stylesheet" />
+    <link href="~/css/font-awesome-scss/fontawesome.css" rel="stylesheet" />
+    <script src="~/scripts/jquery-3.5.1.min.js"></script>
+    <style>
+        .pe-6 {
+            padding-inline-end: 1.5rem;
+        }
+
+        .border-muted-200 {
+            border-right: 1px solid #ccc;
+        }
+
+        .border-r {
+            border-right-width: 1px;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        .h-16 {
+            height: 4rem;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .text-muted-500 {
+            --tw-text-opacity: 1;
+            color: rgb(var(--color-muted-500)/1);
+            color: rgb(var(--color-muted-500)/var(--tw-text-opacity));
+        }
+          
+        .ps-6 {
+            padding-inline-start: 1.5rem;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .smflex {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+    <div class="wizard-section" id="wizard">
+
+      
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="d-flex flex-center mb-15">
+                        <a asp-area=""> <img src="~/images/logo.svg" class="logo-img" alt="Project" /> </a>
+                    </div>
+                    <div class="inner-section">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("NToastNotify") 
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/lib//DataTables/DataTables-1.10.21/js/jquery.dataTables.min.js"></script>
+    <link href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" rel="Stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
+
+    @RenderSection("Scripts", required: false)
+
+
+</body>
+
+</html>

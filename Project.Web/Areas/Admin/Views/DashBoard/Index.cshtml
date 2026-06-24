@@ -1,0 +1,94 @@
+﻿@model Project.Models.AdminModel.DashboardViewModel
+
+
+
+<div class="row dasbhoard-view">
+    <div class="col-sm-12 nui-container">
+        <div class="page-heading nui-avatar">
+            <div class="row">
+                <div class="col-xl-1 col-lg-2 col-md-2">
+                    <div class="nui-avatar-inner">
+                        @if (Model.UserProfile != null)
+                        {
+                            <img src="@Model.UserProfile" class="nui-avatar-img" alt="Image">
+                        }
+                        else
+                        {
+                            <img src="~/images/user.svg" class="nui-avatar-img" alt="Image">
+
+                        }
+                    </div>
+                </div>
+                <div class="col-xl-6 col-sm-9 col-lg-9 col-md-9">
+                    <div>
+                        <h2 class="nui-heading">
+                            <span>Welcome </span>
+                        </h2>
+                        <p class="nui-paragraph">
+                            <span class="text-muted-500"> Happy to see you again on your dashboard. </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="row dasbhoard-view quick-stats">
+    <div class="col-md-12 col-xl-6">
+        <div class="card crm-card flex-fill">
+            <div class="card-heading">
+                Your Quick Stats
+            </div>
+            <div class="inner">
+                <div class="box">
+                    <div class="card-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="right-part">
+                        <div class="card-numbers">
+                            @Model.TotalUsers
+                        </div>
+                        <div class="card-heading">
+                            Total Active Users
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="card-icon">
+                        <i class="fas fa-piggy-bank fa-fw"></i>
+                    </div>
+                    <div class="right-part">
+                        <div class="card-numbers">
+                            @Model.MonthlyNewUsers
+                        </div>
+                        <div class="card-heading">
+                           New users join in last 30 days
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<script src="~/scripts/highcharts/highcharts.js"></script>
+<script src="~/scripts/highcharts/exporting.js"></script>
+<script src="~/scripts/highcharts/export-data.js"></script>
+<script src="~/scripts/highcharts/accessibility.js"></script>
+<script src="~/scripts/AdminDashboardchart.js" asp-append-version="true"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+    $(document).ready(function () {
+        var users = @Json.Serialize(Model.LstMonthlyUsers);
+        
+    });
+
+</script>

@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <UserSecretsId>156f29f6-648b-4207-932b-b9e9b846759d</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="UploadedFiles\**" />
+    <Content Remove="UploadedFiles\**" />
+    <EmbeddedResource Remove="UploadedFiles\**" />
+    <EntityDeploy Remove="UploadedFiles\**" />
+    <None Remove="UploadedFiles\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\V1\HelpController.cs" />
+    <Compile Remove="Controllers\V1\MasterController.cs" />
+    <Compile Remove="Controllers\V1\OTPController.cs" />
+    <Compile Remove="Controllers\V1\PaymentController.cs" />
+    <Compile Remove="Controllers\V1\UserController.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="ServiceStack" Version="8.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Project.Core\Project.Core.csproj" />
+    <ProjectReference Include="..\Project.Middleware\Project.Middleware.csproj" />
+    <ProjectReference Include="..\Project.Models\Project.Models.csproj" />
+    <ProjectReference Include="..\Project.Services\Project.Services.csproj" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="APIResource\APIResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>APIResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="APIResource\APIResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>APIResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Templates\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Templates\CreatePwdEmail.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Images\User\" />
+    <Folder Include="Images\Pet\" />
+  </ItemGroup>
+ 
+</Project>

@@ -1,0 +1,53 @@
+﻿ @model Project.Models.AccountModel.LoginWith2faViewModel 
+
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = "_OuterLayout";
+}
+<style>
+    .form-control.input-validation-error {
+        border: 1px solid red !important
+    }
+</style>
+
+<div class="container">
+    <div class="login login-3 login-signin-on d-flex flex-row-fluid" id="login">
+        <div class="d-flex flex-center bgi-size-cover bgi-no-repeat flex-row-fluid">
+            <div class="login-form text-white p-7 position-relative overflow-hidden">
+                <div class="d-flex flex-center mb-15">
+                    <a asp-area=""> <img src="~/images/Project-Logo.svg" class="logo-img" alt="Image" /> </a>
+                </div>
+                <p>
+                    Enter Your Authenticator Code
+                   @*  Don't have access to your authenticator device? You can
+                    <a asp-action="LoginWithRecoveryCode" asp-route-returnUrl="@ViewData["ReturnUrl"]">log in with a recovery code</a>. *@
+                </p>
+                <div class="login-signin">
+                    <form method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]">
+                        <input asp-for="RememberMe" type="hidden" />
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="TwoFactorCode" class="text-dark"></label>
+                            <input asp-for="TwoFactorCode" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="TwoFactorCode" class="text-danger"></span>
+                        </div>
+                       @*  <div class="form-group">
+                            <div class="checkbox">
+                                <label asp-for="RememberMachine" class="text-dark">
+                                    <input asp-for="RememberMachine" />
+                                    @Html.DisplayNameFor(m => m.RememberMachine)
+                                </label>
+                            </div>
+                        </div> *@
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-pill btn-custom">Log in</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

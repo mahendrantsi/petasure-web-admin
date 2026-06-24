@@ -1,0 +1,206 @@
+﻿@using Project.Core.Enum;
+@using Project.Models.Content;
+@using Project.Web.Areas.Admin.Controllers;
+@model List<ContentViewModel>
+@{
+    Layout = "_Layout";
+
+
+}
+
+
+
+<div class="row pageHeader">
+    <div class="">
+        <div class="col-xl-12 mb-5 ml-3 flex flex-col justify-between md:flex-row md:items-center">
+            <div class="ltablet:max-w-full flex max-w-[425px] flex-col items-center gap-4 text-center md:flex-row md:text-left lg:max-w-full">
+                <div class="nui-avatar-small nui-avatar-lg nui-avatar-full">
+                    <div class="nui-avatar-inner" style="background:#962fe3;border: 2px solid #939393;">
+                        <i class="fas fa-file" style="color: #fff;  font-size: 23px;"></i>
+                    </div>
+                </div>
+                <div class="text-left">
+                    <h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
+                        <span>Content Management</span>
+                    </h3><p style="color: #979797;" class="nui-paragraph nui-paragraph-md nui-weight-normal nui-lead-normal">
+                        <span class="text-muted-500">See all dynamic pages</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xl-12 mb-4">
+        <div class="mb-6 flex flex-row  w-full flex-col items-center justify-end gap-4 sm:flex-row" style=" width: 100%;">
+            <div class=" text-end">
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-12">
+        <div class="table-responsive">
+            <table aria-describedby="mydesc" id="SubUser_tbl" class="table tableCutom table-th-nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>Page</th>
+                        <th class="thpl10">Modified</th>
+                        <th>Active</th>
+                        <th>Action</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+
+                                <div class="relative mb-2 mt-2 flex grow items-center gap-2 px-6 sm:mb-0 sm:px-2 h-10">
+                                    <div class="nui-avatar nui-avatar-md nui-avatar-full bg-primary-500/20 text-primary-500">
+                                        <div class="nui-avatar-inner" style="background:#ccc">@item.Name.Substring(0, 1).ToUpper()</div>
+                                    </div>
+
+                                    <div>
+                                        <span class="nui-paragraph nui-paragraph-xs nui-weight-normal nui-lead-tight text-muted-500 "><span>@item.Name </span></span>
+
+
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    <span>@item.ModifyOn.ToShortDateString()</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="flaxCenter">
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="status tag-info">Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status tag-danger">No</span>
+                                    }
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="dropdown flaxCenter">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-bars"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item" href="/Admin/ContentManagement/ContentLayout?id=@item.Id">Edit</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        $('.tableCutom').DataTable({
+            "bLengthChange": false,
+            "bInfo": false,
+            "ordering": false,
+
+            language: {
+                search: "",
+                paginate: {
+                    next: '<i class="fas fa-arrow-right"></i>', // or '→'
+                    previous: '<i class="fas fa-arrow-left"></i>' // or '←'
+                },
+            },
+            initComplete: function () {
+                // $(".dataTables_filter").append('<a class="btn btn-dark text-light" style="float:right;" href="/Admin/ContentManagement/ContentLayout">Add New Page</a>');
+
+                $('[type="search"]').attr("placeholder", "Search");
+            }
+        });
+    });
+</script>
+@section Styles {
+    <style>
+        .nui-avatar.nui-avatar-md {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .tag-Deactivation {
+            background: rgba(245,158,11,.2) !important;
+            color: rgb(245,158,11) !important;
+        }
+
+        .tag-Enquiry {
+            background: rgba(14,165,233,.2) !important;
+            color: rgb(14,165,233) !important;
+        }
+
+        .page-main-header {
+            background: #fff;
+            width: calc(100% - 287px);
+        }
+
+        .page-body-wrapper.sidebar-icon .page-body {
+            padding: 0
+        }
+
+
+        .pageHeader {
+            background: #fff;
+            padding: 0 10px 0px 20px
+        }
+
+        .tabs > li > a {
+            font-size: 15px;
+            line-height: 1.25rem;
+            padding: 16px 12px;
+            color: rgb(30, 41, 59);
+            text-decoration: none;
+        }
+
+            .tabs > li > a.active {
+                font-weight: 500;
+                border-bottom: 2px solid rgb(139, 92, 246);
+            }
+
+        [type="search"] {
+            border-radius: 36px !important;
+            min-width: 289px;
+            min-height: 43px;
+            padding: 21px !important;
+        }
+
+        @@media (max-width: 767px) {
+            .page-main-header {
+                width: 100% !important;
+            }
+
+            .pageHeader {
+                padding: 0
+            }
+
+            .mb-5 {
+                margin-bottom: 2rem !important
+            }
+        }
+
+        .nui-avatar.nui-avatar-md {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .thpl10 {
+            padding-left: 10px !important;
+        }
+    </style>
+}

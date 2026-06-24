@@ -1,0 +1,238 @@
+﻿@using Project.Core.Enum;
+@using Project.Data.ExtendedDBEntities
+@inject Microsoft.AspNetCore.Identity.UserManager<DerivedIdentityUser> _userManager
+@{
+    var user = await _userManager.GetUserAsync(User);
+    List<string> roles = _userManager.GetRolesAsync(user).Result.ToList();
+    Console.WriteLine("dfsfa");
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/favicon.png">
+    <title>@ViewData["Title"] Petasure</title>
+
+    <link href="~/css/custom.css" type="text/css" rel="stylesheet" />
+
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script type="text/javascript" src="~/scripts/jquery-3.5.1.min.js"></script>
+    <script src="~/js/swelfire.js"></script>
+    <link href="~/css/font-awesome-scss/fontawesome.css" rel="stylesheet" />
+    <link href="~/lib/DataTables/DataTables-1.10.21/css/jquery.dataTables.css" rel="stylesheet" />
+    <link href="~/css/select2.min.css" rel="stylesheet" />
+    @RenderSection("Styles", required: false)
+</head>
+
+<body>
+    <style> 
+        .loaderflex{
+        display:flex;
+        }
+    </style>
+    <div class="page-wrapper null compact-wrapper" id="pageWrapper">
+
+        <div class="page-body-wrapper null sidebar-icon">
+
+            <header class="main-nav">
+                <div class="logo-wrapper logo-section">
+                    <a data-original-title="" title="" class="logo-1" href="/Admin/dashboard">
+                        <img class="img-fluid" src="~/images/petasure_logo.svg" alt="Image" data-original-title="" title="" />
+                    </a>
+                    <a class="navbar-toggler-left" href="javascript:void(0)">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+                <nav>
+                    <div class="main-navbar">
+                        <div id="mainnav">
+                            @{
+                                var userRole = roles?.FirstOrDefault()?.ToLower();
+                                var isAdmin = userRole == Project.Core.Enum.EnumRole.Admin.ToString().ToLower();
+                                var isDeffraUser = userRole == Project.Core.Enum.EnumRole.AnonymousUser.ToString().ToLower();
+                            }
+                            @if (isDeffraUser)
+                            {
+                                <ul class="nav-menu navbar-scrollbar" id="boxscroll">
+                                    <li class="nav-item dropdown menu-icons">
+                                        <a id="a5" class="nav-link menu-title" href="/Admin/AnonymousUser">
+                                            <span class="fas fa-dog"></span>
+                                            <span class="menu-txt">Search Pet</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            }
+                            else {
+                                <ul class="nav-menu navbar-scrollbar" id="boxscroll">
+                                    <li class="nav-item dropdown menu-icons">
+                                            <a id="a1" class="nav-link menu-title" href="/Admin/dashboard">
+                                                <span class="fas fa-globe"></span>
+                                                <span class="menu-txt">Dashboard</span>
+                                            </a>
+                                        </li>
+                                        @if (isAdmin)
+                                        {
+                                            <li class="nav-item dropdown menu-icons">
+                                                <a id="a2" class="nav-link menu-title" href="/Admin/UserManagement/SubUser">
+                                                    <span class="fas fa-users"></span>
+                                                    <span class="menu-txt">Sub Admin Users</span>
+                                                </a>
+                                            </li>
+                                        }
+
+                                        <li class="nav-item dropdown menu-icons">
+                                            <a id="a3" class="nav-link menu-title" href="/Admin/UserManagement/AppUsers">
+                                                <span class="fas fa-user-plus"></span>
+                                                <span class="menu-txt">App Users</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item dropdown menu-icons">
+                                            <a id="a4" class="nav-link menu-title" href="/Admin/UserManagement/IDCheckUser">
+                                                <span class="fas fa-user-plus"></span>
+                                                <span class="menu-txt">ID Checks</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item dropdown menu-icons">
+                                            <a id="a5" class="nav-link menu-title" href="/Admin/Pets">
+                                                <span class="fas fa-dog"></span>
+                                                <span class="menu-txt">Pets</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item dropdown menu-icons">
+                                            <a id="a6" class="nav-link menu-title" href="/Admin/MissingPets/">
+                                                <span class="fas fa-dog"></span>
+                                                <span class="menu-txt">Missing Pets</span>
+                                            </a>
+                                        </li>
+
+                                        @if (isAdmin)
+                                        {
+                                            <li class="nav-item dropdown menu-icons">
+                                                <a id="a7" class="nav-link menu-title" href="/Admin/ContentManagement/Index">
+                                                    <span class="fas fa-file"></span>
+                                                    <span class="menu-txt">Content Management</span>
+                                                </a>
+                                            </li>
+                                        }
+
+                                        <li class="nav-item dropdown menu-icons">
+                                            <a id="a8" class="nav-link menu-title" href="/Admin/ContentManagement/Enquiry?type=All">
+                                                <span class="fas fa-comment"></span>
+                                                <span class="menu-txt">Enquiries</span>
+                                            </a>
+                                        </li>
+                                </ul>
+                            }
+                         
+
+                        </div>
+                    </div>
+
+                </nav>
+            </header>
+            <div class="sectionPDF">
+                @* header section start *@
+                <div class="page-main-header">
+                    <div class="main-header-right row m-0">
+                        <div class="main-header-left">
+                            <a class="navbar-toggler-right" href="javascript:void(0)">
+                                <i class="fas fa-bars"></i>
+                            </a>
+                        </div>
+                        <div class="nav-right col pull-right right-menu">
+                            <ul class="nav-menus">
+                                <li class="nav-item dropdown user-profile-dropdown">
+                                    <a href="javascript:void(0);" class="user" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        @* @user.UserName [<b>Admin</b>] *@
+                                        <i class="fas fa-user-circle"></i>
+                                    </a>
+                                    <div class="dropdown-menu position-absolute userprofile" aria-labelledby="userProfileDropdown">
+                                        <div class="">
+                                            <div class="user-icon">
+                                                <img src="~/images/users1.png" alt="Image" />
+                                            </div>
+                                            <div class="user-name">@user.UserName</div>
+                                            <div class="user-post">@user.Email.ToString()</div>
+                                            <a asp-area="Admin" asp-controller="UserManagement" asp-action="Profile">
+                                                <div class="dropdown-item">Profile </div>
+                                            </a>
+                                            
+                                            <a class="logout" asp-area="" asp-controller="Account" asp-action="Logout">
+                                                <div class="dropdown-item">Log Out</div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                @* header section End *@
+                <section class="page-body">
+
+                    <div class="inner-content">
+
+                        @RenderBody()
+                    </div>
+                </section>
+            </div>
+
+        </div>
+    </div>
+    <!-- add person popup starts here -->
+    <div class="overlay"> </div>
+    <div id="addPersonSection"></div>
+    <div id="assignMediaSection"></div>
+    <div id="resetPasswordSection"></div>
+    <div class="loginPerDayModal"></div>
+    <!-- add person popup end -->
+    <div class="loader d-none">
+
+        <img src="~/scripts/tinymce/skins/lightgray/img/loader.gif" alt="Loading" />
+
+    </div>
+    <script type="text/javascript" src="~/scripts/popper.min.js"></script>
+    <script type="text/javascript" src="~/scripts/bootstrap.min.js"></script>
+    <script type="text/javascript" src="~/scripts/jquery.nicescroll.min.js"></script>
+    <script type="text/javascript" src="~/scripts/custom-new.js"></script>
+
+
+
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    <script src="~/scripts/sweetalert.js"></script>
+
+    <script src="~/js/select2.min.js"></script>
+    <script src="~/lib//DataTables/DataTables-1.10.21/js/jquery.dataTables.min.js"></script>
+
+    <link href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" rel="Stylesheet" type="text/css" />
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
+
+
+    <script>
+        $('.datepicker').datepicker({ dateFormat: 'dd/mm/yy', changeYear: true, yearRange: '1920:' + (new Date).getFullYear(), maxDate: 0 });;
+
+        $('.main-header-left .navbar-toggler-right').on('click', function () {
+            $('.sidebar-icon header.main-nav').addClass('active');
+        });
+        $('.sidebar-icon .navbar-toggler-left').on('click', function () {
+            $('.sidebar-icon header.main-nav').removeClass('active');
+        });
+    </script>
+    @RenderSection("Scripts", required: false)
+    @await Component.InvokeAsync("NToastNotify")
+
+  
+</body>
+
+</html>

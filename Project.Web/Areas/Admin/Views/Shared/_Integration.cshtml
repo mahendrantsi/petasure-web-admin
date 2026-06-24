@@ -1,0 +1,107 @@
+﻿@using Project.Core.Enum;
+@model Project.Models.Master.IntegrationViewModel;
+
+<link href="~/css/custom-select.css" rel="stylesheet" />
+<div class="modal fade modal-fullscreen-xl" id="DetailsModel" role="dialog" data-dismiss="modal" style="">
+    <div class="modal-dialog  modal-xl" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Integration</h5>
+                <button type="button" class="close CloseModal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detailsPartial" style="padding:0.7rem">
+                <div class="row form-icon create-user-section">
+                    <div class="col-xl-12 col-md-12">
+                        <div class="card crm-card flex-fill create-user-form">
+                            <form id="menuForm" action="/Admin/IntegrationManagement/Integration" method="post" enctype="multipart/form-data" novalidate>
+                                @Html.AntiForgeryToken()
+                                <div class="card-body">
+                                    <div class="form-horizontal form-type-1">
+                                        <div class="row">
+                                            <input type="hidden" value="@Model.Id" asp-for="Id" />
+                                            <div class="col-xl-6 col-sm-6">
+                                                <div class="form-group row">
+                                                    <div class="col-md-4">
+                                                        <label class="col-form-label d-block">Name* :</label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <div class="input-box">
+                                                            <input class="form-control whitespace" asp-for="Name" type="text" placeholder="Name" required />
+
+                                                        </div>
+                                                        <span asp-validation-for="Name" class="text-danger d-block"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-sm-6">
+                                                <div class="form-group row">
+                                                    <div class="col-md-4">
+
+                                                        <label class="col-form-label d-block">Description* :</label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <div class="input-box">
+                                                            <input class="form-control" asp-for="Description" maxlength="100" type="text" placeholder="Description"
+                                                                   name="Description" autocomplete="off" />
+
+                                                        </div>
+                                                        <span asp-validation-for="Description" class="text-danger d-block"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-sm-6">
+                                                <div class="form-group row">
+                                                    <div class="col-md-4">
+                                                        <label class="col-form-label d-block">Status* :</label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <div class="input-box">
+                                                            <input class="form-control whitespace" asp-for="Status" type="text" maxlength="20" placeholder="Status" autocomplete="off" />
+                                                        </div>
+                                                        <span asp-validation-for="Status" class="text-danger d-block"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-sm-6">
+                                                <div class="form-group row">
+                                                    <div class="col-md-4">
+                                                        <label class="col-form-label d-block">Image* :</label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <div class="input-box">
+                                                            <input class="form-control whitespace" asp-for="Image" type="file" maxlength="20" placeholder="Image" autocomplete="off" />
+                                                        </div>
+                                                        <span asp-validation-for="Image" class="text-danger d-block"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row mb-0">
+                                            <div class="col-xl-6 col-md-12 text-center btn-group">
+                                                <div class=" row">
+                                                    <div class="col-6">
+                                                        <button type="submit" class="btn btn-dark " id="btnSubmit" style="width:100px">Create</button>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <a href="/admin/IntegrationManagement/Index" class="btn btn-secondary valid" style="width:100px">Cancel</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="~/js/customselect.js"></script>
+}

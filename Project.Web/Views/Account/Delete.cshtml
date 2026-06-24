@@ -1,0 +1,92 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/favicon.png">
+    <title>@ViewData["Title"] Petasure</title>
+    <link href="~/css/site.min.css" rel="stylesheet" />
+    <link href="~/css/font-awesome-scss/fontawesome.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="h-screen md:flex">
+        <div class="">
+            <div style="display:flex;align-items:center;flex-direction:column;margin-top:40px;">
+                <a rel="noopener" style="text-decoration: none; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;"
+                   href="#" target="_blank" class="mb-5">
+                    <img src="https://petasurestaging.24livehost.com/images/petasure_logo.svg" alt=""
+                         height="auto" width="128" align="center" border="0" style="margin: auto;text-align: center; color: #555555;">
+                </a>
+                <h1>Welcome to our world!</h1>
+                <p>If you are no longer interested in being a member of Petasure, please take the following steps to delete your account:</p>
+                <ol>
+                    <li>
+                        <p>Open the Petasure application on your mobile device</p>
+                    </li>
+                    <li>
+                        <p>Login using your login details</p>
+                    </li>
+                    <li>
+                        <p>Upon logging in, go to the 'My Account' page on the app</p>
+                    </li>
+                    <li>
+                        <p>Once you are on the profile page, you will see an option which reads 'Delete account', press this</p>
+                    </li>
+
+                    <li>
+                        <p>A dialogue box will appear asking if you are sure you want to delete your account?, simply press 'Delete'</p>
+                    </li>
+                    <li>
+                        <p>Your app session will end immediately and your account will be removed from Petasure</p>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var cvalue = getCookie("CookiesAccept");
+        if (cvalue) {
+            $('.cookies-popup').css('display', 'none');
+        }
+        else {
+            $('.cookies-popup').css('display', 'block');
+        }
+
+        $('#closecooies').click(function () {
+            var d = new Date();
+            d.setFullYear(d.getFullYear() + 1);
+            document.cookie = "CookiesAccept=true; expires=" + d + ";path=/";
+
+            $('.cookies-popup').css('display', 'none');
+            $('body').css('padding-bottom', '0');
+        });
+    });
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+</script>
+
+

@@ -1,0 +1,425 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Areas\Admin\Data\**" />
+    <Compile Remove="Areas\Admin\Models\**" />
+    <Content Remove="Areas\Admin\Data\**" />
+    <Content Remove="Areas\Admin\Models\**" />
+    <EmbeddedResource Remove="Areas\Admin\Data\**" />
+    <EmbeddedResource Remove="Areas\Admin\Models\**" />
+    <EntityDeploy Remove="Areas\Admin\Data\**" />
+    <EntityDeploy Remove="Areas\Admin\Models\**" />
+    <None Remove="Areas\Admin\Data\**" />
+    <None Remove="Areas\Admin\Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\Home\GetTokenBalanceAsync.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Templates\ActivationEmail.html" />
+    <Content Include="Templates\ForgotPwdEmail.html" />
+    <Content Include="Templates\MailHeaderFooter.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.ServiceRegistration.Dynamic" Version="2.0.2" />
+    <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
+    <PackageReference Include="NToastNotify" Version="7.0.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
+    <PackageReference Include="X.PagedList.Mvc.Core" Version="8.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartPay.Core\SmartPay.Core.csproj" />
+    <ProjectReference Include="..\SmartPay.Data\SmartPay.Data.csproj" />
+    <ProjectReference Include="..\SmartPay.Logger\SmartPay.Logger.csproj" />
+    <ProjectReference Include="..\SmartPay.Middleware\SmartPay.Middleware.csproj" />
+    <ProjectReference Include="..\SmartPay.Models\SmartPay.Models.csproj" />
+    <ProjectReference Include="..\SmartPay.Persistence\SmartPay.Persistence.csproj" />
+    <ProjectReference Include="..\SmartPay.Services\SmartPay.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\Error_Resources.Designer.cs">
+      <DependentUpon>Error_Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Error_Resources.resx">
+      <LastGenOutput>Error_Resources.Designer.cs</LastGenOutput>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\DataTables\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\css\bootstrap-scss\bootstrap-grid.css.map" />
+    <None Include="wwwroot\css\bootstrap-scss\bootstrap-grid.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\bootstrap-reboot.css.map" />
+    <None Include="wwwroot\css\bootstrap-scss\bootstrap-reboot.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\bootstrap.css.map" />
+    <None Include="wwwroot\css\bootstrap-scss\bootstrap.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_alert.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_background-variant.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_badge.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_border-radius.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_box-shadow.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_breakpoints.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_buttons.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_caret.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_clearfix.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_deprecate.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_float.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_forms.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_gradients.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_grid-framework.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_grid.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_hover.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_image.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_list-group.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_lists.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_nav-divider.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_pagination.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_reset-text.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_resize.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_screen-reader.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_size.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_table-row.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_text-emphasis.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_text-hide.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_text-truncate.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_transition.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\mixins\_visibility.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_align.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_background.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_borders.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_clearfix.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_display.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_embed.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_flex.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_float.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_interactions.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_overflow.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_position.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_screenreaders.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_shadows.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_sizing.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_spacing.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_stretched-link.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_text.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\utilities\_visibility.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\vendor\_rfs.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_alert.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_badge.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_breadcrumb.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_button-group.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_buttons.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_card.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_carousel.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_close.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_code.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_custom-forms.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_dropdown.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_forms.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_functions.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_grid.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_images.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_input-group.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_jumbotron.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_list-group.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_media.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_mixins.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_modal.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_nav.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_navbar.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_pagination.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_popover.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_print.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_progress.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_reboot.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_root.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_spinners.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_tables.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_toasts.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_tooltip.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_transitions.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_type.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_utilities.scss" />
+    <None Include="wwwroot\css\bootstrap-scss\_variables.scss" />
+    <None Include="wwwroot\css\custom.css.map" />
+    <None Include="wwwroot\css\custom.scss" />
+    <None Include="wwwroot\css\da-slider.css.map" />
+    <None Include="wwwroot\css\da-slider.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\brands.css.map" />
+    <None Include="wwwroot\css\font-awesome-scss\brands.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\fontawesome.css.map" />
+    <None Include="wwwroot\css\font-awesome-scss\fontawesome.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\regular.css.map" />
+    <None Include="wwwroot\css\font-awesome-scss\regular.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\solid.css.map" />
+    <None Include="wwwroot\css\font-awesome-scss\solid.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\v4-shims.css.map" />
+    <None Include="wwwroot\css\font-awesome-scss\v4-shims.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_animated.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_bordered-pulled.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_core.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_fixed-width.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_icons.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_larger.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_list.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_mixins.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_rotated-flipped.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_screen-reader.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_shims.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_stacked.scss" />
+    <None Include="wwwroot\css\font-awesome-scss\_variables.scss" />
+    <None Include="wwwroot\css\login.css.map" />
+    <None Include="wwwroot\css\login.scss" />
+    <None Include="wwwroot\css\scss\bootstrap-grid.css.map" />
+    <None Include="wwwroot\css\scss\bootstrap-grid.scss" />
+    <None Include="wwwroot\css\scss\bootstrap-reboot.css.map" />
+    <None Include="wwwroot\css\scss\bootstrap-reboot.scss" />
+    <None Include="wwwroot\css\scss\bootstrap.css.map" />
+    <None Include="wwwroot\css\scss\bootstrap.scss" />
+    <None Include="wwwroot\css\scss\mixins\_alert.scss" />
+    <None Include="wwwroot\css\scss\mixins\_background-variant.scss" />
+    <None Include="wwwroot\css\scss\mixins\_badge.scss" />
+    <None Include="wwwroot\css\scss\mixins\_border-radius.scss" />
+    <None Include="wwwroot\css\scss\mixins\_box-shadow.scss" />
+    <None Include="wwwroot\css\scss\mixins\_breakpoints.scss" />
+    <None Include="wwwroot\css\scss\mixins\_buttons.scss" />
+    <None Include="wwwroot\css\scss\mixins\_caret.scss" />
+    <None Include="wwwroot\css\scss\mixins\_clearfix.scss" />
+    <None Include="wwwroot\css\scss\mixins\_deprecate.scss" />
+    <None Include="wwwroot\css\scss\mixins\_float.scss" />
+    <None Include="wwwroot\css\scss\mixins\_forms.scss" />
+    <None Include="wwwroot\css\scss\mixins\_gradients.scss" />
+    <None Include="wwwroot\css\scss\mixins\_grid-framework.scss" />
+    <None Include="wwwroot\css\scss\mixins\_grid.scss" />
+    <None Include="wwwroot\css\scss\mixins\_hover.scss" />
+    <None Include="wwwroot\css\scss\mixins\_image.scss" />
+    <None Include="wwwroot\css\scss\mixins\_list-group.scss" />
+    <None Include="wwwroot\css\scss\mixins\_lists.scss" />
+    <None Include="wwwroot\css\scss\mixins\_nav-divider.scss" />
+    <None Include="wwwroot\css\scss\mixins\_pagination.scss" />
+    <None Include="wwwroot\css\scss\mixins\_reset-text.scss" />
+    <None Include="wwwroot\css\scss\mixins\_resize.scss" />
+    <None Include="wwwroot\css\scss\mixins\_screen-reader.scss" />
+    <None Include="wwwroot\css\scss\mixins\_size.scss" />
+    <None Include="wwwroot\css\scss\mixins\_table-row.scss" />
+    <None Include="wwwroot\css\scss\mixins\_text-emphasis.scss" />
+    <None Include="wwwroot\css\scss\mixins\_text-hide.scss" />
+    <None Include="wwwroot\css\scss\mixins\_text-truncate.scss" />
+    <None Include="wwwroot\css\scss\mixins\_transition.scss" />
+    <None Include="wwwroot\css\scss\mixins\_visibility.scss" />
+    <None Include="wwwroot\css\scss\utilities\_align.scss" />
+    <None Include="wwwroot\css\scss\utilities\_background.scss" />
+    <None Include="wwwroot\css\scss\utilities\_borders.scss" />
+    <None Include="wwwroot\css\scss\utilities\_clearfix.scss" />
+    <None Include="wwwroot\css\scss\utilities\_display.scss" />
+    <None Include="wwwroot\css\scss\utilities\_embed.scss" />
+    <None Include="wwwroot\css\scss\utilities\_flex.scss" />
+    <None Include="wwwroot\css\scss\utilities\_float.scss" />
+    <None Include="wwwroot\css\scss\utilities\_interactions.scss" />
+    <None Include="wwwroot\css\scss\utilities\_overflow.scss" />
+    <None Include="wwwroot\css\scss\utilities\_position.scss" />
+    <None Include="wwwroot\css\scss\utilities\_screenreaders.scss" />
+    <None Include="wwwroot\css\scss\utilities\_shadows.scss" />
+    <None Include="wwwroot\css\scss\utilities\_sizing.scss" />
+    <None Include="wwwroot\css\scss\utilities\_spacing.scss" />
+    <None Include="wwwroot\css\scss\utilities\_stretched-link.scss" />
+    <None Include="wwwroot\css\scss\utilities\_text.scss" />
+    <None Include="wwwroot\css\scss\utilities\_visibility.scss" />
+    <None Include="wwwroot\css\scss\vendor\_rfs.scss" />
+    <None Include="wwwroot\css\scss\_alert.scss" />
+    <None Include="wwwroot\css\scss\_badge.scss" />
+    <None Include="wwwroot\css\scss\_breadcrumb.scss" />
+    <None Include="wwwroot\css\scss\_button-group.scss" />
+    <None Include="wwwroot\css\scss\_buttons.scss" />
+    <None Include="wwwroot\css\scss\_card.scss" />
+    <None Include="wwwroot\css\scss\_carousel.scss" />
+    <None Include="wwwroot\css\scss\_close.scss" />
+    <None Include="wwwroot\css\scss\_code.scss" />
+    <None Include="wwwroot\css\scss\_custom-forms.scss" />
+    <None Include="wwwroot\css\scss\_dropdown.scss" />
+    <None Include="wwwroot\css\scss\_forms.scss" />
+    <None Include="wwwroot\css\scss\_functions.scss" />
+    <None Include="wwwroot\css\scss\_grid.scss" />
+    <None Include="wwwroot\css\scss\_images.scss" />
+    <None Include="wwwroot\css\scss\_input-group.scss" />
+    <None Include="wwwroot\css\scss\_jumbotron.scss" />
+    <None Include="wwwroot\css\scss\_list-group.scss" />
+    <None Include="wwwroot\css\scss\_media.scss" />
+    <None Include="wwwroot\css\scss\_mixins.scss" />
+    <None Include="wwwroot\css\scss\_modal.scss" />
+    <None Include="wwwroot\css\scss\_nav.scss" />
+    <None Include="wwwroot\css\scss\_navbar.scss" />
+    <None Include="wwwroot\css\scss\_pagination.scss" />
+    <None Include="wwwroot\css\scss\_popover.scss" />
+    <None Include="wwwroot\css\scss\_print.scss" />
+    <None Include="wwwroot\css\scss\_progress.scss" />
+    <None Include="wwwroot\css\scss\_reboot.scss" />
+    <None Include="wwwroot\css\scss\_root.scss" />
+    <None Include="wwwroot\css\scss\_spinners.scss" />
+    <None Include="wwwroot\css\scss\_tables.scss" />
+    <None Include="wwwroot\css\scss\_toasts.scss" />
+    <None Include="wwwroot\css\scss\_tooltip.scss" />
+    <None Include="wwwroot\css\scss\_transitions.scss" />
+    <None Include="wwwroot\css\scss\_type.scss" />
+    <None Include="wwwroot\css\scss\_utilities.scss" />
+    <None Include="wwwroot\css\scss\_variables.scss" />
+    <None Include="wwwroot\css\style.css.map" />
+    <None Include="wwwroot\css\style.scss" />
+    <None Include="wwwroot\css\_base.scss" />
+    <None Include="wwwroot\css\_content.scss" />
+    <None Include="wwwroot\css\_extra.scss" />
+    <None Include="wwwroot\css\_header.scss" />
+    <None Include="wwwroot\css\_left-menu.scss" />
+    <None Include="wwwroot\css\_main.scss" />
+    <None Include="wwwroot\css\_mixins.scss" />
+    <None Include="wwwroot\css\_mytraining.scss" />
+    <None Include="wwwroot\css\_profile.scss" />
+    <None Include="wwwroot\css\_variables.scss" />
+    <None Include="wwwroot\images\calendar.svg" />
+    <None Include="wwwroot\images\cellphone.svg" />
+    <None Include="wwwroot\images\lock.svg" />
+    <None Include="wwwroot\images\statistics.svg" />
+    <None Include="wwwroot\images\why-icon01.svg" />
+    <None Include="wwwroot\images\why-icon02.svg" />
+    <None Include="wwwroot\images\why-icon03.svg" />
+    <None Include="wwwroot\images\why-icon04.svg" />
+    <None Include="wwwroot\images\why-icon05.svg" />
+    <None Include="wwwroot\scripts\bootstrap.min.js" />
+    <None Include="wwwroot\scripts\custom.js" />
+    <None Include="wwwroot\scripts\hero-slider.js" />
+    <None Include="wwwroot\scripts\jquery-3.5.1.min.js" />
+    <None Include="wwwroot\scripts\jquery.cslider.js" />
+    <None Include="wwwroot\scripts\modernizr.custom.28468.js" />
+    <None Include="wwwroot\scripts\tinymce\jquery.tinymce.min.js" />
+    <None Include="wwwroot\scripts\tinymce\langs\readme.md" />
+    <None Include="wwwroot\scripts\tinymce\plugins\advlist\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\advlist\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\anchor\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\anchor\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\autolink\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\autolink\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\autoresize\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\autoresize\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\autosave\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\autosave\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\bbcode\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\bbcode\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\charmap\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\charmap\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\codesample\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\codesample\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\code\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\code\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\colorpicker\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\colorpicker\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\compat3x\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\compat3x\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\compat3x\tiny_mce_popup.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\compat3x\utils\editable_selects.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\compat3x\utils\form_utils.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\compat3x\utils\mctabs.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\compat3x\utils\validate.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\contextmenu\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\contextmenu\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\directionality\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\directionality\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\emoticons\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\emoticons\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\example\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\example\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\example_dependency\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\example_dependency\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\fullpage\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\fullpage\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\fullscreen\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\fullscreen\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\hr\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\hr\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\imagetools\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\imagetools\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\image\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\image\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\importcss\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\importcss\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\insertdatetime\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\insertdatetime\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\layer\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\layer\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\legacyoutput\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\legacyoutput\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\link\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\link\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\lists\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\lists\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\media\moxieplayer.swf" />
+    <None Include="wwwroot\scripts\tinymce\plugins\media\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\media\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\nonbreaking\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\nonbreaking\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\noneditable\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\noneditable\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\pagebreak\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\pagebreak\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\paste\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\paste\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\preview\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\preview\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\print\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\print\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\save\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\save\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\searchreplace\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\searchreplace\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\spellchecker\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\spellchecker\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\tabfocus\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\tabfocus\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\table\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\table\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\template\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\template\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\textcolor\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\textcolor\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\textpattern\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\textpattern\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\visualblocks\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\visualblocks\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\visualchars\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\visualchars\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\wordcount\plugin.js" />
+    <None Include="wwwroot\scripts\tinymce\plugins\wordcount\plugin.min.js" />
+    <None Include="wwwroot\scripts\tinymce\skins\lightgray\fonts\readme.md" />
+    <None Include="wwwroot\scripts\tinymce\skins\lightgray\fonts\tinymce-small.svg" />
+    <None Include="wwwroot\scripts\tinymce\skins\lightgray\fonts\tinymce.svg" />
+    <None Include="wwwroot\scripts\tinymce\themes\modern\theme.js" />
+    <None Include="wwwroot\scripts\tinymce\themes\modern\theme.min.js" />
+    <None Include="wwwroot\scripts\tinymce\tinymce.js" />
+    <None Include="wwwroot\scripts\tinymce\tinymce.min.js" />
+    <None Include="wwwroot\scripts\wow.js" />
+  </ItemGroup>
+
+</Project>

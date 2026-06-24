@@ -1,0 +1,351 @@
+﻿@using Project.Core.Enum;
+@model List<Project.Models.Master.FAQViewModel>
+@{
+    Layout = "_Layout";
+}
+<style>
+
+    .bold_big {
+        font-weight: 600;
+        font-size: 15px;
+    }
+
+    .small_Light {
+        color: rgb(100 116 139 / 75%);
+        font-weight: 400;
+    }
+
+    .back-conatiner::before {
+        content: "";
+        background-image: url(/uploads/banklogo/0896d227-7a3a-423c-988e-000c0af04dc1.png);
+        opacity: 0.5;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        /* z-index: -1; */
+        background-attachment: initial;
+        background-position: bottom;
+        background-repeat: no-repeat;
+    }
+
+    .back-conatiner {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .nui-avatar.nui-avatar-md-small {
+        height: 2rem;
+        width: 2rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
+        cursor: default;
+        color: #666 !important;
+        border: 1px solid transparent;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        box-sizing: border-box;
+        display: inline-block;
+        min-width: 1.5em;
+        padding: 0.5em 1em;
+        margin-left: 2px;
+        text-align: center;
+        text-decoration: none !important;
+        cursor: pointer;
+        *cursor: hand;
+        color: #333 !important;
+        border: 1px solid transparent;
+        border-radius: 2px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate a {
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 9999% !important;
+        border: 1px solid #ddd !;
+        width: 50px;
+        height: 50px !important;
+        display: flex;
+        justify-content: center !important;
+        line-height: 34px;
+    }
+
+    .dataTables_filter {
+        width: auto !important;
+        text-align: left !important;
+        float: right;
+    }
+
+    @@media screen and (max-width: 640px) {
+        .dataTables_wrapper .dataTables_filter {
+            margin-top: 0;
+        }
+    }
+</style>
+
+
+<div class="row">
+    @await Html.PartialAsync("_SettingMenu")
+
+    <div class="col-12 col-md-9">
+        <div class="row">
+            <div class="col-xl-12 ">
+
+                <div class="card crm-card flex-fill">
+                    <div class="card-header ">
+                        <div class="heading">
+                            <h5 style="color:#000">Frequently asked questions</h5>
+                            <p style="display:block;width:100%;    font-size: 13px; margin: 0;color: #7b7b7b;font-weight: 300;">
+                                Frequently asked questions master
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="button" class="btn btn-dark createFAQ" value="Create new FAQ">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table aria-describedby="mydesc" id="AllFAQ" class="table table-th-nowrap tableCutom w-100 jDatatable">
+                                <thead>
+                                    <tr>
+                                        <th> </th>
+                                        <th>Order</th>
+                                        <th>Question</th>
+                                        <th>Created By</th>
+                                        <th>Created On</th>
+                                        <th>Is Active</th>
+
+                                        <th style="text-align:right">Edit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model != null && Model.Count > 0)
+                                    {
+                                        foreach (var item in Model.OrderBy(x => x.Order))
+                                        {
+                                            <tr itemid="@item.Id">
+                                                <td><i class="fas fa-grip-vertical iconselector" style="color: #767676;cursor:grab"></i></td>
+                                                <td>@item.Order</td>
+                                                <td>
+
+                                                    <div class="selector" style="
+                                                        font-size: 12px!important;
+                                                        font-family: sans-serif!important;
+                                                        white-space: nowrap;
+                                                        overflow: hidden;
+                                                        text-overflow: ellipsis;
+                                                        min-width: 230px;
+                                                        display: inline-block;
+                                                        width: 230px;
+                                                        text-overflow: ellipsis;
+                                                        -webkit-line-clamp: 2;    display: inline;">
+                                                        @Html.Raw(item.Question)
+                                                    </div>
+                                                </td>
+                                                <td>@item.CreatedByStr</td>
+                                                <td>@item.CreatedOnStr</td>
+                                                <td>
+                                                    @if (item.IsActive)
+                                                    {
+                                                        <span class="status tag-success">Active</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="status tag-warning">Deactivate</span>
+                                                    }
+
+
+                                                </td>
+
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fas fa-bars"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                            <a class="dropdown-item EditFAQ" item="@item.Id">Edit</a>
+                                                            <a class="dropdown-item DeleteFAQ" item="@item.Id">Delete</a>
+                                                        </div>
+                                                    </div>
+
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_FaqModel", new Project.Models.Master.FAQViewModel())
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/lib//DataTables/DataTables-1.10.21/js/jquery.dataTables.min.js"></script>
+
+}
+
+<style>
+    .hoverClass {
+        border-radius: 0 !important;
+        border-bottom: 1px solid #ccc !important;
+    }
+</style>
+
+<script nonce="@Context.Items["nonce"]">
+
+
+    function removePreValidation() {
+        $("#Question").closest('.ibox').find("span.field-validation-valid, span.field-validation-error").find('span').remove();
+        $("#Answer").closest('.ibox').find("span.field-validation-valid, span.field-validation-error").find('span').remove();
+    }
+
+    function getFaqAfterDragDrop() {
+        var logs = [];
+        $("table tbody").find('tr').each(function (i, j) {
+            logs.push({ id: parseInt($(this).attr("itemid")), order: (i + 1) });
+        });
+        return logs;
+    }
+
+    $(document).ready(function () {
+        var fixHelper = function (e, ui) {
+            ui.children().each(function () {
+                $(this).width($(this).width());
+            });
+            return ui;
+        };
+
+        $("table tbody").sortable({
+            helper: fixHelper,
+            axis: 'y',
+            handle: ".iconselector",
+            start: function (e, ui) {
+                var elements = ui.item.siblings('.selected.hidden').not('.ui-sortable-placeholder');
+                ui.item.data('items', elements);
+                $(ui.item).find('tr').css("width", "500px");
+                $(ui.item).addClass("hoverClass");
+            },
+            update: function (e, ui) {
+                ui.item.after(ui.item.data("items"));
+            },
+            stop: function (e, ui) {
+                ui.item.siblings('.selected').removeClass('hidden');
+                $('tr.selected').removeClass('selected');
+                var details = (getFaqAfterDragDrop());
+
+                $.post("/Admin/Settings/UpdateFAQOrder", { request: details },
+                    function (data) {
+                        $("table tbody").find('tr').each(function (i, j) {
+                            $(this).find('td:eq(1)').html((i + 1));
+                        });
+                    }
+                );
+            },
+        });
+
+
+        $('.selector').each(function () {
+            $(this).html($(this).text());
+        });
+
+        var dtJson = {
+            ordering: false,
+            info: false,
+            "lengthChange": true,
+            "pageLength": 50,
+            language: {
+                search: "",
+                paginate: {
+                    next: '<i class="fas fa-arrow-right">', // or '→'
+                    previous: '<i class="fas fa-arrow-left">', // or '→'
+                },
+                "zeroRecords": "<center>No record(s) found !</center>",
+            },
+            "initComplete": function (settings, json) {
+                $(".dataTables_filter input").attr("placeholder", 'Search');
+            }
+        };
+
+        var dtr = $('#AllFAQ').DataTable(dtJson);
+
+        $(".createFAQ").click(function () {
+            removePreValidation();
+            $("#Id").val("");
+            $("#IsActive").prop('checked', true);
+            tinymce.get('Question').setContent("");
+            tinymce.get('Answer').setContent("");
+            $("#model").modal("show");
+        })
+
+        $(document).on('click', ".DeleteFAQ", function (e) {
+            var trr = $(this).closest('tr');
+            Swal.fire({
+                title: "Do you want to delete FAQ?",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post("/Admin/Settings/DeleteFaq?id=" + $(this).attr("item"),
+                        function (data) {
+                            if (data.isSuccess) {
+                                Swal.fire({
+                                    title: "Success",
+                                    text: data.message,
+                                    icon: "success"
+                                });
+
+                                $(trr).remove();
+                                //$('#AllFAQ').DataTable().destroy();
+                                //$('#AllFAQ').DataTable(dtJson).draw();
+
+                                //dtr.draw(true);
+                                //$('#AllFAQ').DataTable().ajax.reload(null, false);
+                                setTimeout(function () { window.location.href = window.location.href; }, 2500);
+                            }
+                            else {
+                                Swal.fire({ title: "Operation Failed!", text: "Try again later.", icon: "error" });
+                            }
+                        }
+                    );
+                }
+                else {
+                    e.preventDefault();
+                }
+            });
+        });
+
+
+        $(document).on('click', ".EditFAQ", function () {
+            removePreValidation();
+            $.post("/Admin/Settings/GetFaq?id=" + $(this).attr("item"),
+                function (data) {
+
+                    if (data.isSuccess) {
+                        tinymce.get('Question').setContent(data.data.question);
+                        tinymce.get('Answer').setContent(data.data.answer);
+                        $("#IsActive").prop('checked', data.data.isActive);
+                        $("#Id").val(data.data.id);
+                        $("#model").modal("show");
+                    }
+                    else {
+                        Swal.fire({ title: "Operation Failed!", text: "Try again later.", icon: "error" });
+                    }
+
+                }
+            );
+
+        });
+    });
+</script>

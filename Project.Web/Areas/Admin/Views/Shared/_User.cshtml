@@ -1,0 +1,248 @@
+﻿@using Project.Core.Enum;
+@model Project.Models.CommonModel.RegisterViewUserModel
+
+<link href="~/css/custom-select.css" rel="stylesheet" />
+<div class="modal fade modal-fullscreen-xl" id="DetailsModel" role="dialog" data-dismiss="modal" style="">
+    <div class="modal-dialog  modal-xl" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title">Register User</h5>
+                <button type="button" class="close CloseModal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detailsPartial" style="padding:0.7rem">
+<div class="row form-icon create-user-section">
+    <div class="col-xl-12 col-md-12">
+        <div class="card crm-card flex-fill create-user-form">
+            <form id="menuForm" action="/Admin/UserManagement/User?u=@ViewBag.User" method="post" enctype="multipart/form-data" novalidate>
+                @Html.AntiForgeryToken()
+                <div class="card-body">
+                    <div class="form-horizontal form-type-1">
+                        <div class="row">
+                            <input type="hidden" value="User" asp-for="Role" />
+                            @* <input type="hidden" value="@ViewBag.User" asp-for="Role" /> *@
+                            <input type="hidden" value="@Model.Id" asp-for="Id" />
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <label class="col-form-label d-block">Username* :</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                                            <input class="form-control whitespace" asp-for="Username" type="text" placeholder="Username" required />
+
+                                        </div>
+                                        <span asp-validation-for="Username" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+
+                                        <label class="col-form-label d-block">Email* :</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control" asp-for="Email" maxlength="100" type="text" placeholder="Email"
+                                                   name="Email" autocomplete="off" />
+
+                                        </div>
+                                        <span asp-validation-for="Email" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <label class="col-form-label d-block">First Name* :</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control whitespace" asp-for="FirstName" type="text" maxlength="20" placeholder="First Name" autocomplete="off" />
+                                        </div>
+                                        <span asp-validation-for="FirstName" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+
+                                        <label class="col-form-label d-block">Last Name* :</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control whitespace" asp-for="LastName" type="text" maxlength="20" placeholder="Last Name" autocomplete="off" />
+
+                                        </div>
+                                        <span asp-validation-for="LastName" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @* <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <label class="col-form-label d-block">Date of Birth*:</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control bg-white whitespace datepicker" asp-for="StrDateOfBirth" type="text" maxlength="10" placeholder="DD/MM/YYYY"
+                                                   autocomplete="off" />
+
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span asp-validation-for="StrDateOfBirth" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div> *@
+
+                            <div class="passwordDiv col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+
+                                        <label class="col-form-label d-block">Password* :</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control" asp-for="Password" type="password" maxlength="20" placeholder="Password"
+                                                   name="Password" autocomplete="off" />
+
+                                        </div>
+                                        <span asp-validation-for="Password" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="passwordDiv col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+
+                                        <label class="col-form-label d-block">Confirm Password :</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control" asp-for="ConfirmPassword" type="password" placeholder="Confirm Password"
+                                                   name="ConfirmPassword" autocomplete="off" />
+
+                                        </div>
+                                        <span asp-validation-for="ConfirmPassword" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                            @* <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <label class="col-form-label d-block">Profile Picture:</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control bg-white" asp-for="UserImageFile" type="file" placeholder="Enter Profile Picture" name="UserImageFile" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> *@
+
+                            @*@if (ViewBag.User.ToString() == EnumRole.Merchant.ToString())
+                            {
+                            <div class="col-xl-6 col-sm-6">
+                            <div class="form-group row">
+                            <div class="col-md-4">
+                            <label class="col-form-label d-block">Business Name:</label>
+                            </div>
+                            <div class="col-md-8">
+                            <div class="input-box">
+                            <input class="form-control bg-white " asp-for="BusinessName" type="text" placeholder="Enter Business Name"
+                            name="BusinessName" autocomplete="off" required />
+
+                            </div>
+                            <span asp-validation-for="BusinessName" class="text-danger d-block"></span>
+                            </div>
+                            </div>
+                            </div>
+                            }*@
+                        </div>
+
+
+
+                        @* <legend class="mb-6 mt-5">
+                            <p class="nui-heading nui-heading-md nui-weight-medium nui-lead-none" style="margin-bottom: 5px;" tag="h3">Address Details</p>
+                            <p class="nui-text nui-content-xs nui-weight-normal nui-lead-normal text-muted-400" style="font-size: 13px;">User Address details</p>
+                        </legend> *@
+
+                        @* <div class="row">
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+
+                                        <label class="col-form-label d-block">Address* :</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control bg-white" asp-for="Address" type="text" placeholder="Enter Address" autocomplete="off" maxlength="150" minlength="1" />
+                                        </div>
+                                        <span asp-validation-for="Address" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <label class="col-form-label d-block">PostCode* :</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control bg-white " asp-for="PostCode" type="text" placeholder="Enter Post Code" autocomplete="off" required maxlength="9" minlength="6" />
+                                        </div>
+                                        <span asp-validation-for="PostCode" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-sm-6">
+                                <div class="form-group row">
+                                    <div class="col-md-4">
+                                        <label class="col-form-label d-block">Town :</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-box">
+                                            <input class="form-control bg-white " asp-for="Town" type="text" placeholder="Enter Town Name" autocomplete="off" maxlength="20" minlength="1" />
+
+                                        </div>
+                                        <span asp-validation-for="Town" class="text-danger d-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> *@
+
+
+                        <div class="form-group row mb-0">
+                            <div class="col-xl-6 col-md-12 text-center btn-group">
+                                <div class=" row">
+                                    <div class="col-6">
+                                        <button type="submit" class="btn btn-dark " id="btnSubmit" style="width:100px" >Create</button>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="/admin/UserManagement/Index" class="btn btn-secondary valid" style="width:100px">Cancel</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    
+    <script src="~/js/customselect.js"></script>
+}

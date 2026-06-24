@@ -1,0 +1,94 @@
+﻿@using Microsoft.AspNetCore.Http
+@{
+    string fullPath =  Context.Request.Path.Value;
+    int index = fullPath.LastIndexOf("/")+1;
+    string pageMethod = fullPath.Substring((index), fullPath.Length - index);
+
+}
+
+<style>
+    .tabs a {
+        padding: 0.75rem;
+        display: block;
+        width: 100%;
+    }
+
+        .tabs a i {
+            margin-right: 7px;
+        }
+
+        .tabs a.active {
+            background: rgba(139, 92, 246, 0.1);
+            color: rgb(139, 92, 246);
+        }
+
+    .tabs a {
+        font-size: 14.5px;
+        color: #818181;
+        background: transparent;
+        border-radius: 10px;
+        margin: 0 0 10px;
+        text-decoration: none;
+    }
+
+        .tabs a:hover {
+            color: #000;
+            background: #fff;
+        }
+
+    .crm-card .card-header .heading {
+        flex-wrap: wrap;
+        text-align: left;
+        justify-content: start;
+    }
+
+    .crm-card a.nui-button.nui-button-medium.nui-button-rounded.nui-button-solid.nui-button-default.w-24 {
+        color: #fff;
+        background-color: #1d2124;
+        border-color: #171a1d;
+    }
+
+    @@media (max-width:767px) {
+        ul.tabs {
+            display: flex;
+            white-space: nowrap;
+            overflow-x: auto;
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="col-12 col-md-3">
+    <div class="row">
+        <div class="col-xl-12 mb-5 ml-3 flex flex-col justify-between md:flex-row md:items-center">
+            <div class="ltablet:max-w-full flex max-w-[425px] flex-col items-center gap-4 text-center md:flex-row md:text-left lg:max-w-full">
+                <div class="nui-avatar-small nui-avatar-lg nui-avatar-full">
+                    <div class="nui-avatar-inner" style="background: #962fe3;color: #fff;">
+                        <i class="fas fa-wrench" style="font-size: 20px;"></i>
+                    </div>
+                </div>
+                <div class="text-left">
+                    <h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
+                        <span>Settings</span>
+                    </h3><p style="color: #979797;" class="nui-paragraph nui-paragraph-md nui-weight-normal nui-lead-normal">
+
+                        <span class="text-muted-500">Manage application setting</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-9">
+            <ul class="tabs">
+                <li><a class="@(pageMethod.ToLower() == "settings" ? "active" :"")" href="/user/settings"><i class="fas fa-lock-open"></i>Change Password</a></li>
+                <li><a class="@(pageMethod.ToLower() == "capping" ? "active" :"")" href="/user/settings/capping"><i class="fas fa-chart-pie"></i>Capping Settings</a></li>
+                <li><a class="@(pageMethod.ToLower() == "invite" ? "active" :"")" href="/user/settings/invite"><i class="fas fa-user-plus"></i>Invite a user</a></li>
+                <li><a class="@(pageMethod.ToLower() == "userprofile" ? "active" :"")" href="/User/settings/UserProfile"><i class="fas fa-user"></i>Profile</a></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+ 
+
+

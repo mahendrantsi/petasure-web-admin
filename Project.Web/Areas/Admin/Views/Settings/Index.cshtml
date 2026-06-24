@@ -1,0 +1,101 @@
+﻿@using Project.Web.Areas.Admin.Controllers;
+@model Project.Models.CommonModel.SettingsViewModel
+@{
+    var userRole = (List<string>)ViewBag.Users;
+
+}
+<style>
+    .checkbox-xl {
+        top: 1.2rem;
+        scale: 1.7;
+        margin-right: 0.8rem;
+    }
+</style>
+
+
+<div class="row">
+    @await Html.PartialAsync("_SettingMenu")
+
+    <div class="col-12 col-md-9">
+        <form id="KYC" asp-action="Save" method="post" asp-controller="Settings" asp-area="Admin">
+            <div class="row">
+                <div class="col-xl-12 d-flex">
+                    <div class="card crm-card flex-fill">
+                        <div class="card-header ">
+                            <div class="heading">
+                                <h5 style="color:#000">Settings</h5>
+                                <p style="display:block;width:100%;    font-size: 13px; margin: 0;color: #7b7b7b;font-weight: 300;">
+                                    Enable/Disable onboarding setting
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="submit" class="btn btn-dark" value="Save Settings">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-horizontal form-type-1">
+                                <div class="row">
+                                    <div class="col-xl-6">
+                                        <div class="form-group row">
+                                            <div class="col-md-6 ">
+                                                <label class="col-form-label">Is Email verification required for onboarding?</label>
+                                            </div>
+
+                                            <div class="col-md-6 p-3">
+                                                <input type="hidden" value="@Model.Id" name="Id">
+                                                <input type="checkbox" asp-for="@Model.IsEmailConfirmed" class="checkbox-xl" />
+                                                <i class="fas fa-info-circle ml-3" data-toggle="tooltip" data-placement="top" title="This setting enable email verification mandatory to onboard."></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="form-group row">
+                                            <div class="col-md-6 ">
+                                                <label class="col-form-label">Is Phone verification required for onboarding?</label>
+                                            </div>
+
+                                            <div class="col-md-6 p-3">
+                                                <input type="checkbox" asp-for="@Model.IsPhoneVerificationRequired" class="checkbox-xl" />
+                                                <i class="fas fa-info-circle ml-3" data-toggle="tooltip" data-placement="top" title="This setting enable phone verification mandatory to onboard."></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row mb-0">
+                                    <div class="col-md-12 ">
+                                        @*                   <a class="btn btn-outline-danger px-3" asp-action="Index">Cancel</a>*@
+                                        <input type="submit" class="btn btn-dark" value="Save Settings">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </form>
+    </div>
+</div>
+@await Html.PartialAsync("_OnboardDocumnetModel", new Project.Models.CommonModel.DocumentSettingViewModel())
+
+<script nonce="@Context.Items["nonce"]">
+
+    $(document).ready(function () {
+        $(".addonboarddocument").click(function () {
+            $("#Id").val("");
+            $("#IsActive").prop('checked', true);
+            $("#model").modal("show");
+        })
+    });
+            //function changeThis(item) {
+
+            //    if ($(item).is(':checked')) {
+            //        $(item).closest('.outer').next(".changer").show();
+            //    }
+            //    else
+            //    {
+            //        $(item).closest('.outer').next(".changer").hide();
+            //    }
+            //}
+
+</script>

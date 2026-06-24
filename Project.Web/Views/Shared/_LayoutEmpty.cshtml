@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/favicon.png">
+    <title>@ViewData["Title"] Petasure</title>
+    <!-- <link href="css/custom.scss" type="text/css" rel="stylesheet"> -->
+    <environment include="Development">
+        <script type="text/javascript" src="~/scripts/modernizr.custom.28468.js"></script>
+        <script type="text/javascript" src="~/scripts/jquery-3.5.1.min.js"></script>
+        <script type="text/javascript" src="~/scripts/jquery.cslider.js"></script>
+        <script type="text/javascript" src="~/scripts/bootstrap.min.js"></script>
+        <script type="text/javascript" src="~/scripts/wow.js"></script>
+        <script type="text/javascript" src="~/scripts/custom.js"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+        <link href="~/css/style.css" type="text/css" rel="stylesheet" />
+        <link href="~/css/animate.css" type="text/css" rel="stylesheet" />
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/site.min.js"></script>
+        <link href="~/css/site.min.css" rel="stylesheet" />
+    </environment>
+    <script type="text/javascript">
+        $(function () {
+            $('#da-slider').cslider({
+
+            });
+        });
+    </script>
+    <style>
+        .banner::before {
+            content: "";
+            background: url(../images/about.jpg) 0 100% no-repeat;
+            background-size: auto;
+            background-size: 100% auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="overlay"></div>
+        <div class="header-banner">
+            <header class="header">
+                <div class="container">
+                    <div class="row ">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-md-center">
+                                <a class="navbar-brand">
+                                    <img src="~/images/Icon.jpg" width="75" class="logo-img" alt="Project" />
+                                </a>
+
+                                <nav class="nav navbar-expand-lg navbar-dark">
+                                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                                    </div>
+                                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                        <span class="navbar-toggler-icon"></span>
+                                    </button>
+                                    <a href="/Account/Register" class="header__btn-signup mr-5">Sign Up</a>
+                                    <a href="/Account/Login" class="header__btn-signup">Sign In</a>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header> 
+        </div>
+
+
+        @RenderBody()
+
+
+
+        <div class="footer">
+            <div class="container"> 
+
+                <div class="footer-bottom">
+                    <div class="row">
+                        <div class="col-md-6">Copyright © 2023 </div>
+                        <div class="col-md-6 text-md-right">
+                            <div class="foot-links">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+﻿@using Project.Core.Enum;
+@model List<Project.Models.Master.IntegrationViewModel>
+
+@{
+    Layout = "_Layout";
+}
+<style>
+    .card {
+        width: 36rem;
+        border-radius: 1rem;
+    }
+
+    .col-md-4 {
+        padding: 10px;
+    }
+</style>
+<h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
+    <span>Email Integrations</span>
+    <button id="addIntegrationbtn">Add Integration</button>
+</h3>
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4">
+            <div class="card">
+                <img src="@item.Image" class="card-img-top" alt="@item.Name logo" style="max-height: 100px; object-fit: contain;">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Name</h5>
+                    <span class="badge @((item.Status == "Connected" ? "badge-success" : "badge-secondary"))">
+                        @(item.Status)
+                    </span>
+                    <p class="card-text">@item.Description</p>
+                    <a href="#" class="btn btn-primary mt-2">Connect</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

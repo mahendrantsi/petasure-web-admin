@@ -1,0 +1,239 @@
+@font-face {
+    font-family: "poppins";
+    src: url("../fonts/poppins-light-webfont.woff2") format("woff2"), url("../fonts/poppins-light-webfont.woff") format("woff");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "poppins";
+    src: url("../fonts/poppins-regular-webfont.woff2") format("woff2"), url("../fonts/poppins-regular-webfont.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "poppins";
+    src: url("../fonts/poppins-medium-webfont.woff2") format("woff2"), url("../fonts/poppins-medium-webfont.woff") format("woff");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "poppins";
+    src: url("../fonts/poppins-semibold-webfont.woff2") format("woff2"), url("../fonts/poppins-semibold-webfont.woff") format("woff");
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "poppins";
+    src: url("../fonts/poppins-bold-webfont.woff2") format("woff2"), url("../fonts/poppins-bold-webfont.woff") format("woff");
+    font-weight: 700;
+    font-style: normal;
+}
+
+html,
+body {
+    font-family: "poppins";
+    font-weight: 400;
+    font-size: 14px;
+}
+
+*,
+*:before,
+*:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+.flex-root {
+    -webkit-box-flex: 1;
+    flex: 1;
+    -ms-flex: 1 0 0px;
+}
+
+.flex-row-fluid {
+    -webkit-box-flex: 1;
+    flex: 1 auto;
+    -ms-flex: 1 0 0px;
+    min-width: 0;
+}
+
+@media screen and (-ms-high-contrast: active),
+(-ms-high-contrast: none) {
+    .flex-row-fluid {
+        min-width: none;
+    }
+}
+
+.flex-center {
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a {
+    color: #5a738e;
+    text-decoration: none;
+}
+
+a,
+a:visited,
+a:focus,
+a:active,
+:visited,
+:focus,
+:active,
+.btn:focus,
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn.active.focus {
+    outline: 0;
+}
+
+a:hover,
+a:focus {
+    text-decoration: none;
+}
+
+.clearfix:before,
+.clearfix:after {
+    content: " ";
+    display: table;
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+.clearfix {
+    *zoom: 1;
+}
+
+.clearfix:after,
+form:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.vcenter {
+    vertical-align: middle;
+}
+
+.m-2 {
+    margin: 0.5rem !important;
+}
+
+.mb-1,
+.my-1 {
+    margin-bottom: 0.25rem !important;
+}
+
+.mb-2,
+.my-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+.mr-1 {
+    margin-right: 0.25rem !important;
+}
+
+.mr-2 {
+    margin-right: 0.5rem !important;
+}
+
+.mr-3 {
+    margin-right: 1rem !important;
+}
+
+.pd-0 {
+    padding: 0 !important;
+}
+
+.btn.btn-pill {
+    border-radius: 2rem;
+}
+
+.nav-right {
+    -webkit-box-pack: end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+}
+
+ul {
+    padding-left: 0px;
+    list-style-type: none;
+    margin-bottom: 0;
+    padding-right: 0px;
+}
+ 
+.btn-danger {
+    @extend %crm-btn-danger;
+}
+
+.btn-yellow {
+    @extend %crm-btn-yellow;
+}
+
+.btn-black {
+    @extend %crm-btn-black;
+}
+
+.btn-white {
+    @extend %crm-btn-white;
+}
+
+.modal {
+    .modal-content {
+        border-radius: $border-radius10;
+    }
+    @media screen and (min-width: 992px) {
+        .modal-dialog.modal-lg {
+            max-width: 768px;
+        }
+    }
+}
+
+.cursor-default {
+    cursor: default;
+}

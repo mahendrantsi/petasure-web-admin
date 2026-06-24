@@ -1,0 +1,272 @@
+﻿@using Project.Core.Enum;
+@using Project.Models.ProfileModel;
+@model Project.Models.AdminModel.UserProfileViewModel
+
+ 
+<link href="~/css/custom-select.css" rel="stylesheet" />
+
+<form id="menuForm" asp-controller="Account" asp-area="User" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        @*<div class="col-md-12 col-xl-8 d-flex">*@
+            <div class="col-md-12 col-xl-12 d-flex">
+
+            <div class="card crm-card flex-fill">
+                <div class="card-header ">
+                    <div class="heading">
+                        Profile Details
+                    </div>
+                    <div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-horizontal form-type-1">
+                        <div class="row">
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Username </label>
+                                    <div class="col-md-8">
+                                        <span style="    line-height: 41px;">@Model.Username</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Email </label>
+                                    <div class="col-md-8">
+                                        <span style="line-height: 41px;">@Model.Email</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+
+
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">First Name </label>
+                                    <div class="col-md-8">
+                                        <input type="hidden" asp-for="Id" />
+                                        <input type="hidden" asp-for="UserId" />
+                                        <span style="line-height: 41px;">@Model.FirstName</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Last Name </label>
+                                    <div class="col-md-8">
+                                        <span style="line-height: 41px;">@Model.LastName</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                        <div class="row">
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Date of Birth</label>
+                                    <div class="col-md-8">
+                                        <span style="line-height: 41px;">@Model.StrDateOfBirth</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-sm-12">
+                                <div class="form-group row">
+                                    <label class="col-md-4 col-form-label">Profile Picture</label>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+
+                                                <img height="50px" width="50px" src="@(Model.UserImage??"~/images/userimage.svg")" onerror="this.src='/images/users1.png'" alt="Image" />
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+        
+    </div> 
+</form> 
+<div class="modal" tabindex="-1" role="dialog" id="AddBankModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bank Details</h5>
+                <button type="button" class="close CloseModal" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="/User/Account/SaveBankDetails">
+                <div class="modal-body accountdetails user-bank-details-section" style="padding:35px">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Select Bank</label>
+                                <div class="input-box">
+
+                                    <select class="form-control" id="BankId">
+                                        <option value="0">--select--</option>
+                                        @foreach (var bank in ViewBag.lstInstitution)
+                                        {
+                                            <option value="@bank.Value" data-bank='@Html.Raw(Json.Serialize(bank))'>@bank.Text</option>
+                                        }
+                                    </select>
+                                    <span class="text-danger" id="BankId-error"></span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Account No</label>
+                                <div class="input-box">
+
+                                    <input type="text" id="accountNo" name="accountNo" class="form-control bg-white whitespace" minlength="8" maxlength="15" placeholder="Account No" autocomplete="off" required />
+                                    <span class="text-danger" id="accountNo-error"></span>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Sort Code</label>
+                                <div class="input-box">
+                                    <input type="text" id="sortCode" name="sortCode" class="form-control bg-white whitespace" minlength="6" maxlength="6" placeholder="Sort Code" autocomplete="off" required />
+                                    <span class="text-danger" id="sortCode-error"></span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group row">
+                                <div class="col-md-12">
+                                    <label class="d-block col-form-label">Primary Account</label>
+                                    <div class="input-box">
+                                        <div class="flex">
+                                            <input type="checkbox" placeholder="IsPrimaryAccount" name="IsPrimary" autocomplete="off" data-val="true" id="IsPrimary">
+                                            <label for="IsPrimary" style="margin-top: 0; line-height:29px; margin-left:10px;"> Check to make account primary</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-dark AddBankAccountDetails" value="Save" />
+                    <input type="button" class="btn btn-secondary CloseModal" value="Close" data-dismiss="modal" aria-label="Close" />
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+@* Account & Sort Code Modal *@
+
+<script>
+    $(".AddBankAccountDetails").click(function (e) {
+        debugger;
+        e.preventDefault();
+
+        var isValid = true;
+        $('.accountdetails input').each(function () {
+            if (!$(this).valid()) {
+                isValid = false;
+                return false;
+            }
+        });
+        if (isValid) {
+            console.log("valid");
+            $('.loader').show();
+
+            var selectedOption = $("#BankId option:selected").data('bank');
+            console.log($("#BankId option:selected").data('bank'));
+            var data = {
+                Value: selectedOption.value,
+                Text: selectedOption.text,
+                EnvironmentType: selectedOption.environmentType,
+                CredentialsType: selectedOption.credentialsType,
+                IconUrl: selectedOption.iconUrl,
+                LogoUrl: selectedOption.logoUrl,
+                AccountNo: $("#accountNo").val(),
+                SortCode: $("#sortCode").val(),
+                Selected: true,
+                Countries: selectedOption.countries,
+                IsPrimary: $("#IsPrimary").is(':checked')
+            };
+
+            console.log(data);
+
+            $.ajax({
+                type: "POST",
+                url: '/User/Account/SaveBankDetails',
+                data: JSON.stringify(data),
+                contentType: "application/json",
+
+                success: function (response) {
+                    console.log(response);
+                    if (response.isSuccess) {
+                        $.get("/User/Account/GetBankDetails", function (res) {
+                            if (res) {
+                                $('#BankDetails').html(res);
+
+                                // Clear the values
+                                $("#accountNo").val('');
+                                $("#sortCode").val('');
+                                $("#BankId").val('0');
+                                $('#AddBankModal').modal('hide');
+                                $('.loader').hide();
+                            }
+                        });
+                    }
+                    else {
+
+                    }
+                },
+                error: function (error) {
+                    console.log("Error: ", error);
+                    $('.loader').hide();
+                },
+                failure: function (error) {
+                    console.log("Error: ", error);
+                    $('.loader').hide();
+                }
+            });
+        }
+    });
+
+
+    @if (ViewBag.Message is not null)
+    {
+        @if ((bool)(ViewBag.Message))
+        {
+            @:Swal.fire('Success', 'Account deactivation request submitted successfully', 'success');
+            @:$('input[type="text"],textarea').val('');
+        }
+        else
+        {
+            @:Swal.fire('Oops', 'Something went wrong, please try again', 'error');
+        }
+    }
+</script>
+
+
+
+<script src="~/scripts/printdiv.js"></script>
+@section Scripts{
+    <script src="~/sitejs/profilemanagement.js" asp-append-version="true"></script>
+    <script src="~/js/customselect.js"></script>
+}

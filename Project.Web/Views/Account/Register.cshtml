@@ -1,0 +1,534 @@
+﻿@model Project.Models.CommonModel.RegisterViewModel
+@{
+    ViewData["Title"] = "Sign up";
+    Layout = "_OuterLayout";
+
+}
+<link href="~/css/select2.min.css" rel="stylesheet" />
+<script src="~/js/select2.min.js"></script>
+<link href="~/css/custom-select.css" rel="stylesheet" />
+
+<style>
+    .btn:hover {
+        color: #FFF;
+        text-decoration: none;
+    }
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        background: #f0f5f9; 
+    }
+
+    .select2-container--default .select2-selection--single{overflow:hidden;}
+
+    .mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .max-w-4xl {
+        max-width: 56rem;
+    }
+
+    .min-h-screen {
+        min-height: 100vh;
+    }
+
+    .flex-col {
+        flex-direction: column;
+    }
+
+    .size-full {
+        height: 100%;
+        width: 100%;
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .flex-justify {
+        justify-content: space-between
+    }
+
+    .flex-center {
+        justify-content: center;
+    }
+
+
+    .flex-col {
+        flex-direction: column;
+    }
+
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .max-w-7xl {
+        max-width: 80rem;
+    }
+
+    .transition-all {
+        transition-duration: .15s;
+        transition-property: all;
+        transition-timing-function: cubic-bezier(.4,0,.2,1);
+    }
+
+    .w-16 {
+        width: 4rem;
+    }
+
+    .pb-5, .py-5 {
+        padding-bottom: 2rem !important;
+    }
+
+    .pt-5, .py-5 {
+        padding-top: 2rem !important;
+    }
+
+    .headingPara {
+        color: rgb(100, 116, 139);
+        font-size: 16px;
+    }
+
+    .inpGap {
+        gap: 0.75rem;
+    }
+
+    .pinText {
+        transition-duration: .15s;
+        transition-property: all;
+        transition-timing-function: cubic-bezier(.4,0,.2,1);
+        font-weight: 700;
+        font-size: 2.25rem;
+        line-height: 2.5rem;
+        text-align: center;
+        padding-bottom: 1.25rem;
+        padding-top: 1.25rem;
+        background-color: #f1eded;
+        border-radius: 0.5rem;
+        -webkit-user-select: none;
+        user-select: none;
+        width: 4rem;
+        display: inline;
+        outline-color: transparent;
+        outline-offset: 2px;
+        outline-style: dashed;
+        outline-width: 2px;
+        border: 0;
+        width: 64px;
+        border-radius: 10px !important;
+        border: 2px solid #fff;
+    }
+
+
+    .button-curved {
+        border-radius: 0.75rem;
+        font-size: 1.25rem;
+        height: 2.5rem;
+        line-height: 1.25rem;
+        padding: 1.5rem 2.25rem;
+        display: inline-block;
+        background: rgb(139, 92, 246);
+        color: #fff;
+        border: 1px solid #ccc;
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+        position: relative;
+    }
+
+    .otp {
+        margin: 0 auto;
+    }
+
+    .frm {
+        margin: 0 auto;
+    }
+
+    .pinText:focus {
+        border: 2px dashed #cbd5e1;
+        line-height: 2.5rem;
+    }
+
+    .otpBox {
+        border: 1px solid #9f9fa7;
+        padding: 70px;
+        border-radius: 16px;
+        background-color: #fff;
+    }
+
+        .otpBox .logo-img {
+            width: 148px;
+            height: auto;
+            margin-top: 0px;
+            margin-bottom: 30px;
+        }
+
+    .otpBoxflex {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        align-content: space-around;
+    }
+
+    .button-sendagain {
+        display: inline-block;
+        background: #fff;
+        color: rgb(139, 92, 246);
+        border: none;
+        display: inline-flex;
+        position: relative;
+        cursor: pointer;
+    }
+
+        .button-sendagain:disabled {
+            cursor: not-allowed;
+        }
+
+    .login-form .login-signin .referral-box {
+        border: 2px dotted #d1ba18;
+        color: #000;
+        padding: 10px;
+        border-radius: 6px;
+        margin: 10px 0px;
+        background: #fefaee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 14px;
+        font-weight: 600;
+        color: #324465;
+    }
+
+        .login-form .login-signin .referral-box span {
+            color: #324465;
+            font-size: 20px;
+            font-weight: 700;
+
+        }
+  
+</style>
+
+<div class="to-primary-500 signup" style="@(ViewBag.IsOtpError is not null ? "display:none!important;":"")">
+    <div class="mx-auto max-w-xs text-center">
+        <h2 class="nui-heading nui-heading-3xl nui-weight-medium nui-lead-normal text-white"> Have an Account? </h2>
+        <p class="nui-paragraph nui-paragraph-sm nui-weight-normal nui-lead-normal text-muted-200 mb-3">
+            No need to waste time on this page, let's take you back to your account
+        </p>
+        <a href="/account/login" class="nui-button nui-button-medium nui-button-curved nui-button-solid nui-button-default w-full" rel="" disabled="false">
+            Sign In to Account
+        </a>
+    </div>
+</div>
+
+<form method="post" id="menuForm" class="form fv-plugins-bootstrap fv-plugins-framework frm " asp-area="" asp-controller="Account" asp-action="Register">
+    <div class="login login-3 login-signin-on d-flex flex-row-fluid signup" id="login" style="@(ViewBag.IsOtpError is not null ? "display:none!important;":"")">
+        <div class="d-flex flex-center bgi-size-cover bgi-no-repeat flex-row-fluid">
+            <div class="login-form text-white p-7 position-relative overflow-hidden">
+                <div class="d-flex flex-center mb-15">
+                    <a asp-area=""> <img src="~/images/Project-Logo.svg" class="logo-img" alt="Image" /> </a>
+                    <input type="hidden" name="ReferralCode" id="ReferralCode" value="@Model.ReferralCode">
+                </div>
+                <div class="login-signin">
+
+                    @Html.AntiForgeryToken()
+                    <div class="form-group text-center">
+                        <h3>
+                            Sign up to get started
+                        </h3>
+                    </div>
+
+                    <div class="form-group withLabel">
+                        <label class="nforLabel">Username*</label>
+                        <input class="form-control" asp-for="Username" type="text" placeholder="Username" maxlength="20" autofocus autocomplete="off" />
+                        <i class="fas fa-user"></i>
+                        <span asp-validation-for="Username" class="text-danger d-block"></span> 
+                    </div>
+
+                    <div class="form-group withLabel">
+                        <label class="nforLabel">Email*</label>
+                        <input class="form-control" asp-for="Email" type="text" placeholder="Email" autocomplete="off" />
+                        <span asp-validation-for="Email" class="text-danger d-block"></span>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group withLabel mt-0">
+                                <label class="nforLabel">First name*</label>
+                                <input class="form-control" asp-for="FirstName" type="text" placeholder="First Name" maxlength="20" autocomplete="off" />
+                                <i ><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="icon nui-input-icon-inner" style="" width="1em" height="1em" viewBox="0 0 256 256" data-v-7663d7ec=""><g fill="currentColor"><path d="M192 96a64 64 0 1 1-64-64a64 64 0 0 1 64 64" opacity=".2"></path><path d="M230.92 212c-15.23-26.33-38.7-45.21-66.09-54.16a72 72 0 1 0-73.66 0c-27.39 8.94-50.86 27.82-66.09 54.16a8 8 0 1 0 13.85 8c18.84-32.56 52.14-52 89.07-52s70.23 19.44 89.07 52a8 8 0 1 0 13.85-8M72 96a56 56 0 1 1 56 56a56.06 56.06 0 0 1-56-56"></path></g></svg></i>
+                                <span asp-validation-for="FirstName" class="text-danger d-block"></span>
+                                
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group withLabel mt-0">
+                                <label class="nforLabel">Last name*</label>
+                                <input class="form-control" asp-for="LastName" type="text" placeholder="Last Name" autocomplete="off" />
+                                <i><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="icon nui-input-icon-inner" style="" width="1em" height="1em" viewBox="0 0 256 256" data-v-7663d7ec=""><g fill="currentColor"><path d="M192 96a64 64 0 1 1-64-64a64 64 0 0 1 64 64" opacity=".2"></path><path d="M230.92 212c-15.23-26.33-38.7-45.21-66.09-54.16a72 72 0 1 0-73.66 0c-27.39 8.94-50.86 27.82-66.09 54.16a8 8 0 1 0 13.85 8c18.84-32.56 52.14-52 89.07-52s70.23 19.44 89.07 52a8 8 0 1 0 13.85-8M72 96a56 56 0 1 1 56 56a56.06 56.06 0 0 1-56-56"></path></g></svg></i>
+                                <span asp-validation-for="LastName" class="text-danger d-block"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                     
+                    <div class="form-group custom-drop-country withLabel">
+                        <div class="row">
+                            <div class="col-md-5 col-xl-4 col-4">
+                                <label class="nforLabel">Country*</label>
+                                <select asp-for="MobileCountryCode" class="form-control country-sec customDropdown " require>
+                                    @foreach (var item in ViewBag.lstCountry)
+                                    {
+                                        <option value="@item.Id" data-image="/images/country-flags/@item.Flag">@item.DialCode</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="MobileCountryCode" class="text-danger d-block"></span>
+                            </div>
+                            <div class="col-md-7 col-xl-8 col-8">
+                                <div class="form-group withLabel mt-0">
+                                    <label class="nforLabel">Phone No*</label>
+                                    <input class="form-control numbersOnly" asp-for="PhoneNumber" type="text" placeholder="Phone Number" maxlength="11" name="PhoneNumber" autocomplete="off" />
+                                    <i class="fas fa-phone"></i>
+                                    <span asp-validation-for="PhoneNumber" class="text-danger d-block"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group eye-box withLabel">
+                        <label class="nforLabel">Password*</label>
+                        <input class="form-control" asp-for="Password" type="password" value='@TempData["pw"]' placeholder="Password" autocomplete="off" />
+                        <i class="fas fa-lock"></i>
+                        <span asp-validation-for="Password" class="text-danger d-block"></span>
+                        
+                        @*  <div class="eye-view">
+                        <i class="fas fa-eye eye"></i>
+                        <i class="fas fa-eye-slash"></i>
+                        </div> *@
+
+                    </div>
+                    <div class="form-group withLabel">
+                        <label class="nforLabel">Confirm password*</label>
+                        <input class="form-control" asp-for="ConfirmPassword" type="password" value='@TempData["pw"]' placeholder="Confirm Password" autocomplete="off" />
+                        <i class="fas fa-lock"></i>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger d-block"></span>
+                       
+                    </div>
+                    <div class="form-group last-child row d-flex flex-wrap justify-content-between align-items-center px-8">
+                        <div class="col-12 text-left">
+                            <input type="checkbox" asp-for="TermsConditions" name="TermsConditions" required />
+                            <label class="control-label text-dark m-0" for="TermsConditions">
+                                Agree to our <a target="_blank" style="text-decoration: underline;" href="/legal/terms-and-conditions">Terms & Conditions</a>
+                            </label>
+                            <span asp-validation-for="TermsConditions" class="text-danger d-block"></span>
+                          
+                            @if (!string.IsNullOrEmpty(ViewBag.ReferralCode))
+                            {
+                                <div class="referral-box">Referral code applied: <span>@Model.ReferralCode</span></div>
+                                
+                            }
+                        </div>
+                        
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-custom2" type="button" id="btnContinue">Continue</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="otp" style=" @(ViewBag.IsOtpError is not null ? "display:block!important;" : "display:none!important;") ">
+        <div>
+            <div class="mt-5 otpBox">
+                <div class="flex otpBoxflex mb-15">
+                    <a asp-area=""> <img src="~/images/Project-Logo.svg" class="logo-img" alt="Image"> </a>
+                </div>
+                <div class="flex size-full flex-col">
+                    <div class=" ">
+                        <div class="flex h-16 items-center flex-center">
+                            <div class="">
+                                <svg data-v-7663d7ec="" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="icon text-primary-500 mx-auto size-8" width="1em" height="1em" viewBox="0 0 256 256"><g fill="currentColor"><path d="M216 96v112a8 8 0 0 1-8 8H48a8 8 0 0 1-8-8V96a8 8 0 0 1 8-8h160a8 8 0 0 1 8 8" opacity=".2"></path><path d="M208 80h-32V56a48 48 0 0 0-96 0v24H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V96a16 16 0 0 0-16-16M96 56a32 32 0 0 1 64 0v24H96Zm112 152H48V96h160zm-68-56a12 12 0 1 1-12-12a12 12 0 0 1 12 12"></path></g></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-4 text-center">
+                        <h2> Enter your code </h2>
+                        <p class="headingPara"> Enter the pin code we've just sent you </p>
+                    </div>
+                    <div class=" flex h-60 w-72 flex-col ">
+                        <div class="flex w-full justify-center inpGap otp-form">
+                            <input class="otp-value" type="hidden" name="OTPCode">
+                            <input type="text" name="opt-field[]" maxlength="1" autocomplete="off" class="pinText otp-field" placeholder="-">
+                            <input type="text" name="opt-field[]" maxlength="1" autocomplete="off" class="pinText otp-field" placeholder="-">
+                            <input type="text" name="opt-field[]" maxlength="1" autocomplete="off" class="pinText otp-field" placeholder="-">
+                            <input type="text" name="opt-field[]" maxlength="1" autocomplete="off" class="pinText otp-field" placeholder="-">
+                        </div>
+                        <div class="mt-5 text-center">
+                            <button class="button-curved" type="submit" id="btnVerifyOTP" disabled="disabled">Continue</button>
+                            <div class="mt-5 flex items-center flex-justify">
+                                <p class=""> Didn't receive the code? </p>
+                                <button id="btnSendAgain" class="sendagain button-sendagain" disabled="disabled"> Send it again </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 text-center">
+                            <div class="flex items-center flex-justify" style="text-align: center;justify-content: center;align-content: space-around;align-items: center;">
+                                <p>
+                                    <span class="timerLabel">Your Otp will expire in </span><span style="color: #0042ce;" id="timerLabel"></span>
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts{
+    <script src="~/js/customselect.js"></script>
+
+    <script>
+
+        //alert(@ViewBag.OtpTime);
+
+
+        function startTimer(duration, display) {
+            var timer = duration, minutes, seconds; 
+            var intervalId = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(intervalId);
+                    timer = 0;
+                    $(".timerLabel").html("Otp is expired, resend again to continue.");
+                    $("#timerLabel").html("");
+                    $("#btnSendAgain").attr("disabled", false);
+                }
+            }, 1000);
+        }
+
+        $(document).ready(function () {
+           
+            setTimeout(function () {
+                $('#MobileCountryCode').rules('add', {
+                    required: function (element) {
+                        return $("#PhoneNumber").val().length > 0;
+                    },
+                    messages: {
+                        required: "Country is required."
+                    }
+                });
+            }, 0);
+
+            $("#btnContinue,#btnSendAgain").click(function () {
+                if ($("#menuForm").valid()) {
+                    $this = this;
+                    $($this).attr("disabled", true);
+                    $('.loader').show();
+                    $.post("/Account/GenerateOTP", { Username: $('#Username').val(), email: $('#Email').val(), PhoneNumber: $('#PhoneNumber').val()},
+                        function (data) {
+                            $('.loader').hide();
+                            if (data.isSuccess) {
+                                startTimer(120, document.querySelector('#timerLabel'));
+                                $(".timerLabel").html("Otp will expire in ");
+                                $(".signup").attr('style', 'display:none !important');
+                                $(".otp").attr('style', 'display:block !important');
+                                $(".otp-form *:input[type!=hidden]:first").focus();
+                                
+                                if ($($this).attr("id") == "btnSendAgain") {
+                                    startTimer(120, document.querySelector('#timerLabel'));
+                                    $(".timerLabel").html("Otp will expire in ");
+                                    Swal.fire({ title: "Success", text: "New OTP is send successfully!", icon: "success", timer: 2000 });
+                                }
+                            }
+                            else {
+                                $($this).attr("disabled", false);
+                                Swal.fire({ title: "Already Exists", text: data.message, icon: "error" });
+                            }
+                        }
+                    );
+                }
+            });
+            $("#btnVerifyOTP").click(function () {
+                $('.loader').show();
+                $("#menuForm").submit();
+            });
+
+            $("#PhoneNumber").keyup(function () {
+                $("#menuForm").validate().element("# ");
+                if ($("#MobileCountryCode").hasClass("valid"))
+                    $('[data-valmsg-for="MobileCountryCode"]').html("");
+            });
+
+            $("#MobileCountryCode").change(function () {
+                $("#menuForm").validate().element("#MobileCountryCode");
+            });
+            
+            //$(".otp-form *:input[type!=hidden]:first").focus();
+            
+            let otp_fields = $(".otp-form .otp-field"),
+                otp_value_field = $(".otp-form .otp-value");
+            otp_fields
+                .on("input", function (e) {
+                    $(this).val(
+                        $(this)
+                            .val()
+                            .replace(/[^0-9]/g, "")
+                    );
+                    let opt_value = "";
+                    otp_fields.each(function () {
+                        let field_value = $(this).val();
+                        if (field_value != "") opt_value += field_value;
+                    });
+                    otp_value_field.val(opt_value);
+                    if (opt_value.length == 4) {
+                        $("#btnVerifyOTP").attr("disabled", false);
+                    }
+                    else {
+                        $("#btnVerifyOTP").attr("disabled", true);
+                    }
+                })
+                .on("keyup", function (e) {
+                    let key = e.keyCode || e.charCode;
+                    if (key == 8 || key == 46 || key == 37 || key == 40) {
+                        // Backspace or Delete or Left Arrow or Down Arrow
+                        $(this).prev().focus();
+                    } else if (key == 38 || key == 39 || $(this).val() != "") {
+                        // Right Arrow or Top Arrow or Value not empty
+                        $(this).next().focus();
+                    }
+                })
+                .on("paste", function (e) {
+                    let paste_data = e.originalEvent.clipboardData.getData("text");
+                    let paste_data_splitted = paste_data.split("");
+                    $.each(paste_data_splitted, function (index, value) {
+                        otp_fields.eq(index).val(value);
+                    });
+                });
+        });
+        
+    </script>
+    @if (ViewBag.OtpTime != null)
+    {
+        <script>
+            // Call startTimer function with OtpTime and timerLabel element
+            startTimer(@ViewBag.OtpTime, document.querySelector('#timerLabel'));
+             
+        </script>
+    }
+}
+
+
