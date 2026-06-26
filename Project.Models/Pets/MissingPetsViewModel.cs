@@ -12,6 +12,7 @@ namespace Project.Models.Pets
         public Guid? Id { get; set; }
 
         public Guid PetId { get; set; }
+        public int? PetTypeId { get; set; }
         public string Name { get; set; }
         public string ContactNo { get; set; }
 

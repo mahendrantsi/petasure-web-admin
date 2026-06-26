@@ -42,6 +42,8 @@ namespace Project.Data.DBEntities
         public Decimal Long { get; set; }
 
         public string MicrochipNumber { get; set; }
+        public int? PetTypeId { get; set; }
+
         public string Breeder { get; set; }
 
         public string LicenceNumber { get; set; }

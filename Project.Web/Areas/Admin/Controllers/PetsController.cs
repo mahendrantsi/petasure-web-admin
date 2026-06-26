@@ -26,7 +26,17 @@ namespace Project.Web.Areas.Admin.Controllers
         public IActionResult Index(string? search)
         {
             var response = petService.AdminPetInfos().GetAwaiter().GetResult();
-            var pets = response.Data;
+            var pets = response.Data ?? new List<PetsViewModel>();
+
+            var hasTypeData = pets.Any(p => p.PetTypeId.HasValue);
+            if (hasTypeData)
+            {
+                pets = pets.Where(p => p.PetTypeId == 1).ToList();
+            }
+            else
+            {
+                ViewBag.TypeWarning = "No pet type data available; showing all pets.";
+            }
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -40,14 +50,34 @@ namespace Project.Web.Areas.Admin.Controllers
                 ViewBag.Search = search;
             }
 
-            
             return View(pets.OrderByDescending(a => a.CreatedOn).ToList());
         }
 
         public IActionResult Cats(string? search)
         {
             var response = petService.AdminPetInfos().GetAwaiter().GetResult();
-            var pets = response.Data;
+            var pets = response.Data ?? new List<PetsViewModel>();
+            var hasTypeData = pets.Any(p => p.PetTypeId.HasValue);
+            if (hasTypeData)
+            {
+                pets = pets.Where(p => p.PetTypeId == 2).ToList();
+            }
+            else
+            {
+                ViewBag.TypeWarning = "No pet type data available; showing all pets.";
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim().ToLower();
+                pets = pets.Where(p =>
+                    (!string.IsNullOrEmpty(p.PName) && p.PName.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(p.PSex) && p.PSex.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(p.MicrochipNumber) && p.MicrochipNumber.Contains(search)) ||
+                    (!string.IsNullOrEmpty(p.ContactNumber) && p.ContactNumber.ToLower().Contains(search))
+                ).ToList();
+                ViewBag.Search = search;
+            }
 
             return View(pets.OrderByDescending(a => a.CreatedOn).ToList());
         }
@@ -67,10 +97,15 @@ namespace Project.Web.Areas.Admin.Controllers
         }
 
         [HttpGet("download")]
-        public IActionResult DownloadUserList(string? search)
+        public IActionResult DownloadUserList(string? search, int? petTypeId)
         {
             var response = petService.AdminPetInfos().GetAwaiter().GetResult();
-            var petList = response.Data;
+            var petList = response.Data ?? new List<PetsViewModel>();
+
+            if (petTypeId.HasValue)
+            {
+                petList = petList.Where(p => p.PetTypeId.HasValue && p.PetTypeId == petTypeId.Value).ToList();
+            }
 
             if (!string.IsNullOrWhiteSpace(search))
             {
