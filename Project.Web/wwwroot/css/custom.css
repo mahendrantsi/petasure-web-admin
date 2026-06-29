@@ -21656,7 +21656,7 @@ table.tableCutom td .dropdown.show .dropdown-menu.show {
 }
 
     .table td .flaxCenter {
-        height: 3.3rem;
+        height: 2.3rem;
         align-items: center;
         display: flex;
     }
@@ -23026,3 +23026,52 @@ table.tableCutom td .dropdown.show .dropdown-menu.show {
     .loading-skeleton img {
         filter: grayscale(100) contrast(0%) brightness(1.8);
     }
+
+/* Pets submenu */
+.submenu-list {
+    padding-left: 0;
+    list-style: none;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+    .submenu-list.collapse.show {
+        display: block !important;
+    }
+
+    .submenu-list li {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+        .submenu-list li a {
+            display: block;
+            text-decoration: none;
+            margin: 0 !important;
+        }
+
+            .submenu-list li a:focus,
+            .submenu-list li a:visited {
+                color: #8d97ad !important;
+            }
+
+            /* Remove document/file icon */
+            .submenu-list li a::before,
+            .submenu-list li::before {
+                content: none !important;
+                display: none !important;
+            }
+
+            /* Remove dark active background */
+            .submenu-list li a,
+            .submenu-list li a.active,
+            .submenu-list li.active > a {
+                background: transparent !important;
+                color: #8d97ad !important;
+            }
+
+                .submenu-list li a:hover {
+                    font-weight: 700;
+                    color: #8d97ad !important;
+                    background: transparent !important;
+                }
