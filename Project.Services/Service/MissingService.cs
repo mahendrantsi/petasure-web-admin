@@ -43,16 +43,18 @@ namespace Project.Services.Service
                     .Select(a => new MissingPetsViewModel()
                     {
                         Id = a.pmj.p.Id,
-                        Name = a.pmj.p.PName,
-                        ContactNo = a.pmj.p.ContactNumber,
-                        Description = a.pmj.mp.Description,
-                        Address = a.pmj.mp.Address,
-                        OwnerName = a.user.FirstName + " " + a.user.LastName,
-                        OwnerEmail = a.user.Email,
-                        LostDate = a.pmj.mp.LostDate,
-                        CreatedDate = a.pmj.mp.CreatedDate,
+                            PetId = a.pmj.mp.PetId,
+                            PetTypeId = a.pmj.p.PetTypeId,
+                            Name = a.pmj.p.PName,
+                            ContactNo = a.pmj.p.ContactNumber,
+                            Description = a.pmj.mp.Description,
+                            Address = a.pmj.mp.Address,
+                            OwnerName = a.user.FirstName + " " + a.user.LastName,
+                            OwnerEmail = a.user.Email,
+                            LostDate = a.pmj.mp.LostDate,
+                            CreatedDate = a.pmj.mp.CreatedDate,
 
-                    }).OrderByDescending(item => item.LostDate).ToList();
+                        }).OrderByDescending(item => item.LostDate).ToList();
                 if (dd != null)
                 {
                     response = this.SetResultStatus<List<MissingPetsViewModel>>(dd, MessageStatus.Success, true);
