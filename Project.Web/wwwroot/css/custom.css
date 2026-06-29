@@ -23075,3 +23075,7 @@ table.tableCutom td .dropdown.show .dropdown-menu.show {
                     color: #8d97ad !important;
                     background: transparent !important;
                 }
+
+                .submenu-list li a.active {
+                    font-weight: 700;
+                }
