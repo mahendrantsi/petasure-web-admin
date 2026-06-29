@@ -46,7 +46,6 @@ namespace Project.Persistence.Repository
                         Breeder = x.Breeder,
                         BreedDescription = x.BreedDescription,
                         DateOfBirth = x.DateOfBirth,
-                        PetTypeId = x.PetTypeId,
                         PetTypeName = x.PetTypeMaster != null ? x.PetTypeMaster.TypeName : null,
                     }).ToList();
             return petInfoList;
@@ -80,7 +79,6 @@ namespace Project.Persistence.Repository
                         Breeder = x.Breeder,
                         BreedDescription = x.BreedDescription,
                         DateOfBirth = x.DateOfBirth,
-                        PetTypeId = x.PetTypeId,
                         PetTypeName = x.PetTypeMaster != null ? x.PetTypeMaster.TypeName : null,
                     }).ToList();
             return petInfoList;
@@ -119,7 +117,6 @@ namespace Project.Persistence.Repository
                     Breeder = petData.Breeder,
                     BreedDescription = petData.BreedDescription,
                     DateOfBirth = petData.DateOfBirth,
-                    PetTypeId = petData.PetTypeId,
                     PetTypeName = petData.PetTypeMaster?.TypeName,
                 };
             }
@@ -292,7 +289,6 @@ namespace Project.Persistence.Repository
                 Lat = petData.Lat,
                 Long = petData.Long,
                 MicrochipNumber = petData.MicrochipNumber,
-                PetTypeId = petData.PetTypeId,
                 LicenceNumber = petData.LicenceNumber,
                 IssuingAuthority = petData.IssuingAuthority,
                 Colour = petData.Colour,

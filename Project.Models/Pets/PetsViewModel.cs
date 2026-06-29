@@ -57,8 +57,6 @@ namespace Project.Models.Pets
 
         public string MicrochipNumber { get; set; }
 
-        public int? PetTypeId { get; set; }
-
         public string? Breeder { get; set; }
 
         //Not Used in Pet Profile Now
