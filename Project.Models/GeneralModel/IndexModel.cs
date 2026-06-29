@@ -38,4 +38,22 @@ namespace Project.Models.GeneralModel
         public IFormFile NoseImage { get; set; }
         public IFormFile DogImage { get; set; }
     }
+
+    public class SimilarCatRequestViewModel
+    {
+        public IFormFile Image { get; set; }
+    }
+
+    public class RegisterCatRequestViewModel
+    {
+        public IFormFile FaceImage { get; set; }
+        public IFormFile CatImage { get; set; }
+        public string PetId { get; set; }
+    }
+
+    public class AnalyzeCatRequestViewModel
+    {
+        public IFormFile FaceImage { get; set; }
+        public IFormFile CatImage { get; set; }
+    }
 }

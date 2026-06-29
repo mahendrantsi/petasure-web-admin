@@ -451,3 +451,13 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 /.sonarqube
 appsettings.json
+API.md
+AGENTS.md
+ARCHITECTURE.md
+CHANGELOG.md
+CONTRIBUTING.md
+DATABASE.md
+DEVELOPMENT.md
+DEPLOYMENT.md
+SECURITY.md
+TROUBLESHOOTING.md

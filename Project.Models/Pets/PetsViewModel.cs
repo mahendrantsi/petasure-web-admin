@@ -40,11 +40,15 @@ namespace Project.Models.Pets
 
         public Guid Id { get; set; }
 
+        public int? PetTypeId { get; set; }
+        public string PetTypeName { get; set; }
+
         public Boolean IsMissing { get; set; }
         
 
         public string NoseImagePath { get; set; }
         public string FullBodyImagePath { get; set; }
+        public string FaceImagePath { get; set; }
 
         public Decimal Lat { get; set; }
         public Decimal Long { get; set; }

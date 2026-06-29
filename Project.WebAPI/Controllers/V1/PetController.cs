@@ -113,5 +113,19 @@ namespace Project.WebAPI.Controllers.V1
                 return BadRequest(new { Message = e.Message + e.InnerException });
             }
         }
+
+        [HttpPost("RegisterCat")]
+        public async Task<IActionResult> RegisterCat(RegisterCatRequestViewModel model)
+        {
+            try
+            {
+                var response = await _petService.RegisterCatRequest(model);
+                return this.Ok(response);
+            }
+            catch (SecurityTokenException e)
+            {
+                return BadRequest(new { Message = e.Message + e.InnerException });
+            }
+        }
     }
 }

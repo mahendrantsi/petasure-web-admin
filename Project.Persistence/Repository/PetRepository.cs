@@ -45,6 +45,8 @@ namespace Project.Persistence.Repository
                         Breeder = x.Breeder,
                         BreedDescription = x.BreedDescription,
                         DateOfBirth = x.DateOfBirth,
+                        PetTypeId = x.PetTypeId,
+                        PetTypeName = x.PetTypeMaster != null ? x.PetTypeMaster.TypeName : null,
                     }).ToList();
             return petInfoList;
         }
@@ -67,6 +69,7 @@ namespace Project.Persistence.Repository
                         Long = x.Long,
                         NoseImagePath = x.NoseImagePath,
                         FullBodyImagePath = x.FullBodyImagePath,
+                        FaceImagePath = x.FaceImagePath,
                         CreatedOn = x.CreatedOn,
                         MicrochipNumber = x.MicrochipNumber,
                         LicenceNumber = x.LicenceNumber,
@@ -75,6 +78,8 @@ namespace Project.Persistence.Repository
                         Breeder = x.Breeder,
                         BreedDescription = x.BreedDescription,
                         DateOfBirth = x.DateOfBirth,
+                        PetTypeId = x.PetTypeId,
+                        PetTypeName = x.PetTypeMaster != null ? x.PetTypeMaster.TypeName : null,
                     }).ToList();
             return petInfoList;
         }
@@ -87,7 +92,7 @@ namespace Project.Persistence.Repository
 
         public PetsViewModel GetPetData(Guid petid)
         {
-            var petData = _db.PetInfo.Where(x => x.Id == petid).FirstOrDefault();
+            var petData = _db.PetInfo.Include(x => x.PetTypeMaster).Where(x => x.Id == petid).FirstOrDefault();
             if (petData is not null)
             {
                 return new PetsViewModel()
@@ -101,6 +106,9 @@ namespace Project.Persistence.Repository
                     Id = petData.Id,
                     Lat = petData.Lat,
                     Long = petData.Long,
+                    NoseImagePath = petData.NoseImagePath,
+                    FullBodyImagePath = petData.FullBodyImagePath,
+                    FaceImagePath = petData.FaceImagePath,
                     MicrochipNumber = petData.MicrochipNumber,
                     LicenceNumber = petData.LicenceNumber,
                     IssuingAuthority = petData.IssuingAuthority,
@@ -108,6 +116,8 @@ namespace Project.Persistence.Repository
                     Breeder = petData.Breeder,
                     BreedDescription = petData.BreedDescription,
                     DateOfBirth = petData.DateOfBirth,
+                    PetTypeId = petData.PetTypeId,
+                    PetTypeName = petData.PetTypeMaster?.TypeName,
                 };
             }
             else
@@ -269,14 +279,16 @@ namespace Project.Persistence.Repository
                 PSex = petData.PSex,
                 UserID = petData.PetOwnerId,
                 IsMissing = false,
+                PetTypeId = petData.PetTypeId,
                 NoseImagePath = petData.NoseImagePath,
                 FullBodyImagePath = petData.FullBodyImagePath,
+                FaceImagePath = petData.FaceImagePath,
                 Lat = petData.Lat,
                 Long = petData.Long,
                 MicrochipNumber = petData.MicrochipNumber,
                 LicenceNumber = petData.LicenceNumber,
                 IssuingAuthority = petData.IssuingAuthority,
-                Colour = petData.Colour,    
+                Colour = petData.Colour,
                 Breeder = petData.Breeder,
                 DateOfBirth = petData.DateOfBirth.HasValue ? petData.DateOfBirth.Value : new DateTime(),
                 BreedDescription = petData.BreedDescription,
@@ -316,12 +328,15 @@ namespace Project.Persistence.Repository
             petModel.PSex = petData.PSex;
             petModel.Lat = petData.Lat;
             petModel.Long = petData.Long;
-            petModel.Address = petData?.Address;
             petModel.Colour = petData?.Colour;
             petModel.Breeder = petData?.Breeder;
             petModel.BreedDescription = petData?.BreedDescription;
             petModel.IssuingAuthority = petData?.IssuingAuthority;
             petModel.LicenceNumber = petData?.LicenceNumber;
+            petModel.PetTypeId = petData.PetTypeId;
+            petModel.FaceImagePath = petData.FaceImagePath;
+            petModel.NoseImagePath = petData.NoseImagePath;
+            petModel.FullBodyImagePath = petData.FullBodyImagePath;
 
             // Save changes
             var affectedRows = await _db.SaveChangesAsync();

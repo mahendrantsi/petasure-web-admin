@@ -51,7 +51,8 @@ namespace Project
         public DbSet<FAQ> FAQ { get; set; }
         public DbSet<Settings> Settings { get; set; }
 
-        public DbSet<PetInfo> PetInfo  { get; set; }
+        public DbSet<PetInfo> PetInfo { get; set; }
+        public DbSet<PetTypeMaster> PetTypeMaster { get; set; }
 
         public DbSet<MissingPets> MissingPet { get; set; }
 

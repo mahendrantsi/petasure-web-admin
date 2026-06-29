@@ -36,6 +36,7 @@ namespace Project.WebAPI
     using Microsoft.AspNetCore.Mvc.Filters;
     using Microsoft.AspNetCore.Authorization;
     using Project.Services.ServiceHelper;
+    using Microsoft.Extensions.Logging;
 
     public class Startup
     {
@@ -165,8 +166,20 @@ namespace Project.WebAPI
 
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetRequiredService<ProjectDbContext>();
-                context.Database.Migrate();
+
+                var logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                try
+                {
+                    var db = serviceScope.ServiceProvider.GetRequiredService<ProjectDbContext>();
+                    db.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Database migration failed. Ensure the database exists and the user has sufficient permissions.");
+                }
+
+               // var context = serviceScope.ServiceProvider.GetRequiredService<ProjectDbContext>();
+               // context.Database.Migrate();
 
                 //var setting = serviceScope.ServiceProvider.GetRequiredService<ISettingService>();
                 //var response = setting.GetSettings().Result;

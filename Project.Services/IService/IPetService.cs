@@ -68,12 +68,15 @@ namespace Project.Services.IService
         Task<ServiceResponse<PetsViewModel>> UpdatePet(PetsViewModel petData);
         bool DeleteAllPets(Guid userId, string productTitle);
 
-		Task<string> SimilarDogRequest(SimilarDogRequestViewModel model);
+        Task<string> SimilarDogRequest(SimilarDogRequestViewModel model);
         Task<string> AnalyzeDogRequest(AnalyzeDogRequestViewModel model);
         Task<string> RegisterDogRequest(RegisterDogRequestViewModel model);
         Task<string> DeletePetsOnAI(List<Guid> petIds);
 
-	}
+        Task<string> SimilarCatRequest(SimilarCatRequestViewModel model);
+        Task<string> AnalyzeCatRequest(AnalyzeCatRequestViewModel model);
+        Task<string> RegisterCatRequest(RegisterCatRequestViewModel model);
+    }
 
    
 }

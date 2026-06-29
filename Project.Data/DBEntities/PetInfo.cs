@@ -32,8 +32,14 @@ namespace Project.Data.DBEntities
 
         public string PDataScienceId { get; set; } 
         public bool IsDelete { get; set; }
+        [ForeignKey(nameof(PetTypeMaster))]
+        public int? PetTypeId { get; set; }
+
         public string NoseImagePath { get; set; }
         public string FullBodyImagePath { get; set; }
+        public string FaceImagePath { get; set; }
+
+        public virtual PetTypeMaster PetTypeMaster { get; set; }
 
         [Column(TypeName = "decimal(18,10)")]
         public Decimal Lat { get; set; }

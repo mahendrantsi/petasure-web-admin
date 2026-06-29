@@ -486,6 +486,90 @@ namespace Project.Services.Service
 
 
 
+        public async Task<string> SimilarCatRequest(SimilarCatRequestViewModel model)
+        {
+            var catReqUrl = configuataion["CustomKeys:CatRequestUrl"];
+            var catReqKey = configuataion["CustomKeys:CatRequestApiKey"];
+            using var form = new MultipartFormDataContent();
+            using (var ms = new MemoryStream())
+            {
+                var fileName = model.Image.FileName;
+                model.Image.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                var fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(fileContent, "face_image", fileName);
+            }
+            var httpClient = new HttpClient() { BaseAddress = new Uri(catReqUrl) };
+            httpClient.DefaultRequestHeaders.Add("X-API-Key", catReqKey);
+            var response = await httpClient.PostAsync("similar", form);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task<string> AnalyzeCatRequest(AnalyzeCatRequestViewModel model)
+        {
+            var catReqUrl = configuataion["CustomKeys:CatRequestUrl"];
+            var catReqKey = configuataion["CustomKeys:CatRequestApiKey"];
+            using var form = new MultipartFormDataContent();
+            using (var ms = new MemoryStream())
+            {
+                model.FaceImage.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                var fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                var ext = Path.GetExtension(model.FaceImage.FileName);
+                var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                form.Add(fileContent, "face_image", $"{timestamp}_face_image{ext}");
+            }
+            using (var ms = new MemoryStream())
+            {
+                model.CatImage.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                var fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                var ext = Path.GetExtension(model.CatImage.FileName);
+                var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                form.Add(fileContent, "cat_image", $"{timestamp}_cat_image{ext}");
+            }
+            var httpClient = new HttpClient() { BaseAddress = new Uri(catReqUrl) };
+            httpClient.DefaultRequestHeaders.Add("X-API-Key", catReqKey);
+            var response = await httpClient.PostAsync("analyze", form);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task<string> RegisterCatRequest(RegisterCatRequestViewModel model)
+        {
+            var catReqUrl = configuataion["CustomKeys:CatRequestUrl"];
+            var catReqKey = configuataion["CustomKeys:CatRequestApiKey"];
+            using var form = new MultipartFormDataContent();
+            using (var ms = new MemoryStream())
+            {
+                model.FaceImage.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                var fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                var ext = Path.GetExtension(model.FaceImage.FileName);
+                form.Add(fileContent, "face_image", model.PetId + "_face_image" + ext);
+            }
+            using (var ms = new MemoryStream())
+            {
+                model.CatImage.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                var fileContent = new ByteArrayContent(fileBytes);
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                var ext = Path.GetExtension(model.CatImage.FileName);
+                form.Add(fileContent, "cat_image", model.PetId + "_cat_image" + ext);
+            }
+            form.AddParam("ds_id", model.PetId);
+            var httpClient = new HttpClient() { BaseAddress = new Uri(catReqUrl) };
+            httpClient.DefaultRequestHeaders.Add("X-API-Key", catReqKey);
+            var response = await httpClient.PostAsync("register", form);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+
         //delete the pets on AI
         public async Task<string> DeletePetsOnAI(List<Guid> petIds)
         {

@@ -211,9 +211,13 @@ namespace Project.Services.Service
                 {
                     //Chnage the status of isMissing in pet Data
                     var pname = await _unitOfWork.PetRepository.UpdatePetIsMissingNReturnName(missingDetails.PetId, missingDetails.Status == PetStatus.Lost);
-                    await _emailService.SendMissingPetAcknowledgeEmail(userEmail);
-                    if (!string.IsNullOrEmpty(pname))
-                        await _emailService.SendMissingPetSupportEmail(userEmail, pname);
+                    try
+                    {
+                        await _emailService.SendMissingPetAcknowledgeEmail(userEmail);
+                        if (!string.IsNullOrEmpty(pname))
+                            await _emailService.SendMissingPetSupportEmail(userEmail, pname);
+                    }
+                    catch { /* Email failure should not block a successful missing pet report */ }
                     objReturn = this.SetResultStatus<string>("Success", MessageStatus.MissingReportAdded, true);
                 }
                 else
