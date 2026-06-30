@@ -17,7 +17,7 @@ namespace Project.Web.Areas.Admin.Controllers
         {
             missingService = _missingService;
         }
-        public IActionResult Index()
+        public IActionResult Dogs()
         {
             var response = missingService.AdminMissingPetInfos().GetAwaiter().GetResult();
             var list = response.Data ?? new List<MissingPetsViewModel>();

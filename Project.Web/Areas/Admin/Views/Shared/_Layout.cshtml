@@ -6,6 +6,9 @@
     List<string> roles = _userManager.GetRolesAsync(user).Result.ToList();
     Console.WriteLine("dfsfa");
 }
+@{
+    var path = Context.Request.Path.Value?.ToLower() ?? "";
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -102,22 +105,24 @@
 
                                     <li class="nav-item dropdown menu-icons">
                                         <a id="a5" href="javascript:void(0)"
-                                           class="nav-link menu-title d-flex justify-content-between align-items-center"
+                                           class="nav-link menu-title d-flex justify-content-between align-items-center @(path.StartsWith("/admin/pets") ? "active" : "")"
                                            data-toggle="collapse"
                                            data-target="#petsMenu"
-                                           aria-expanded="false">
+                                           aria-expanded="@(path.StartsWith("/admin/pets") ? "true" : "false")">
                                             <span class="fas fa-paw"></span>
                                             <span class="menu-txt">Pets</span>
                                             <span class="fas fa-chevron-down"></span>
                                         </a>
-                                        <ul id="petsMenu" class="collapse submenu-list">
+                                        <ul id="petsMenu" class="collapse submenu-list @(path.StartsWith("/admin/pets") ? "show" : "")">
                                             <li>
-                                                <a href="/Admin/Pets">
+                                                <a href="/Admin/Pets/Dogs"
+                                                   class="@(path == "/admin/pets/dogs" ? "active" : "")">
                                                     <i class="fas fa-dog mr-2"></i> Dogs
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="/Admin/Pets/cats">
+                                                <a href="/Admin/Pets/Cats"
+                                                   class="@(path == "/admin/pets/cats" ? "active" : "")">
                                                     <i class="fas fa-cat mr-2"></i> Cats
                                                 </a>
                                             </li>
@@ -126,22 +131,25 @@
 
                                     <li class="nav-item dropdown menu-icons">
                                         <a id="a6" href="javascript:void(0)"
-                                           class="nav-link menu-title d-flex justify-content-between align-items-center"
+                                           class="nav-link menu-title d-flex justify-content-between align-items-center @(path.StartsWith("/admin/missingpets") ? "active" : "")"
                                            data-toggle="collapse"
                                            data-target="#missingPetsMenu"
-                                           aria-expanded="false">
+                                           aria-expanded="@(path.StartsWith("/admin/missingpets") ? "true" : "false")">
                                             <span class="fas fa-paw"></span>
                                             <span class="menu-txt">Missing Pets</span>
                                             <span class="fas fa-chevron-down"></span>
                                         </a>
-                                        <ul id="missingPetsMenu" class="collapse submenu-list">
+                                        <ul id="missingPetsMenu" 
+                                            class="collapse submenu-list @(path.StartsWith("/admin/missingpets") ? "show" : "")">
                                             <li>
-                                                <a href="/Admin/MissingPets">
+                                                <a href="/Admin/MissingPets/Dogs"
+                                                   class="@(path == "/admin/missingpets/dogs" ? "active" : "")">
                                                     <i class="fas fa-dog mr-2"></i> Dogs
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="/Admin/MissingPets/cats">
+                                                <a href="/Admin/MissingPets/Cats"
+                                                   class="@(path == "/admin/missingpets/cats" ? "active" : "")">
                                                     <i class="fas fa-cat mr-2"></i> Cats
                                                 </a>
                                             </li>

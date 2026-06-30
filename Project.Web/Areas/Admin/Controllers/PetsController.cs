@@ -23,7 +23,7 @@ namespace Project.Web.Areas.Admin.Controllers
             accountService = _accountService;
         }
 
-        public IActionResult Index(string? search)
+        public IActionResult Dogs(string? search)
         {
             var response = petService.AdminPetInfos().GetAwaiter().GetResult();
             var pets = response.Data ?? new List<PetsViewModel>();
@@ -147,9 +147,15 @@ namespace Project.Web.Areas.Admin.Controllers
                     $"{(pet.DateOfBirth.HasValue ? pet.DateOfBirth.Value.ToString("yyyy-MM-dd") : "")}"
                 );
             }
+            string fileName = petTypeId switch
+            {
+                1 => "Dog_PetList.csv",
+                2 => "Cat_PetList.csv",
+                _ => "PetList.csv"
+            };
 
             byte[] buffer = Encoding.UTF8.GetBytes(csvBuilder.ToString());
-            return File(buffer, "text/csv", "PetList.csv");
+            return File(buffer, "text/csv", fileName);
         }
 
 
