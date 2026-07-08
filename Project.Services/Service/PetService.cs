@@ -488,8 +488,10 @@ namespace Project.Services.Service
 
         public async Task<string> SimilarCatRequest(SimilarCatRequestViewModel model)
         {
-            var catReqUrl = configuataion["CustomKeys:CatRequestUrl"];
-            var catReqKey = configuataion["CustomKeys:CatRequestApiKey"];
+            // Cats use the same nose-based AI service as dogs; the service auto-classifies the
+            // species, so we send the same field names and hit the same endpoint/URL.
+            var catReqUrl = configuataion["CustomKeys:DogRequestUrl"];
+            var catReqKey = configuataion["CustomKeys:DogRequestApiKey"];
             using var form = new MultipartFormDataContent();
             using (var ms = new MemoryStream())
             {
@@ -498,7 +500,7 @@ namespace Project.Services.Service
                 var fileBytes = ms.ToArray();
                 var fileContent = new ByteArrayContent(fileBytes);
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                form.Add(fileContent, "face_image", fileName);
+                form.Add(fileContent, "nose_image", fileName);
             }
             var httpClient = new HttpClient() { BaseAddress = new Uri(catReqUrl) };
             httpClient.DefaultRequestHeaders.Add("X-API-Key", catReqKey);
@@ -509,18 +511,19 @@ namespace Project.Services.Service
 
         public async Task<string> AnalyzeCatRequest(AnalyzeCatRequestViewModel model)
         {
-            var catReqUrl = configuataion["CustomKeys:CatRequestUrl"];
-            var catReqKey = configuataion["CustomKeys:CatRequestApiKey"];
+            // Same nose-based AI service and field names as the dog flow (species auto-detected).
+            var catReqUrl = configuataion["CustomKeys:DogRequestUrl"];
+            var catReqKey = configuataion["CustomKeys:DogRequestApiKey"];
             using var form = new MultipartFormDataContent();
             using (var ms = new MemoryStream())
             {
-                model.FaceImage.CopyTo(ms);
+                model.NoseImage.CopyTo(ms);
                 var fileBytes = ms.ToArray();
                 var fileContent = new ByteArrayContent(fileBytes);
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.FaceImage.FileName);
+                var ext = Path.GetExtension(model.NoseImage.FileName);
                 var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                form.Add(fileContent, "face_image", $"{timestamp}_face_image{ext}");
+                form.Add(fileContent, "nose_image", $"{timestamp}_nose_image{ext}");
             }
             using (var ms = new MemoryStream())
             {
@@ -530,7 +533,7 @@ namespace Project.Services.Service
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
                 var ext = Path.GetExtension(model.CatImage.FileName);
                 var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                form.Add(fileContent, "cat_image", $"{timestamp}_cat_image{ext}");
+                form.Add(fileContent, "dog_image", $"{timestamp}_dog_image{ext}");
             }
             var httpClient = new HttpClient() { BaseAddress = new Uri(catReqUrl) };
             httpClient.DefaultRequestHeaders.Add("X-API-Key", catReqKey);
@@ -541,17 +544,18 @@ namespace Project.Services.Service
 
         public async Task<string> RegisterCatRequest(RegisterCatRequestViewModel model)
         {
-            var catReqUrl = configuataion["CustomKeys:CatRequestUrl"];
-            var catReqKey = configuataion["CustomKeys:CatRequestApiKey"];
+            // Same nose-based AI service and field names as the dog flow (species auto-detected).
+            var catReqUrl = configuataion["CustomKeys:DogRequestUrl"];
+            var catReqKey = configuataion["CustomKeys:DogRequestApiKey"];
             using var form = new MultipartFormDataContent();
             using (var ms = new MemoryStream())
             {
-                model.FaceImage.CopyTo(ms);
+                model.NoseImage.CopyTo(ms);
                 var fileBytes = ms.ToArray();
                 var fileContent = new ByteArrayContent(fileBytes);
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.FaceImage.FileName);
-                form.Add(fileContent, "face_image", model.PetId + "_face_image" + ext);
+                var ext = Path.GetExtension(model.NoseImage.FileName);
+                form.Add(fileContent, "nose_image", model.PetId + "_nose_image" + ext);
             }
             using (var ms = new MemoryStream())
             {
@@ -560,7 +564,7 @@ namespace Project.Services.Service
                 var fileContent = new ByteArrayContent(fileBytes);
                 fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
                 var ext = Path.GetExtension(model.CatImage.FileName);
-                form.Add(fileContent, "cat_image", model.PetId + "_cat_image" + ext);
+                form.Add(fileContent, "dog_image", model.PetId + "_dog_image" + ext);
             }
             form.AddParam("ds_id", model.PetId);
             var httpClient = new HttpClient() { BaseAddress = new Uri(catReqUrl) };

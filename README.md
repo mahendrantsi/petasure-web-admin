@@ -104,6 +104,7 @@ Both host apps read configuration from their own `appsettings.json` (`Project.We
     "EnableSsl": "true"
   },
   "CustomKeys": {
+    "pathBase":"",
     "BaseUrl": "<BASE_URL>",
     "DogRequestUrl": "<DOG_AI_URL>",
     "DogRequestApiKey": "<DOG_AI_KEY>",

@@ -46,14 +46,16 @@ namespace Project.Models.GeneralModel
 
     public class RegisterCatRequestViewModel
     {
-        public IFormFile FaceImage { get; set; }
+        // Cats are identified by nose biometrics (same pipeline as dogs); the AI service
+        // auto-classifies the species. NoseImage = close-up nose crop, CatImage = full-body photo.
+        public IFormFile NoseImage { get; set; }
         public IFormFile CatImage { get; set; }
         public string PetId { get; set; }
     }
 
     public class AnalyzeCatRequestViewModel
     {
-        public IFormFile FaceImage { get; set; }
+        public IFormFile NoseImage { get; set; }
         public IFormFile CatImage { get; set; }
     }
 }
