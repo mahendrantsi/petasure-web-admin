@@ -1,0 +1,232 @@
+@model Project.Models.AdminModel.AlertCentreViewModel
+
+@{
+    ViewData["Title"] = "Alert Centre";
+    Layout = "_Layout";
+    ViewData["BodyClass"] = "alert-centre-body";
+}
+
+
+<div class="ac-page">
+
+    <!-- Header -->
+    <div class="ac-header">
+        <h1>Alert Centre</h1>
+        <p>Real-time notifications when new health observations are flagged for your pets.</p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="ac-stats">
+        <div class="ac-stat-card">
+            <div class="ac-stat-icon total"><i class="fas fa-bell"></i></div>
+            <div class="ac-stat-info">
+                <h3>@Model.Statistics.TotalAlerts</h3>
+                <span>Total Alerts</span>
+            </div>
+        </div>
+        <div class="ac-stat-card">
+            <div class="ac-stat-icon new"><i class="fas fa-star"></i></div>
+            <div class="ac-stat-info">
+                <h3>@Model.Statistics.NewAlerts</h3>
+                <span>New Alerts</span>
+            </div>
+        </div>
+        <div class="ac-stat-card">
+            <div class="ac-stat-icon alert-sent"><i class="fas fa-paper-plane"></i></div>
+            <div class="ac-stat-info">
+                <h3>@Model.Statistics.AlertSent</h3>
+                <span>Alert Sent</span>
+            </div>
+        </div>
+        <div class="ac-stat-card">
+            <div class="ac-stat-icon vet-recommended"><i class="fas fa-calendar-check"></i></div>
+            <div class="ac-stat-info">
+                <h3>@Model.Statistics.VetAppointmentRecommendedAlerts</h3>
+                <span>Vet Appointment Recommended</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="ac-filters">
+        <div class="ac-filter-group">
+            <select class="ac-select" id="statusFilter">
+                <option value="All Status">All Status</option>
+                <option value="Alert Sent">Alert Sent</option>
+                <option value="Vet Appointment Recommended">Vet Appointment Recommended</option>
+            </select>
+        </div>
+        <button class="ac-filter-btn" id="applyFilterBtn">
+            <i class="fas fa-filter"></i> Filter
+        </button>
+    </div>
+
+    <!-- Table Panel -->
+    @{
+        int totalPages = Model.TotalRecords > 0 ? (Model.TotalRecords + Model.PageSize - 1) / Model.PageSize : 1;
+        int startPage  = System.Math.Max(1, Model.CurrentPage - 2);
+        int endPage    = System.Math.Min(totalPages, Model.CurrentPage + 2);
+    }
+    <div class="ac-table-panel">
+        @if (Model.Alerts != null && Model.Alerts.Count > 0)
+        {
+            <div class="ac-table-scroll">
+                <table class="ac-table">
+                    <thead>
+                        <tr>
+                            <th>Pet Name</th>
+                            <th>Pet Type</th>
+                            <th>Observable Symptoms</th>
+                            <th>Status</th>
+                            <th>Alert Time</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var alert in Model.Alerts)
+                        {
+                            <tr data-alert-id="@alert.AlertId">
+                                <td>
+                                    <div class="ac-pet">
+                                        @if (!string.IsNullOrEmpty(alert.PetImageUrl))
+                                        {
+                                            <img src="@alert.PetImageUrl" alt="@alert.PetName" class="ac-pet-img" />
+                                        }
+                                        else
+                                        {
+                                            <div class="ac-pet-icon">
+                                                <i class="fas fa-@(alert.PetType.ToLower() == "cat" ? "cat" : "dog")"></i>
+                                            </div>
+                                        }
+                                        <div class="ac-pet-name">@alert.PetName</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="ac-pet-type-badge ac-pet-type-@alert.PetType.ToLower()">
+                                        <i class="fas fa-@(alert.PetType.ToLower() == "cat" ? "cat" : "dog")"></i>
+                                        @alert.PetType
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="ac-cond-name">@alert.ObservableSymptoms</div>
+                                </td>
+                                <td>
+                                    @{
+                                        var statusClass = alert.Status == "Vet Appointment Recommended" ? "vet-recommended" : "alert-sent";
+                                    }
+                                    <span class="ac-status @statusClass" data-status="@alert.Status">
+                                        @if (alert.Status == "Vet Appointment Recommended")
+                                        {
+                                            <i class="fas fa-calendar-check"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-paper-plane"></i>
+                                        }
+                                        @alert.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="ac-time">
+                                        @alert.AlertTime.ToString("hh:mm tt")<br />
+                                        @alert.AlertTime.ToString("MMM d, yyyy")
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="ac-action-btn view-details-btn" data-alert-id="@alert.AlertId">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="ac-pagination">
+                <span class="ac-pag-info">
+                    Showing @((Model.CurrentPage - 1) * Model.PageSize + 1)–@System.Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalRecords) of @Model.TotalRecords entries
+                </span>
+
+                <div class="ac-pag-controls">
+                    <button class="ac-pag-btn" @(Model.CurrentPage == 1 ? "disabled" : "")
+                            onclick="goToPage(@(Model.CurrentPage - 1))">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+
+                    @if (startPage > 1)
+                    {
+                        <button class="ac-pag-btn" onclick="goToPage(1)">1</button>
+                        if (startPage > 2)
+                        {
+                            <span class="ac-pag-ellipsis">…</span>
+                        }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <button class="ac-pag-btn @(i == Model.CurrentPage ? "active" : "")"
+                                onclick="goToPage(@i)">@i</button>
+                    }
+
+                    @if (endPage < totalPages)
+                    {
+                        if (endPage < totalPages - 1)
+                        {
+                            <span class="ac-pag-ellipsis">…</span>
+                        }
+                        <button class="ac-pag-btn" onclick="goToPage(@totalPages)">@totalPages</button>
+                    }
+
+                    <button class="ac-pag-btn" @(Model.CurrentPage >= totalPages ? "disabled" : "")
+                            onclick="goToPage(@(Model.CurrentPage + 1))">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+            
+            </div>
+        }
+        else
+        {
+            <div class="ac-empty">
+                <i class="fas fa-inbox"></i>
+                <span>No alerts found</span>
+            </div>
+        }
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+
+        function goToPage(page) {
+            if (page < 1) return;
+            window.location.href = `/Admin/AlertCentre/Index?page=${page}`;
+        }
+
+        document.querySelectorAll('.view-details-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const alertId = this.dataset.alertId;
+                // Navigate to details or open modal for the given alert
+                console.log(`View Details for alert ${alertId}`);
+                // Extend here: window.location.href = `/Admin/AlertCentre/Details/${alertId}`;
+            });
+        });
+
+        document.getElementById('applyFilterBtn')?.addEventListener('click', function () {
+            const status = document.getElementById('statusFilter').value;
+
+            fetch('/Admin/AlertCentre/Filter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status, pageNumber: 1 })
+            })
+            .then(r => r.json())
+            .then(data => { if (data.success) location.reload(); })
+            .catch(err => console.error('Filter error:', err));
+        });
+    </script>
+}

@@ -1,82 +1,400 @@
-﻿@model Project.Models.AdminModel.DashboardViewModel
-
-
-
-<div class="row dasbhoard-view">
-    <div class="col-sm-12 nui-container">
-        <div class="page-heading nui-avatar">
-            <div class="row">
-                <div class="col-xl-1 col-lg-2 col-md-2">
-                    <div class="nui-avatar-inner">
-                        @if (Model.UserProfile != null)
-                        {
-                            <img src="@Model.UserProfile" class="nui-avatar-img" alt="Image">
-                        }
-                        else
-                        {
-                            <img src="~/images/user.svg" class="nui-avatar-img" alt="Image">
-
-                        }
-                    </div>
-                </div>
-                <div class="col-xl-6 col-sm-9 col-lg-9 col-md-9">
-                    <div>
-                        <h2 class="nui-heading">
-                            <span>Welcome </span>
-                        </h2>
-                        <p class="nui-paragraph">
-                            <span class="text-muted-500"> Happy to see you again on your dashboard. </span>
-                        </p>
-                    </div>
-                </div>
+@model Project.Models.AdminModel.DashboardViewModel
+@{
+    ViewData["BodyClass"] = "dashboard-page-body";
+}
+<div class="dashboard-container">
+    <div class="dashboard-stats-row">
+        <div class="stat-card blue">
+            <div class="stat-icon users"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">@Model.TotalUsers</div>
+                <div class="stat-label">Total Active Users</div>
+                <div class="stat-trend"><i class="fas fa-arrow-up"></i> Active platform</div>
             </div>
-
-
         </div>
-    </div>
-</div>
-
-<div class="row dasbhoard-view quick-stats">
-    <div class="col-md-12 col-xl-6">
-        <div class="card crm-card flex-fill">
-            <div class="card-heading">
-                Your Quick Stats
+        <div class="stat-card green">
+            <div class="stat-icon new-users"><i class="fas fa-user-plus"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">@Model.MonthlyNewUsers</div>
+                <div class="stat-label">New Users (Last 30 Days)</div>
+                <div class="stat-trend"><i class="fas fa-arrow-up"></i> This month</div>
             </div>
-            <div class="inner">
-                <div class="box">
-                    <div class="card-icon">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="right-part">
-                        <div class="card-numbers">
-                            @Model.TotalUsers
-                        </div>
-                        <div class="card-heading">
-                            Total Active Users
-                        </div>
-                    </div>
-                </div>
-                <div class="box">
-                    <div class="card-icon">
-                        <i class="fas fa-piggy-bank fa-fw"></i>
-                    </div>
-                    <div class="right-part">
-                        <div class="card-numbers">
-                            @Model.MonthlyNewUsers
-                        </div>
-                        <div class="card-heading">
-                           New users join in last 30 days
-                        </div>
-
-                    </div>
-                </div>
+        </div>
+        <div class="stat-card purple">
+            <div class="stat-icon cats"><i class="fas fa-cat"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">@Model.NumberOfCats</div>
+                <div class="stat-label">Registered Cats</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon dogs"><i class="fas fa-dog"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">@Model.NumberOfDogs</div>
+                <div class="stat-label">Registered Dogs</div>
             </div>
         </div>
     </div>
 
+    <!-- Main Workspace Split Grid -->
+    <div class="dashboard-main-row">
+
+        <!-- Left: Analytics Panel -->
+        <div class="analytics-panel">
+            <div class="panel-header">
+                <h3 class="panel-title"><span class="panel-title-dot"></span> Recognition Analytics</h3>
+                <span class="panel-live-badge">Live</span>
+            </div>
+
+            <!-- Mini Stats -->
+            <div class="mini-stats-grid">
+                <div class="mini-stat-card c1">
+                    <div class="mini-stat-label">Total Scans</div>
+                    <div class="mini-stat-value">248</div>
+                </div>
+                <div class="mini-stat-card c2">
+                    <div class="mini-stat-label">Matched</div>
+                    <div class="mini-stat-value">222</div>
+                </div>
+                <div class="mini-stat-card c3">
+                    <div class="mini-stat-label">Unmatched</div>
+                    <div class="mini-stat-value">26</div>
+                </div>
+                <div class="mini-stat-card c4">
+                    <div class="mini-stat-label">Errors</div>
+                    <div class="mini-stat-value">0</div>
+                </div>
+            </div>
+
+            <!-- SVG Donut Chart -->
+            <div class="donut-section">
+                <div class="donut-wrapper">
+                    <svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);">
+                        <circle cx="50" cy="50" r="38" fill="none" stroke="#f1f5f9" stroke-width="13" />
+                        <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gGreen)" stroke-width="13"
+                                stroke-dasharray="212.2 238.76" stroke-linecap="round" />
+                        <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gRed)" stroke-width="13"
+                                stroke-dasharray="24.9 238.76" stroke-linecap="round"
+                                style="stroke-dashoffset:-212.2;" />
+                        <defs>
+                            <linearGradient id="gGreen" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#10b981" /><stop offset="100%" stop-color="#34d399" />
+                            </linearGradient>
+                            <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#ef4444" /><stop offset="100%" stop-color="#f87171" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="donut-inner-text">
+                        <div class="donut-inner-value">248</div>
+                        <div class="donut-inner-label">Total Scans</div>
+                    </div>
+                </div>
+                <div class="donut-legend">
+                    <div class="legend-item">
+                        <div class="legend-color matched"></div>
+                        <span class="legend-label">Matched</span>
+                        <span class="legend-value">222</span><span class="legend-pct">(89.5%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color unmatched"></div>
+                        <span class="legend-label">Unmatched</span>
+                        <span class="legend-value">26</span>
+                        <span class="legend-pct">(10.5%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Breakdown -->
+            <div class="error-breakdown-section">
+                <h4 class="error-section-title">Error Breakdown</h4>
+                <div class="error-item">
+                    <span class="error-label">Image Quality</span>
+                    <span class="error-value">0 (0%)</span>
+                </div>
+                <div class="error-item">
+                    <span class="error-label">No Face Detected</span>
+                    <span class="error-value">0 (0%)</span>
+                </div>
+                <div class="error-item">
+                    <span class="error-label">Multiple Pets</span>
+                    <span class="error-value">0 (0%)</span>
+                </div>
+                <div class="error-item">
+                    <span class="error-label">System Error</span>
+                    <span class="error-value">0 (0%)</span>
+                </div>
+                <div class="error-item">
+                    <span class="error-label">Other</span>
+                    <span class="error-value">0 (0%)</span>
+                </div>
+            </div>
+
+            <a href="#" class="view-logs-link">View all scan logs <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
+        </div>
+
+        <!-- Right: Table Panel -->
+        <div class="table-panel">
+            <div class="tp-header">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="tab-scan-logs"><i class="fas fa-qrcode" style="margin-right:5px;font-size:11px;"></i>Pet Scan Logs</button>
+                    <button class="tab-btn" data-tab="tab-ill-health"><i class="fas fa-heartbeat" style="margin-right:5px;font-size:11px;"></i>Ill-health Reviews</button>
+                </div>
+                <span class="tp-live-badge"><span class="tp-live-dot"></span> Live Data</span>
+            </div>
+            <div class="tp-body">
+
+                <div class="tab-content-wrapper">
+                    <!-- Tab 1: Pet Scan Logs -->
+                    <div class="tab-pane active" id="tab-scan-logs">
+                        <div class="table-controls">
+                            <div class="search-input-wrapper">
+                                <span class="search-icon"><i class="fas fa-search"></i></span>
+                                <input type="text" placeholder="Search by pet name, type or reason..." class="search-input" />
+                            </div>
+                            <select class="filter-select"><option>All Scans</option></select>
+                            <select class="filter-select"><option>All Conditions</option></select>
+                            <button class="filter-btn"><i class="fas fa-sliders-h" style="font-size:10px;"></i> Filter</button>
+                        </div>
+
+                        <!-- Table scroll container -->
+                        <div class="table-scroll-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Pet</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Reason</th>
+                                        <th>Result</th>
+                                        <th>Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.PetScanLogs != null && Model.PetScanLogs.Count > 0)
+                                    {
+                                        @foreach (var log in Model.PetScanLogs.Take(10))
+                                        {
+                                            <tr>
+                                                <td><img src="@log.PetImagePath" alt="Pet" class="pet-avatar" /></td>
+                                                <td><span class="pet-name-strong">@log.PetName</span></td>
+                                                <td>
+                                                    @if (log.PetType == "Cat")
+                                                    {
+                                                        <span class="type-pill cat"><i class="fas fa-cat"></i> Cat</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="type-pill dog"><i class="fas fa-dog"></i> Dog</span>
+                                                    }
+                                                </td>
+                                                <td style="color:#64748b;">@(log.Result == "Matched" ? "Good quality" : log.Result == "Unmatched" ? "Low confidence" : "Poor image quality")</td>
+                                                <td>
+                                                    @if (log.Result == "Matched")
+                                                    {
+                                                        <span class="badge-custom success"><i class="fas fa-check-circle"></i> Matched</span>
+                                                    }
+                                                    else if (log.Result == "Unmatched")
+                                                    {
+                                                        <span class="badge-custom danger"><i class="fas fa-times-circle"></i> Unmatched</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge-custom info">Error</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (log.Confidence > 0)
+                                                    {
+                                                        <div class="conf-wrap">
+                                                            <span class="conf-num">@log.Confidence.ToString("F0")%</span>
+                                                            <div class="conf-bar"><div class="conf-fill @(log.Confidence >= 75 ? "" : log.Confidence >= 50 ? "mid" : "low")" style="width:@($"{log.Confidence:F0}%")"></div></div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span style="color:#94a3b8;">—</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="6"><div class="empty-state"><i class="fas fa-inbox"></i><p>No scan logs available</p></div></td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="table-footer">
+                            <span>Showing <strong>1–@(Model.PetScanLogs != null ? Math.Min(10, Model.PetScanLogs.Count) : 0)</strong> of <strong>248</strong> entries</span>
+                            <div class="pagination-btn-group">
+                                <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+                                <button class="page-btn active">1</button>
+                                <button class="page-btn">2</button>
+                                <button class="page-btn">3</button>
+                                <span style="padding:0 4px;align-self:center;font-size:10px;">...</span>
+                                <button class="page-btn">31</button>
+                                <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Ill-health Reviews -->
+                    <div class="tab-pane" id="tab-ill-health">
+                        <div class="review-stats-bar">
+                            <div class="review-stat-item flagged">
+                                <i class="fas fa-flag"></i>
+                                <span class="review-stat-lbl">Flagged:</span>
+                                <span class="review-stat-val">@Model.FlaggedSubmissions</span>
+                            </div>
+                            <div class="review-stat-item pending">
+                                <i class="fas fa-hourglass-half"></i>
+                                <span class="review-stat-lbl">Under Review:</span>
+                                <span class="review-stat-val">@Model.UnderReview</span>
+                            </div>
+                            <div class="review-stat-item reviewed">
+                                <i class="fas fa-eye"></i>
+                                <span class="review-stat-lbl">Reviewed:</span>
+                                    <span class="review-stat-val">@Model.Reviewed</span>
+                                </div>
+                            <div class="review-stat-item resolved">
+                                <i class="fas fa-check-circle"></i>
+                                <span class="review-stat-lbl">Resolved:</span>
+                                <span class="review-stat-val">@Model.Resolved</span>
+                            </div>
+                        </div>
+
+                        <div class="table-controls">
+                            <div class="search-input-wrapper">
+                                <span class="search-icon"><i class="fas fa-search"></i></span>
+                                <input type="text" placeholder="Search by pet name or condition..." class="search-input" />
+                            </div>
+                            <select class="filter-select">
+                                <option>All Status</option>
+                                <option>Flagged</option>
+                                <option>Under Review</option>
+                                <option>Reviewed</option>
+                                <option>Resolved</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>All Conditions</option>
+                                <option>Skin Infection</option>
+                                <option>Ear Infection</option>
+                                <option>Fever</option>
+                                <option>Vomiting</option>
+                                <option>Eye Irritation</option>
+                            </select>
+                            <button class="filter-btn"><i class="fas fa-sliders-h" style="font-size:10px;"></i> Filter</button>
+                        </div>
+
+                        <!-- Table scroll container -->
+                        <div class="table-scroll-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Pet</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>AI Condition</th>
+                                        <th>Confidence</th>
+                                        <th>Status</th>
+                                        <th>AI Verdict</th>
+                                        <th>Admin Override</th>
+                                        <th>Notes</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.IllHealthReviews != null && Model.IllHealthReviews.Count > 0)
+                                    {
+                                        @foreach (var review in Model.IllHealthReviews)
+                                        {
+                                            <tr>
+                                                <td><img src="@review.PetImagePath" alt="@review.PetName" class="pet-avatar" /></td>
+                                                <td><span class="pet-name-strong">@review.PetName</span></td>
+                                                <td>
+                                                    @if (review.PetType == "Cat")
+                                                    {
+                                                        <span class="type-pill cat"><i class="fas fa-cat"></i> Cat</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="type-pill dog"><i class="fas fa-dog"></i> Dog</span>
+                                                    }
+                                                </td>
+                                                <td style="color:#475569;">@review.AISuggestedCondition</td>
+                                                <td>
+                                                    <div class="conf-wrap">
+                                                        <span class="conf-num">@review.Confidence.ToString("F0")%</span>
+                                                        <div class="conf-bar"><div class="conf-fill @(review.Confidence >= 75 ? "" : review.Confidence >= 50 ? "mid" : "low")" style="width:@($"{review.Confidence:F0}%")"></div></div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @if (review.Status == "Flagged Submission")
+                                                    {
+                                                        <span class="badge-custom danger"><i class="fas fa-flag"></i> Flagged</span>
+                                                    }
+                                                    else if (review.Status == "Reviewed")
+                                                    {
+                                                        <span class="badge-custom info"><i class="fas fa-eye"></i> Reviewed</span>
+                                                    }
+                                                    else if (review.Status == "Resolved")
+                                                    {
+                                                        <span class="badge-custom success"><i class="fas fa-check"></i> Resolved</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge-custom warning"><i class="fas fa-hourglass-half"></i> @review.Status</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (review.Status == "Flagged Submission")
+                                                    {
+                                                        <span class="verdict-ill"><i class="fas fa-exclamation-triangle" style="font-size:10px;margin-right:3px;"></i>Ill</span>
+                                                    }
+                                                    else
+                                                    {
+
+                                                        <span class="verdict-healthy"><i class="fas fa-check-circle" style="font-size:10px;margin-right:3px;"></i>Healthy</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <select class="table-select"><option>Select</option><option>Healthy</option><option>Ill</option></select>
+                                                </td>
+                                                <td><input type="text" placeholder="Add notes..." class="table-input" value="@review.OverrideNotes" /></td>
+                                                <td>
+                                                    <button class="table-btn-save"><i class="fas fa-save" style="font-size:9px;margin-right:3px;"></i>Save</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="10">
+                                                <div class="empty-state">
+                                                    <i class="fas fa-clipboard-check"></i>
+                                                    <p>No reviews available</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="table-footer">
+                            <a href="#" class="view-logs-link" style="margin:0;">View all ill-health submissions <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- tp-body -->
+        </div>
+    </div>
 </div>
-
-
 
 <script src="~/scripts/highcharts/highcharts.js"></script>
 <script src="~/scripts/highcharts/exporting.js"></script>
@@ -87,8 +405,19 @@
 
 <script>
     $(document).ready(function () {
-        var users = @Json.Serialize(Model.LstMonthlyUsers);
-        
-    });
+    var users = @Json.Serialize(Model.LstMonthlyUsers);
 
+    // Simple vanilla JS/jQuery Tab switching logic
+    $('.tab-btn').on('click', function() {
+    var tabId = $(this).data('tab');
+
+    // Remove active classes
+    $('.tab-btn').removeClass('active');
+    $('.tab-pane').removeClass('active');
+
+    // Activate selected tab button and pane
+    $(this).addClass('active');
+    $('#' + tabId).addClass('active');
+    });
+    });
 </script>
