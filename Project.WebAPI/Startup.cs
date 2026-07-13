@@ -85,6 +85,7 @@ namespace Project.WebAPI
             //Created By Manthan Tak
             services.AddTransient<IPetService, PetService>();
             services.AddTransient<IMissingService, MissingService>();
+            services.AddTransient<IIllHealthService, IllHealthService>();
 
             services.AddTransient<ISystemSetting, SystemSetting>();
 

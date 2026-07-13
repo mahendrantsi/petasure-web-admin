@@ -200,6 +200,41 @@ namespace Project.Data.DbModels
                       .OnDelete(DeleteBehavior.SetNull)
                       .HasConstraintName("FK_Enquiry_AspNetUsers_UserId");
             });
+
+            // ============================================================
+            // ===== HEALTH-CHECK / EARLY ISSUE DETECTION SCHEMA ==========
+            // ============================================================
+
+            // 🔟 health_check_events.PetId → PetInfo(Id) [Set Null]
+            //    Nullable FK + SET NULL keeps stored images/results for the dataset even
+            //    if the pet profile is later deleted (consistent with the PetInfo FK style).
+            builder.Entity<HealthCheckEvent>(entity =>
+            {
+                entity.ToTable("health_check_events");
+
+                entity.HasIndex(e => e.PetId).HasDatabaseName("IX_health_check_events_PetId");
+
+                entity.HasOne(e => e.Pet)
+                      .WithMany()
+                      .HasForeignKey(e => e.PetId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_health_check_events_PetInfo_PetId");
+            });
+
+            // 1️⃣1️⃣ health_status.HealthCheckEventId → health_check_events(Id) [Cascade]
+            //    A finding has no meaning without its parent event, so it cascade-deletes.
+            builder.Entity<HealthStatus>(entity =>
+            {
+                entity.ToTable("health_status");
+
+                entity.HasIndex(e => e.HealthCheckEventId).HasDatabaseName("IX_health_status_HealthCheckEventId");
+
+                entity.HasOne(e => e.HealthCheckEvent)
+                      .WithMany(h => h.HealthStatuses)
+                      .HasForeignKey(e => e.HealthCheckEventId)
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .HasConstraintName("FK_health_status_health_check_events_HealthCheckEventId");
+            });
         }
     }
 }

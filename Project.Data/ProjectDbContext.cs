@@ -54,6 +54,9 @@ namespace Project
         public DbSet<PetInfo> PetInfo { get; set; }
         public DbSet<PetTypeMaster> PetTypeMaster { get; set; }
 
+        public DbSet<HealthCheckEvent> HealthCheckEvents { get; set; }
+        public DbSet<HealthStatus> HealthStatus { get; set; }
+
         public DbSet<MissingPets> MissingPet { get; set; }
 
         public DbSet<MissingPetsLogs> MissingPetLogs { get; set; }

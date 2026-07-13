@@ -1,0 +1,62 @@
+{
+  "info": {
+    "name": "Petasure - Ill Health (T28/T29)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{jwtToken}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081" },
+    { "key": "jwtToken", "value": "" },
+    { "key": "petId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Dog Ill-Health Analyze",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/illhealth/dog",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "petId", "value": "{{petId}}", "type": "text" },
+            { "key": "image", "type": "file", "src": [] }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Cat Ill-Health Analyze",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/illhealth/cat",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "petId", "value": "{{petId}}", "type": "text" },
+            { "key": "image", "type": "file", "src": [] }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Dog Ill-Health Analyze - Unauthenticated (expect 401)",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "url": "{{baseUrl}}/api/illhealth/dog",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "petId", "value": "{{petId}}", "type": "text" },
+            { "key": "image", "type": "file", "src": [] }
+          ]
+        }
+      }
+    }
+  ]
+}
