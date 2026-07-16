@@ -52,11 +52,44 @@ namespace Project.Models.GeneralModel
         // AI signals it could not read the image clearly.
         [JsonPropertyName("image_unclear")]
         public bool ImageUnclear { get; set; }
+
+        // True only while the Python AI service is returning stubbed (placeholder) results.
+        [JsonPropertyName("is_stub")]
+        public bool IsStub { get; set; }
+
+        // Recognition-gate signal: true when the in-process pet classifier disagrees with
+        // the client-supplied species for this submission. Never blocks the scan — the AI
+        // service still analyzes the image — this is surfaced so the caller can prompt the
+        // user to confirm, rather than silently trusting an unverified species claim.
+        [JsonPropertyName("species_mismatch")]
+        public bool SpeciesMismatch { get; set; }
+
+        // "dog" | "cat" | "unknown" | null (classifier failed/was skipped) — the species the
+        // recognition gate actually detected in this photo.
+        [JsonPropertyName("detected_species")]
+        public string DetectedSpecies { get; set; }
+
+        // Present (HTTP 422) when the AI service HARD-blocked the scan before analysis:
+        // "not_a_pet" | "species_mismatch" | "different_pet". Null on a normal analysis.
+        [JsonPropertyName("validation_error")]
+        public string ValidationError { get; set; }
+
+        // The AI service's user-facing message for a validation block.
+        [JsonPropertyName("message")]
+        public string Message { get; set; }
     }
 
     public class IllHealthAiCondition
     {
-        [JsonPropertyName("condition_name")]
+        // The Python AI service (both the real heuristic analyzer and its stub) returns
+        // "name" for each condition, per illhealth_api.py's own documented Swagger
+        // contract — this previously read "condition_name", a field that doesn't exist
+        // in any Python response, so ConditionName always deserialized to null. Since
+        // HealthStatus.ConditionName is a required (NOT NULL) column, every real scan
+        // with at least one condition silently failed to save (UnitOfWork.SaveChangesAsync
+        // swallows the constraint-violation exception — see the fix there for why nothing
+        // ever surfaced this).
+        [JsonPropertyName("name")]
         public string ConditionName { get; set; }
 
         [JsonPropertyName("affected_area")]
@@ -95,8 +128,31 @@ namespace Project.Models.GeneralModel
         [JsonPropertyName("disclaimer")]
         public string Disclaimer { get; set; } = IllHealthConstants.Disclaimer;
 
+        // The client treats this (or a "Low confidence" severity) as a "retake photo" prompt.
+        [JsonPropertyName("image_unclear")]
+        public bool ImageUnclear { get; set; }
+
+        // Driven from the AI result; only true while the AI service is stubbed.
         [JsonPropertyName("is_stub")]
-        public bool IsStub { get; set; } = true;
+        public bool IsStub { get; set; }
+
+        // See IllHealthAiResult.SpeciesMismatch/DetectedSpecies — passed through unchanged
+        // so the client can prompt the user to confirm species rather than silently trusting it.
+        [JsonPropertyName("species_mismatch")]
+        public bool SpeciesMismatch { get; set; }
+
+        [JsonPropertyName("detected_species")]
+        public string DetectedSpecies { get; set; }
+
+        // Set when the scan was HARD-blocked by the recognition gate:
+        // "not_a_pet" | "species_mismatch" | "different_pet". The mobile app branches on this
+        // to show the matching blocking screen. Null on a normal analysis result.
+        [JsonPropertyName("validation_error")]
+        public string ValidationError { get; set; }
+
+        // The blocking message to display to the user (from the AI service).
+        [JsonPropertyName("message")]
+        public string Message { get; set; }
     }
 
     public class IllHealthConditionDto

@@ -16,7 +16,31 @@
   ],
   "item": [
     {
-      "name": "Dog Ill-Health Analyze",
+      "name": "Dog Ill-Health Analyze (happy path)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('snake_case contract fields present', () => {",
+              "  ['event_id','conditions','guidance_text','severity_level','recommended_action','disclaimer','is_stub'].forEach(k => pm.expect(j).to.have.property(k));",
+              "});",
+              "pm.test('disclaimer always present', () => pm.expect(j.disclaimer).to.be.a('string').and.not.empty);",
+              "pm.test('severity_level in allowed set', () => pm.expect(['None','Low','Medium','High','Low confidence','Unknown']).to.include(j.severity_level));",
+              "pm.test('is_stub is boolean (reflects AI)', () => pm.expect(j.is_stub).to.be.a('boolean'));",
+              "pm.test('conditions: confidence 0..1, severity 1..3', () => {",
+              "  (j.conditions || []).forEach(c => {",
+              "    pm.expect(c.confidence).to.be.within(0, 1);",
+              "    pm.expect(c.severity).to.be.within(1, 3);",
+              "  });",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "url": "{{baseUrl}}/api/illhealth/dog",
@@ -30,7 +54,21 @@
       }
     },
     {
-      "name": "Cat Ill-Health Analyze",
+      "name": "Cat Ill-Health Analyze (happy path)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('disclaimer present', () => pm.expect(j.disclaimer).to.be.a('string').and.not.empty);",
+              "pm.test('is_stub is boolean', () => pm.expect(j.is_stub).to.be.a('boolean'));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "url": "{{baseUrl}}/api/illhealth/cat",
@@ -44,7 +82,112 @@
       }
     },
     {
+      "name": "First scan (no previous image)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Run this against a pet that has NEVER been scanned before.",
+              "// .NET sends current_image only (no previous_image part).",
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('event_id returned', () => pm.expect(j.event_id).to.be.a('string').and.not.empty);",
+              "pm.test('disclaimer present', () => pm.expect(j.disclaimer).to.not.be.empty);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/illhealth/dog",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "petId", "value": "{{petId}}", "type": "text" },
+            { "key": "image", "type": "file", "src": [] }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Second scan (previous image present -> comparison)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Run AFTER 'First scan' for the same petId. The most recent prior",
+              "// HealthCheckEvent.ImageRef is now forwarded to the AI as previous_image.",
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('new event_id returned', () => pm.expect(j.event_id).to.be.a('string').and.not.empty);",
+              "pm.test('disclaimer present', () => pm.expect(j.disclaimer).to.not.be.empty);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/illhealth/dog",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "petId", "value": "{{petId}}", "type": "text" },
+            { "key": "image", "type": "file", "src": [] }
+          ]
+        }
+      }
+    },
+    {
+      "name": "AI service down -> graceful fallback (still 200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Point PythonAiService:IllHealthAiUrl at a dead port (e.g. http://127.0.0.1:1/)",
+              "// in appsettings, restart the API, then run this. The API must NOT 500/400.",
+              "pm.test('200 OK (no hard failure)', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('helpful guidance_text present', () => pm.expect(j.guidance_text).to.be.a('string').and.not.empty);",
+              "pm.test('disclaimer present on fallback', () => pm.expect(j.disclaimer).to.not.be.empty);",
+              "pm.test('image_unclear false on AI-down', () => pm.expect(j.image_unclear).to.eql(false));",
+              "pm.test('severity_level Unknown on AI-down', () => pm.expect(j.severity_level).to.eql('Unknown'));",
+              "pm.test('is_stub false (AI unavailable, not stubbed)', () => pm.expect(j.is_stub).to.eql(false));",
+              "pm.test('event still persisted', () => pm.expect(j.event_id).to.not.be.empty);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/illhealth/dog",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "petId", "value": "{{petId}}", "type": "text" },
+            { "key": "image", "type": "file", "src": [] }
+          ]
+        }
+      }
+    },
+    {
       "name": "Dog Ill-Health Analyze - Unauthenticated (expect 401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ],
       "request": {
         "auth": { "type": "noauth" },
         "method": "POST",

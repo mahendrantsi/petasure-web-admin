@@ -235,6 +235,82 @@ namespace Project.Data.DbModels
                       .OnDelete(DeleteBehavior.Cascade)
                       .HasConstraintName("FK_health_status_health_check_events_HealthCheckEventId");
             });
+
+            // ============================================================
+            // ===== PET RECOGNITION SCHEMA ================================
+            // ============================================================
+
+            // pet_images.PetId → PetInfo(Id) [Set Null]
+            //    Nullable FK: unresolved until a match/registration completes.
+            builder.Entity<PetImages>(entity =>
+            {
+                entity.ToTable("pet_images");
+
+                entity.HasIndex(e => e.PetId).HasDatabaseName("IX_pet_images_PetId");
+
+                entity.HasOne(e => e.Pet)
+                      .WithMany()
+                      .HasForeignKey(e => e.PetId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_pet_images_PetInfo_PetId");
+            });
+
+            // pet_scans.PetId → PetInfo(Id) [Set Null]
+            // pet_scans.PrimaryImageId / SecondaryImageId → pet_images(Id) [Restrict]
+            //    Restrict (not Cascade/SetNull): deleting an image shouldn't silently
+            //    delete scan history.
+            builder.Entity<PetScans>(entity =>
+            {
+                entity.ToTable("pet_scans");
+
+                entity.HasIndex(e => e.PetId).HasDatabaseName("IX_pet_scans_PetId");
+
+                entity.HasOne(e => e.Pet)
+                      .WithMany()
+                      .HasForeignKey(e => e.PetId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_pet_scans_PetInfo_PetId");
+
+                entity.HasOne(e => e.PrimaryImage)
+                      .WithMany()
+                      .HasForeignKey(e => e.PrimaryImageId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .HasConstraintName("FK_pet_scans_pet_images_PrimaryImageId");
+
+                entity.HasOne(e => e.SecondaryImage)
+                      .WithMany()
+                      .HasForeignKey(e => e.SecondaryImageId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .HasConstraintName("FK_pet_scans_pet_images_SecondaryImageId");
+            });
+
+            // recognition_errors.PetScanId → pet_scans(Id) [Cascade]
+            //    An error has no meaning without the scan it belongs to.
+            builder.Entity<RecognitionErrors>(entity =>
+            {
+                entity.ToTable("recognition_errors");
+
+                entity.HasIndex(e => e.PetScanId).HasDatabaseName("IX_recognition_errors_PetScanId");
+
+                entity.HasOne(e => e.PetScan)
+                      .WithMany(s => s.RecognitionErrors)
+                      .HasForeignKey(e => e.PetScanId)
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .HasConstraintName("FK_recognition_errors_pet_scans_PetScanId");
+            });
+
+            // health_check_events.PetScanId → pet_scans(Id) [Set Null]
+            //    Links an illness scan back to the recognition gate check that verified it.
+            builder.Entity<HealthCheckEvent>(entity =>
+            {
+                entity.HasIndex(e => e.PetScanId).HasDatabaseName("IX_health_check_events_PetScanId");
+
+                entity.HasOne(e => e.PetScan)
+                      .WithMany()
+                      .HasForeignKey(e => e.PetScanId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_health_check_events_pet_scans_PetScanId");
+            });
         }
     }
 }

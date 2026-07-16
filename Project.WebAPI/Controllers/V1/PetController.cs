@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Project;
 using Project.Data.DBEntities;
@@ -26,16 +27,18 @@ namespace Project.WebAPI.Controllers.V1
     {
        
         private readonly IPetService _petService;
+        private readonly ILogger<PetController> _logger;
 
 
         /// <summary>
         /// Constructor for Pet Controller
         /// </summary>
         /// <param name="petService"></param>
-        public PetController( IPetService petService)
+        public PetController( IPetService petService, ILogger<PetController> logger)
         {
-           
+
             _petService = petService;
+            _logger = logger;
         }
 
 
@@ -103,9 +106,11 @@ namespace Project.WebAPI.Controllers.V1
         [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterDogRequestViewModel model)
         {
+            _logger.LogInformation("Request received: Pet/Register petId={PetId} traceId={TraceId}", model?.PetId, HttpContext.TraceIdentifier);
             try
             {
                 var response = await _petService.RegisterDogRequest(model);
+                _logger.LogInformation("Response returned: Pet/Register traceId={TraceId}", HttpContext.TraceIdentifier);
                 return this.Ok(response);
             }
             catch (SecurityTokenException e)
@@ -117,9 +122,11 @@ namespace Project.WebAPI.Controllers.V1
         [HttpPost("RegisterCat")]
         public async Task<IActionResult> RegisterCat(RegisterCatRequestViewModel model)
         {
+            _logger.LogInformation("Request received: Pet/RegisterCat petId={PetId} traceId={TraceId}", model?.PetId, HttpContext.TraceIdentifier);
             try
             {
                 var response = await _petService.RegisterCatRequest(model);
+                _logger.LogInformation("Response returned: Pet/RegisterCat traceId={TraceId}", HttpContext.TraceIdentifier);
                 return this.Ok(response);
             }
             catch (SecurityTokenException e)

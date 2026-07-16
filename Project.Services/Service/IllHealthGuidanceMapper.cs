@@ -22,6 +22,12 @@ namespace Project.Services.Service
                 return response;
             }
 
+            // Pass through the AI's own flags on every non-null path.
+            response.IsStub = aiResult.IsStub;
+            response.ImageUnclear = aiResult.ImageUnclear;
+            response.SpeciesMismatch = aiResult.SpeciesMismatch;
+            response.DetectedSpecies = aiResult.DetectedSpecies;
+
             response.Conditions = aiResult.Conditions.Select(c => new IllHealthConditionDto
             {
                 ConditionName = c.ConditionName,
@@ -33,7 +39,8 @@ namespace Project.Services.Service
             if (aiResult.ImageUnclear)
             {
                 response.GuidanceText = "The image was not clear enough to analyze.";
-                response.SeverityLevel = "Unknown";
+                // "Low confidence" is the contract's preferred retake signal (alongside image_unclear=true).
+                response.SeverityLevel = "Low confidence";
                 response.RecommendedAction = "Retake the photo in good lighting, holding the camera steady.";
                 return response;
             }

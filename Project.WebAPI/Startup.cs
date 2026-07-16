@@ -37,11 +37,11 @@ namespace Project.WebAPI
     using Microsoft.AspNetCore.Authorization;
     using Project.Services.ServiceHelper;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.FileProviders;
+    using System.IO;
 
     public class Startup
     {
-        private const string SecretKey = "iNivDmHLpUA223sqsfhqGbMRdRj1PVkH"; //  todo: get this from somewhere secure
-        private readonly SymmetricSecurityKey signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
         private const string ApiSourceHeader = "X-ApiSource";
         private string _env;
 
@@ -57,6 +57,7 @@ namespace Project.WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddHttpContextAccessor();
             services.AddDbContext<ProjectDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("ProjectDbConnection"));
@@ -191,6 +192,21 @@ namespace Project.WebAPI
                 //if (response.IsSuccess)
                 //    (serviceScope.ServiceProvider.GetRequiredService<ISystemSetting>()).SetSystemVariables(response.Data);
 
+            }
+
+            // Serve recognition/illness images that IllHealthService/PetService/AccountService
+            // save under {WebProjectRootPath}/uploads/... back out at /uploads/... . Without
+            // this, uploaded images are saved to disk but have no route that serves them.
+            var webProjectRootPath = Configuration["WebProjectRootPath"];
+            if (!string.IsNullOrWhiteSpace(webProjectRootPath))
+            {
+                var uploadsRootPath = Path.Combine(webProjectRootPath, "uploads");
+                Directory.CreateDirectory(uploadsRootPath);
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(uploadsRootPath),
+                    RequestPath = "/uploads",
+                });
             }
 
             app.UseMiddleware(x =>

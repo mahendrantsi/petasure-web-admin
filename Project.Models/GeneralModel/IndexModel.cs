@@ -23,6 +23,10 @@ namespace Project.Models.GeneralModel
     public class SimilarDogRequestViewModel
     {
         public IFormFile Image { get; set; }
+        // The species the user selected in the app ("dog"/"cat"). Forwarded to the Python
+        // AI service so it can hard-reject a photo whose detected species doesn't match
+        // (or isn't a pet at all). Optional for backward compatibility with older clients.
+        public string Species { get; set; }
     }
 
 
@@ -31,17 +35,20 @@ namespace Project.Models.GeneralModel
         public IFormFile NoseImage { get; set; }
         public IFormFile DogImage { get; set; }
         public string PetId { get; set; }
+        public string Species { get; set; }
     }
 
     public class AnalyzeDogRequestViewModel
     {
         public IFormFile NoseImage { get; set; }
         public IFormFile DogImage { get; set; }
+        public string Species { get; set; }
     }
 
     public class SimilarCatRequestViewModel
     {
         public IFormFile Image { get; set; }
+        public string Species { get; set; }
     }
 
     public class RegisterCatRequestViewModel
@@ -51,11 +58,13 @@ namespace Project.Models.GeneralModel
         public IFormFile NoseImage { get; set; }
         public IFormFile CatImage { get; set; }
         public string PetId { get; set; }
+        public string Species { get; set; }
     }
 
     public class AnalyzeCatRequestViewModel
     {
         public IFormFile NoseImage { get; set; }
         public IFormFile CatImage { get; set; }
+        public string Species { get; set; }
     }
 }

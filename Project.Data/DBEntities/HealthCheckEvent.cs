@@ -20,6 +20,12 @@ namespace Project.Data.DBEntities
         [ForeignKey(nameof(Pet))]
         public Guid? PetId { get; set; }
 
+        // FK to the recognition-gate PetScans row that verified species/pet identity for
+        // this submission. Nullable + SET NULL: the illness event is retained even if the
+        // scan row is ever purged, and older events predate this column entirely.
+        [ForeignKey(nameof(PetScan))]
+        public Guid? PetScanId { get; set; }
+
         public EnumHealthCheckSpecies Species { get; set; }
 
         [Required]
@@ -40,6 +46,7 @@ namespace Project.Data.DBEntities
 
         // Navigation Properties
         public virtual PetInfo Pet { get; set; }
+        public virtual PetScans PetScan { get; set; }
         public virtual ICollection<HealthStatus> HealthStatuses { get; set; } = new List<HealthStatus>();
     }
 }

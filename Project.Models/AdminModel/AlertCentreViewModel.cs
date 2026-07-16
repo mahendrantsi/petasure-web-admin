@@ -22,8 +22,8 @@ namespace Project.Models.AdminModel
 
     public class AlertItemViewModel
     {
-        public int AlertId { get; set; }
-        public int PetId { get; set; }
+        public Guid AlertId { get; set; }
+        public Guid? PetId { get; set; }
         public string PetName { get; set; }
         public string PetType { get; set; } // Dog, Cat
         public string PetImageUrl { get; set; }

@@ -57,6 +57,10 @@ namespace Project
         public DbSet<HealthCheckEvent> HealthCheckEvents { get; set; }
         public DbSet<HealthStatus> HealthStatus { get; set; }
 
+        public DbSet<PetImages> PetImages { get; set; }
+        public DbSet<PetScans> PetScans { get; set; }
+        public DbSet<RecognitionErrors> RecognitionErrors { get; set; }
+
         public DbSet<MissingPets> MissingPet { get; set; }
 
         public DbSet<MissingPetsLogs> MissingPetLogs { get; set; }

@@ -18,9 +18,14 @@ using System.Data.Entity;
 using System.Drawing.Drawing2D;
 using Project.Models.GeneralModel;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Diagnostics;
+using System.Text.Json;
 using ServiceStack;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -35,15 +40,28 @@ namespace Project.Services.Service
 
         private readonly IExceptionLoggerService _exceptionLoggerService;
         private readonly IConfiguration configuataion;
+        private readonly ILogger<PetService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PetService(IUnitOfWork unitOfWork, IExceptionLoggerService exceptionLoggerService)
+        public PetService(
+            IUnitOfWork unitOfWork,
+            IExceptionLoggerService exceptionLoggerService,
+            IConfiguration configuration,
+            ILogger<PetService> logger,
+            IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _exceptionLoggerService = exceptionLoggerService;
-            configuataion = new ConfigurationBuilder()
-                   .SetBasePath(Directory.GetCurrentDirectory())
-                   .AddJsonFile("appsettings.json").Build();
+            configuataion = configuration;
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
+
+        // Correlates one recognition scan's log lines across .NET and (via the X-Request-Id
+        // header sent to Python) the AI service's own logs. Falls back to a fresh id when
+        // called outside an HTTP request (e.g. a background job).
+        private string CurrentRequestId =>
+            _httpContextAccessor.HttpContext?.TraceIdentifier ?? Guid.NewGuid().ToString("N");
 
 
         /// <summary>
@@ -350,6 +368,240 @@ namespace Project.Services.Service
             return false;
         }
 
+        // ============================================================
+        // ===== RECOGNITION PERSISTENCE HELPERS =======================
+        // ============================================================
+        // Every recognition call below saves its image(s) to disk + a PetImages row,
+        // forwards to the Python AI service, parses whatever it can out of the response
+        // into a PetScans row, and records a RecognitionErrors row on any failure — all
+        // under a single SaveChangesAsync() per call. Preserves the existing wire contract
+        // (still returns the raw AI response string) so no mobile-side change is required
+        // for this step.
+
+        private async Task<PetImages> SaveImageAsync(Microsoft.AspNetCore.Http.IFormFile file, EnumImageKind kind, Guid? petId)
+        {
+            var webProjectRootPath = configuataion.GetValue<string>("WebProjectRootPath");
+            var uploadsDir = Path.Combine(webProjectRootPath, "uploads", "recognition");
+            if (!Directory.Exists(uploadsDir))
+            {
+                Directory.CreateDirectory(uploadsDir);
+            }
+
+            var ext = Path.GetExtension(file.FileName);
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var fullPath = Path.Combine(uploadsDir, fileName);
+
+            using (var fileStream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            _logger.LogInformation(
+                "Image stored: path={StoragePath} sizeBytes={SizeBytes} requestId={RequestId}",
+                fileName, file.Length, CurrentRequestId);
+
+            return new PetImages
+            {
+                PetId = petId,
+                ImageKind = kind,
+                StoragePath = Path.Combine("/uploads", "recognition", fileName).Replace("\\", "/"),
+                OriginalFileName = file.FileName,
+                ContentType = file.ContentType,
+                FileSizeBytes = file.Length,
+            };
+        }
+
+        private static byte[] ReadAllBytes(Microsoft.AspNetCore.Http.IFormFile file)
+        {
+            using var ms = new MemoryStream();
+            file.CopyTo(ms);
+            return ms.ToArray();
+        }
+
+        /// <summary>
+        /// Defensively pulls whatever fields it recognizes out of the AI service's response
+        /// body (shape: {success, status, message, data:{...}}) into the PetScans columns.
+        /// Unknown/missing fields are left null rather than failing the scan.
+        /// </summary>
+        private static void ApplyAiResponseToScan(PetScans scan, HttpStatusCode statusCode, string responseContent)
+        {
+            scan.AiStatusCode = (int)statusCode;
+            scan.AiResponseRaw = string.IsNullOrEmpty(responseContent) || responseContent.Length <= 4000
+                ? responseContent
+                : responseContent.Substring(0, 4000);
+
+            try
+            {
+                using var doc = JsonDocument.Parse(responseContent);
+                var root = doc.RootElement;
+                var data = root.TryGetProperty("data", out var d) && d.ValueKind == JsonValueKind.Object ? d : root;
+
+                if (data.TryGetProperty("dog_exist", out var dogExist))
+                {
+                    scan.MatchResult = dogExist.ValueKind == JsonValueKind.True ? "matched"
+                        : dogExist.ValueKind == JsonValueKind.False ? "no_match" : scan.MatchResult;
+                }
+                if (data.TryGetProperty("distance", out var distance) && distance.ValueKind == JsonValueKind.Number && distance.TryGetDecimal(out var distanceVal))
+                {
+                    scan.MatchConfidence = distanceVal;
+                }
+                if (data.TryGetProperty("ds_id", out var dsId) && dsId.ValueKind == JsonValueKind.String)
+                {
+                    scan.MatchedDsId = dsId.GetString();
+                }
+                if (data.TryGetProperty("is_blur", out var isBlur))
+                {
+                    scan.IsBlurRejected = isBlur.ValueKind == JsonValueKind.True;
+                }
+                if (data.TryGetProperty("nose_detect", out var noseDetect))
+                {
+                    scan.IsNoseDetected = noseDetect.ValueKind == JsonValueKind.True ? true
+                        : noseDetect.ValueKind == JsonValueKind.False ? false : scan.IsNoseDetected;
+                }
+                if (data.TryGetProperty("label", out var label) && label.ValueKind == JsonValueKind.String)
+                {
+                    scan.ClassifierLabel = label.GetString();
+                }
+                if (data.TryGetProperty("route", out var route) && route.ValueKind == JsonValueKind.String)
+                {
+                    scan.RouteDecision = route.GetString();
+                }
+                if (data.TryGetProperty("confidence", out var confidence) && confidence.ValueKind == JsonValueKind.Number && confidence.TryGetDecimal(out var confVal))
+                {
+                    scan.ClassifierConfidence = confVal;
+                }
+                if (data.TryGetProperty("dog_score", out var dogScore) && dogScore.ValueKind == JsonValueKind.Number && dogScore.TryGetDecimal(out var dogScoreVal))
+                {
+                    scan.ClassifierDogScore = dogScoreVal;
+                }
+                if (data.TryGetProperty("cat_score", out var catScore) && catScore.ValueKind == JsonValueKind.Number && catScore.TryGetDecimal(out var catScoreVal))
+                {
+                    scan.ClassifierCatScore = catScoreVal;
+                }
+            }
+            catch (JsonException)
+            {
+                // Non-JSON or unexpected shape — AiResponseRaw is kept for troubleshooting;
+                // leave the structured columns null rather than fail the whole scan.
+            }
+
+            scan.Status = (int)statusCode >= 200 && (int)statusCode < 300
+                ? (scan.IsBlurRejected || scan.RouteDecision == "reject" || scan.MatchResult == "no_match"
+                    ? EnumPetScanStatus.Rejected
+                    : EnumPetScanStatus.Success)
+                : EnumPetScanStatus.Failed;
+        }
+
+        private async Task<string> FailImageSaveAsync(PetScans scan, Exception ex)
+        {
+            scan.Status = EnumPetScanStatus.Failed;
+            scan.Notes = ex.Message;
+            await _unitOfWork.Instance.RecognitionErrors.AddAsync(new RecognitionErrors
+            {
+                PetScan = scan,
+                ErrorStage = EnumRecognitionErrorStage.ImageSave,
+                ErrorMessage = ex.Message,
+            });
+            _exceptionLoggerService.LogException(ex);
+
+            try
+            {
+                await _unitOfWork.Instance.PetScans.AddAsync(scan);
+                var saved = await _unitOfWork.SaveChangesAsync();
+                if (!saved)
+                {
+                    // SaveChangesAsync() logs the real exception itself; this just pinpoints
+                    // which caller's save failed (see UnitOfWork.SaveChangesAsync for why
+                    // checking this return value matters — it used to be silently discarded
+                    // everywhere, which is exactly what hid the illness ConditionName bug).
+                    _logger.LogWarning("Failed to persist failed-image-save PetScans row for scan {ScanType}", scan.ScanType);
+                }
+            }
+            catch (Exception dbEx)
+            {
+                _exceptionLoggerService.LogException(dbEx);
+            }
+
+            return "{\"success\":false,\"status\":500,\"message\":\"Could not save uploaded image, please try again.\"}";
+        }
+
+        private async Task<string> ExecuteRecognitionScanAsync(PetScans scan, string endpoint, Action<MultipartFormDataContent> buildForm)
+        {
+            var requestId = CurrentRequestId;
+            var stage = EnumRecognitionErrorStage.AiRequest;
+            string responseContent = null;
+            try
+            {
+                var reqUrl = configuataion["CustomKeys:DogRequestUrl"];
+                var reqKey = configuataion["CustomKeys:DogRequestApiKey"];
+
+                using var form = new MultipartFormDataContent();
+                buildForm(form);
+
+                var httpClient = new HttpClient { BaseAddress = new Uri(reqUrl) };
+                if (!string.IsNullOrWhiteSpace(reqKey))
+                {
+                    httpClient.DefaultRequestHeaders.Add("X-API-Key", reqKey);
+                }
+                httpClient.DefaultRequestHeaders.Add("X-Request-Id", requestId);
+
+                _logger.LogInformation(
+                    "Python request: endpoint={Endpoint} scanType={ScanType} species={Species} requestId={RequestId}",
+                    endpoint, scan.ScanType, scan.Species, requestId);
+
+                var stopwatch = Stopwatch.StartNew();
+                var response = await httpClient.PostAsync(endpoint, form);
+                stopwatch.Stop();
+                scan.AiRequestDurationMs = (int)stopwatch.ElapsedMilliseconds;
+
+                stage = EnumRecognitionErrorStage.AiResponseParse;
+                responseContent = await response.Content.ReadAsStringAsync();
+                ApplyAiResponseToScan(scan, response.StatusCode, responseContent);
+
+                _logger.LogInformation(
+                    "Python response: endpoint={Endpoint} statusCode={StatusCode} durationMs={DurationMs} requestId={RequestId}",
+                    endpoint, (int)response.StatusCode, scan.AiRequestDurationMs, requestId);
+            }
+            catch (Exception ex)
+            {
+                scan.Status = EnumPetScanStatus.Failed;
+                scan.Notes = ex.Message;
+                await _unitOfWork.Instance.RecognitionErrors.AddAsync(new RecognitionErrors
+                {
+                    PetScan = scan,
+                    ErrorStage = stage,
+                    ErrorMessage = ex.Message,
+                });
+                _logger.LogWarning(ex, "Recognition scan failed at stage={Stage} endpoint={Endpoint} requestId={RequestId}", stage, endpoint, requestId);
+                _exceptionLoggerService.LogException(ex);
+                responseContent ??= "{\"success\":false,\"status\":500,\"message\":\"Recognition service unavailable, please try again.\"}";
+            }
+
+            try
+            {
+                await _unitOfWork.Instance.PetScans.AddAsync(scan);
+                var saved = await _unitOfWork.SaveChangesAsync();
+                if (saved)
+                {
+                    _logger.LogInformation("Database saved: scanId={ScanId} status={Status} requestId={RequestId}", scan.Id, scan.Status, requestId);
+                }
+                else
+                {
+                    // SaveChangesAsync() logs the real exception itself (see UnitOfWork) —
+                    // this just pinpoints which caller's save failed.
+                    _logger.LogWarning("Failed to persist PetScans row requestId={RequestId}", requestId);
+                }
+            }
+            catch (Exception dbEx)
+            {
+                _logger.LogWarning(dbEx, "Failed to persist PetScans row requestId={RequestId}", requestId);
+                _exceptionLoggerService.LogException(dbEx);
+            }
+
+            _logger.LogInformation("Response returned: endpoint={Endpoint} requestId={RequestId}", endpoint, requestId);
+            return responseContent;
+        }
+
         /// <summary>
         /// Check Similar Dog in the system
         /// </summary>
@@ -357,30 +609,25 @@ namespace Project.Services.Service
         /// <returns></returns>
         public async Task<string> SimilarDogRequest(SimilarDogRequestViewModel model)
         {
-            var dogReqUrl = configuataion["CustomKeys:DogRequestUrl"];
-            var dogReqKey = configuataion["CustomKeys:DogRequestApiKey"];
-            using var form = new MultipartFormDataContent();
-            using (var ms = new MemoryStream())
+            var scan = new PetScans { ScanType = EnumPetScanType.Similar, Species = EnumRecognitionSpecies.Dog };
+            try
             {
-                var fileName = model.Image.FileName;
-                model.Image.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
-
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                // here it is important that second parameter matches with name given in API.
-                form.Add(fileContent, "nose_image", fileName);
+                scan.PrimaryImage = await SaveImageAsync(model.Image, EnumImageKind.NoseImage, null);
+            }
+            catch (Exception ex)
+            {
+                return await FailImageSaveAsync(scan, ex);
             }
 
-            var httpClient = new HttpClient()
+            return await ExecuteRecognitionScanAsync(scan, "similar", form =>
             {
-                BaseAddress = new Uri(dogReqUrl)
-            };
-            httpClient.DefaultRequestHeaders.Add("X-API-Key", dogReqKey);
-            var response = await httpClient.PostAsync($"similar", form);
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            return responseContent;
+                var fileContent = new ByteArrayContent(ReadAllBytes(model.Image));
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                // here it is important that second parameter matches with name given in API.
+                form.Add(fileContent, "nose_image", model.Image.FileName);
+                // User-selected species so Python can hard-reject a wrong-species / not-a-pet photo.
+                form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "dog" : model.Species);
+            });
         }
 
         /// <summary>
@@ -388,54 +635,36 @@ namespace Project.Services.Service
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        
         public async Task<string> AnalyzeDogRequest(AnalyzeDogRequestViewModel model)
         {
-            var dogReqUrl = configuataion["CustomKeys:DogRequestUrl"];
-            var dogReqKey = configuataion["CustomKeys:DogRequestApiKey"];
-    
-           
-
-            using var form = new MultipartFormDataContent();
-
-            using (var ms = new MemoryStream())
+            var scan = new PetScans { ScanType = EnumPetScanType.Analyze, Species = EnumRecognitionSpecies.Dog };
+            try
             {
-                model.NoseImage.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
-
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.NoseImage.FileName);
-                var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                form.Add(fileContent, "nose_image", $"{timestamp}_nose_image{ext}");
+                scan.PrimaryImage = await SaveImageAsync(model.NoseImage, EnumImageKind.NoseImage, null);
+                scan.SecondaryImage = await SaveImageAsync(model.DogImage, EnumImageKind.FullBodyImage, null);
             }
-            using (var ms = new MemoryStream())
+            catch (Exception ex)
             {
-                model.DogImage.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
-                var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.DogImage.FileName);
+                return await FailImageSaveAsync(scan, ex);
+            }
 
+            return await ExecuteRecognitionScanAsync(scan, "analyze", form =>
+            {
+                var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+                var noseExt = Path.GetExtension(model.NoseImage.FileName);
+                var noseContent = new ByteArrayContent(ReadAllBytes(model.NoseImage));
+                noseContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(noseContent, "nose_image", $"{timestamp}_nose_image{noseExt}");
+
+                var dogExt = Path.GetExtension(model.DogImage.FileName);
+                var dogContent = new ByteArrayContent(ReadAllBytes(model.DogImage));
+                dogContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
                 // here it is important that second parameter matches with name given in API.
-                form.Add(fileContent, "dog_image", $"{timestamp}_dog_image{ext}");
-            }
-
-
-
-            var httpClient = new HttpClient()
-            {
-                BaseAddress = new Uri(dogReqUrl)
-            };
-            httpClient.DefaultRequestHeaders.Add("X-API-Key", dogReqKey);
-            var response = await httpClient.PostAsync($"analyze", form);
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            return responseContent;
+                form.Add(dogContent, "dog_image", $"{timestamp}_dog_image{dogExt}");
+                form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "dog" : model.Species);
+            });
         }
-
 
         /// <summary>
         /// Register Dog to the system
@@ -444,134 +673,115 @@ namespace Project.Services.Service
         /// <returns></returns>
         public async Task<string> RegisterDogRequest(RegisterDogRequestViewModel model)
         {
-            var dogReqUrl = configuataion["CustomKeys:DogRequestUrl"];
-            var dogReqKey = configuataion["CustomKeys:DogRequestApiKey"];
-
-            using var form = new MultipartFormDataContent();
-
-            using (var ms = new MemoryStream())
+            var petId = Guid.TryParse(model.PetId, out var parsedId) ? (Guid?)parsedId : null;
+            var scan = new PetScans { ScanType = EnumPetScanType.Register, Species = EnumRecognitionSpecies.Dog, PetId = petId };
+            try
             {
-                model.NoseImage.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
-
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.NoseImage.FileName);
-                form.Add(fileContent, "nose_image", model.PetId + "_nose_image" + ext);
+                scan.PrimaryImage = await SaveImageAsync(model.NoseImage, EnumImageKind.NoseImage, petId);
+                scan.SecondaryImage = await SaveImageAsync(model.DogImage, EnumImageKind.FullBodyImage, petId);
             }
-            using (var ms = new MemoryStream())
+            catch (Exception ex)
             {
-                model.DogImage.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
+                return await FailImageSaveAsync(scan, ex);
+            }
 
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.DogImage.FileName);
+            return await ExecuteRecognitionScanAsync(scan, "register", form =>
+            {
+                var noseContent = new ByteArrayContent(ReadAllBytes(model.NoseImage));
+                noseContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(noseContent, "nose_image", model.PetId + "_nose_image" + Path.GetExtension(model.NoseImage.FileName));
+
+                var dogContent = new ByteArrayContent(ReadAllBytes(model.DogImage));
+                dogContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
                 // here it is important that second parameter matches with name given in API.
-                form.Add(fileContent, "dog_image", model.PetId + "_dog_image" + ext);
-            }
+                form.Add(dogContent, "dog_image", model.PetId + "_dog_image" + Path.GetExtension(model.DogImage.FileName));
 
-            form.AddParam("ds_id", model.PetId);
-
-            var httpClient = new HttpClient()
-            {
-                BaseAddress = new Uri(dogReqUrl)
-            };
-            httpClient.DefaultRequestHeaders.Add("X-API-Key", dogReqKey);
-            var response = await httpClient.PostAsync($"register", form);
-            response.EnsureSuccessStatusCode();
-            var responseContent = await response.Content.ReadAsStringAsync();
-            return responseContent;
+                form.AddParam("ds_id", model.PetId);
+                form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "dog" : model.Species);
+            });
         }
 
-
-
+        // Cats use the same nose-based AI service as dogs; the service auto-classifies the
+        // species, so we send the same field names ("nose_image"/"dog_image") and hit the
+        // same endpoint/URL as the dog flow.
         public async Task<string> SimilarCatRequest(SimilarCatRequestViewModel model)
         {
-            // Cats use the same nose-based AI service as dogs; the service auto-classifies the
-            // species, so we send the same field names and hit the same endpoint/URL.
-            var catReqUrl = configuataion["CustomKeys:DogRequestUrl"];
-            var catReqKey = configuataion["CustomKeys:DogRequestApiKey"];
-            using var form = new MultipartFormDataContent();
-            using (var ms = new MemoryStream())
+            var scan = new PetScans { ScanType = EnumPetScanType.Similar, Species = EnumRecognitionSpecies.Cat };
+            try
             {
-                var fileName = model.Image.FileName;
-                model.Image.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                form.Add(fileContent, "nose_image", fileName);
+                scan.PrimaryImage = await SaveImageAsync(model.Image, EnumImageKind.NoseImage, null);
             }
-            var httpClient = new HttpClient() { BaseAddress = new Uri(catReqUrl) };
-            httpClient.DefaultRequestHeaders.Add("X-API-Key", catReqKey);
-            var response = await httpClient.PostAsync("similar", form);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+            catch (Exception ex)
+            {
+                return await FailImageSaveAsync(scan, ex);
+            }
+
+            return await ExecuteRecognitionScanAsync(scan, "similar", form =>
+            {
+                var fileContent = new ByteArrayContent(ReadAllBytes(model.Image));
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(fileContent, "nose_image", model.Image.FileName);
+                form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "cat" : model.Species);
+            });
         }
 
         public async Task<string> AnalyzeCatRequest(AnalyzeCatRequestViewModel model)
         {
-            // Same nose-based AI service and field names as the dog flow (species auto-detected).
-            var catReqUrl = configuataion["CustomKeys:DogRequestUrl"];
-            var catReqKey = configuataion["CustomKeys:DogRequestApiKey"];
-            using var form = new MultipartFormDataContent();
-            using (var ms = new MemoryStream())
+            var scan = new PetScans { ScanType = EnumPetScanType.Analyze, Species = EnumRecognitionSpecies.Cat };
+            try
             {
-                model.NoseImage.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.NoseImage.FileName);
-                var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                form.Add(fileContent, "nose_image", $"{timestamp}_nose_image{ext}");
+                scan.PrimaryImage = await SaveImageAsync(model.NoseImage, EnumImageKind.NoseImage, null);
+                scan.SecondaryImage = await SaveImageAsync(model.CatImage, EnumImageKind.FullBodyImage, null);
             }
-            using (var ms = new MemoryStream())
+            catch (Exception ex)
             {
-                model.CatImage.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.CatImage.FileName);
-                var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                form.Add(fileContent, "dog_image", $"{timestamp}_dog_image{ext}");
+                return await FailImageSaveAsync(scan, ex);
             }
-            var httpClient = new HttpClient() { BaseAddress = new Uri(catReqUrl) };
-            httpClient.DefaultRequestHeaders.Add("X-API-Key", catReqKey);
-            var response = await httpClient.PostAsync("analyze", form);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+
+            return await ExecuteRecognitionScanAsync(scan, "analyze", form =>
+            {
+                var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+                var noseExt = Path.GetExtension(model.NoseImage.FileName);
+                var noseContent = new ByteArrayContent(ReadAllBytes(model.NoseImage));
+                noseContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(noseContent, "nose_image", $"{timestamp}_nose_image{noseExt}");
+
+                var catExt = Path.GetExtension(model.CatImage.FileName);
+                var catContent = new ByteArrayContent(ReadAllBytes(model.CatImage));
+                catContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(catContent, "dog_image", $"{timestamp}_dog_image{catExt}");
+                form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "cat" : model.Species);
+            });
         }
 
         public async Task<string> RegisterCatRequest(RegisterCatRequestViewModel model)
         {
-            // Same nose-based AI service and field names as the dog flow (species auto-detected).
-            var catReqUrl = configuataion["CustomKeys:DogRequestUrl"];
-            var catReqKey = configuataion["CustomKeys:DogRequestApiKey"];
-            using var form = new MultipartFormDataContent();
-            using (var ms = new MemoryStream())
+            var petId = Guid.TryParse(model.PetId, out var parsedId) ? (Guid?)parsedId : null;
+            var scan = new PetScans { ScanType = EnumPetScanType.Register, Species = EnumRecognitionSpecies.Cat, PetId = petId };
+            try
             {
-                model.NoseImage.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.NoseImage.FileName);
-                form.Add(fileContent, "nose_image", model.PetId + "_nose_image" + ext);
+                scan.PrimaryImage = await SaveImageAsync(model.NoseImage, EnumImageKind.NoseImage, petId);
+                scan.SecondaryImage = await SaveImageAsync(model.CatImage, EnumImageKind.FullBodyImage, petId);
             }
-            using (var ms = new MemoryStream())
+            catch (Exception ex)
             {
-                model.CatImage.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                var fileContent = new ByteArrayContent(fileBytes);
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-                var ext = Path.GetExtension(model.CatImage.FileName);
-                form.Add(fileContent, "dog_image", model.PetId + "_dog_image" + ext);
+                return await FailImageSaveAsync(scan, ex);
             }
-            form.AddParam("ds_id", model.PetId);
-            var httpClient = new HttpClient() { BaseAddress = new Uri(catReqUrl) };
-            httpClient.DefaultRequestHeaders.Add("X-API-Key", catReqKey);
-            var response = await httpClient.PostAsync("register", form);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+
+            return await ExecuteRecognitionScanAsync(scan, "register", form =>
+            {
+                var noseContent = new ByteArrayContent(ReadAllBytes(model.NoseImage));
+                noseContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(noseContent, "nose_image", model.PetId + "_nose_image" + Path.GetExtension(model.NoseImage.FileName));
+
+                var catContent = new ByteArrayContent(ReadAllBytes(model.CatImage));
+                catContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                form.Add(catContent, "dog_image", model.PetId + "_dog_image" + Path.GetExtension(model.CatImage.FileName));
+
+                form.AddParam("ds_id", model.PetId);
+                form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "cat" : model.Species);
+            });
         }
 
         //delete the pets on AI

@@ -10,6 +10,7 @@
     using Project.Data.ExtendedDBEntities;
     using Project.Data.DBEntities;
     using AutoMapper;
+    using Microsoft.Extensions.Logging;
 
     public class UnitOfWork : IUnitOfWork
     {
@@ -17,12 +18,14 @@
         private readonly UserManager<DerivedIdentityUser> _userManager;
         private readonly SignInManager<DerivedIdentityUser> _signInManager;
         private readonly IMapper _mapper;
-        public UnitOfWork(ProjectDbContext dbContext, UserManager<DerivedIdentityUser> userManager, SignInManager<DerivedIdentityUser> signInManager, IMapper mapper)
+        private readonly ILogger<UnitOfWork> _logger;
+        public UnitOfWork(ProjectDbContext dbContext, UserManager<DerivedIdentityUser> userManager, SignInManager<DerivedIdentityUser> signInManager, IMapper mapper, ILogger<UnitOfWork> logger)
         {
             this.context = dbContext;
             this._userManager = userManager;
             _signInManager = signInManager;
             this._mapper = mapper;
+            this._logger = logger;
         }
 
         public IGenericRepository<T> GenericRepository<T>() where T : class
@@ -40,8 +43,15 @@
             {
                 this.Context.SaveChanges();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // Previously swallowed with no logging at all — every caller of Save()/
+                // SaveChanges()/SaveChangesAsync() across the app ignores the bool return
+                // value, so a failed save (e.g. a constraint violation) was completely
+                // invisible: no exception, no log entry, just a silent no-op rollback. This
+                // is exactly what hid the illness-scan ConditionName/NOT NULL bug (see
+                // IllHealthModels.cs) for every real scan attempt.
+                _logger.LogError(ex, "UnitOfWork.Save failed — changes were not persisted.");
                 returnValue = false;
             }
 
@@ -58,9 +68,9 @@
                     this.Context.SaveChanges();
                     dbContextTransaction.Commit();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    //  Log Exception Handling message
+                    _logger.LogError(ex, "UnitOfWork.SaveChanges failed — transaction rolled back.");
                     returnValue = false;
                     dbContextTransaction.Rollback();
                 }
@@ -81,6 +91,7 @@
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "UnitOfWork.SaveChangesAsync failed — transaction rolled back.");
                     returnValue = false;
                     dbContextTransaction.Rollback();
                 }
