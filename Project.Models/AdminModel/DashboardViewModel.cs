@@ -1,17 +1,11 @@
-﻿using Microsoft.Extensions.ObjectPool;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Project.Models.AdminModel
 {
     public class DashboardViewModel
     {
-
         public int TotalUsers { get; set; }
         public int MonthlyNewUsers { get; set; }
         public int NumberOfCats { get; set; }
@@ -23,8 +17,21 @@ namespace Project.Models.AdminModel
         public int TopUnmatchedScans { get; set; }
         public int ErrorBreakdown { get; set; }
 
-        // Pet Scan Logs
-        public List<PetScanLogViewModel> PetScanLogs { get; set; }
+        // Scan analytics
+        public int TotalScans { get; set; }
+        public int MatchedScans { get; set; }
+        public int UnmatchedScans { get; set; }
+        public int ErrorCount { get; set; }
+
+        // Error breakdown by stage
+        public List<ErrorBreakdownItem> ErrorBreakdownItems { get; set; } = new List<ErrorBreakdownItem>();
+
+        // Pet Scan Logs (paginated)
+        public List<PetScanLogViewModel> PetScanLogs { get; set; } = new List<PetScanLogViewModel>();
+        public int TotalScanLogs { get; set; }
+        public int CurrentPage { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalScanLogs / PageSize) : 0;
 
         // Ill-health Review Metrics
         public int FlaggedSubmissions { get; set; }
@@ -33,11 +40,10 @@ namespace Project.Models.AdminModel
         public int Resolved { get; set; }
 
         // Ill-health Reviews
-        public List<IllHealthReviewViewModel> IllHealthReviews { get; set; }
-
-        public string UserProfile{ get; set; }
-        public string UserName{ get; set; }
-        public List<MonthlyUsers> LstMonthlyUsers { get; set; }
+        public List<IllHealthReviewViewModel> IllHealthReviews { get; set; } = new List<IllHealthReviewViewModel>();
+        public string UserProfile { get; set; }
+        public string UserName { get; set; }
+        public List<MonthlyUsers> LstMonthlyUsers { get; set; } = new List<MonthlyUsers>();
     }
 
     public class PetScanLogViewModel
@@ -49,6 +55,8 @@ namespace Project.Models.AdminModel
         public string Result { get; set; }
         public decimal Confidence { get; set; }
         public DateTime ScanDate { get; set; }
+        public string ScanType { get; set; }
+        public string Notes { get; set; }
     }
 
     public class IllHealthReviewViewModel
@@ -71,6 +79,12 @@ namespace Project.Models.AdminModel
         public int Year { get; set; }
         public int Month { get; set; }
         public decimal UserCount { get; set; }
+    }
 
+    public class ErrorBreakdownItem
+    {
+        public string Label { get; set; }
+        public int Count { get; set; }
+        public decimal Percentage { get; set; }
     }
 }

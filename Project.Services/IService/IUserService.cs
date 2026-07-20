@@ -1,4 +1,4 @@
-﻿
+
 namespace Project.Services.IService
 {
     using System.Collections.Generic;
@@ -50,7 +50,11 @@ namespace Project.Services.IService
         Task<ServiceResponse<DashboardViewModel>> GetDashboardDetails(Guid userId);
 
         Task<ServiceResponse<DashboardViewModel>> GetUserDashboardDetails(Guid userId);
-        Task<ServiceResponse<DashboardViewModel>> GetAdminDashboard();
+        Task<ServiceResponse<DashboardViewModel>> GetAdminDashboard(int page = 1);
+
+        Task<ServiceResponse<ScanLogsPageViewModel>> GetScanLogsAsync(int page = 1, string search = null, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<ServiceResponse<List<PetScanLogViewModel>>> GetAllScanLogsAsync(string search = null, DateTime? fromDate = null, DateTime? toDate = null);
+
         Task<ServiceResponse<UserProfile>> DeleteProfile(Guid userId);
 
 

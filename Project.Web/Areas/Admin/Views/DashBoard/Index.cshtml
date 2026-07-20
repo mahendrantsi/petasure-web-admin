@@ -1,6 +1,27 @@
 @model Project.Models.AdminModel.DashboardViewModel
 @{
     ViewData["BodyClass"] = "dashboard-page-body";
+
+    // ── Recognition analytics helpers ────────────────────────────────────────
+    var totalScans   = Model.TotalScans;
+    var matchedScans = Model.MatchedScans;
+    var unmatchedScans = Model.UnmatchedScans;
+    var errorCount   = Model.ErrorCount;
+
+    // Circumference of the donut ring  (r=38)  ≈ 238.76
+    const double circumference = 238.76;
+    double matchedArc   = totalScans > 0 ? Math.Round((double)matchedScans   / totalScans * circumference, 2) : 0;
+    double unmatchedArc = totalScans > 0 ? Math.Round((double)unmatchedScans / totalScans * circumference, 2) : 0;
+    double matchedPct   = totalScans > 0 ? Math.Round((double)matchedScans   / totalScans * 100,           1) : 0;
+    double unmatchedPct = totalScans > 0 ? Math.Round((double)unmatchedScans / totalScans * 100,           1) : 0;
+
+    // Pagination helpers
+    var currentPage = Model.CurrentPage;
+    var totalPages  = Model.TotalPages;
+    var pageSize    = Model.PageSize;
+    var totalLogs   = Model.TotalScanLogs;
+    int showFrom    = totalLogs == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    int showTo      = Math.Min(currentPage * pageSize, totalLogs);
 }
 <div class="dashboard-container">
     <div class="dashboard-stats-row">
@@ -46,36 +67,46 @@
                 <span class="panel-live-badge">Live</span>
             </div>
 
-            <!-- Mini Stats -->
+            <!-- Mini Stats — real data -->
             <div class="mini-stats-grid">
                 <div class="mini-stat-card c1">
                     <div class="mini-stat-label">Total Scans</div>
-                    <div class="mini-stat-value">248</div>
+                    <div class="mini-stat-value">@totalScans</div>
                 </div>
                 <div class="mini-stat-card c2">
                     <div class="mini-stat-label">Matched</div>
-                    <div class="mini-stat-value">222</div>
+                    <div class="mini-stat-value">@matchedScans</div>
                 </div>
                 <div class="mini-stat-card c3">
                     <div class="mini-stat-label">Unmatched</div>
-                    <div class="mini-stat-value">26</div>
+                    <div class="mini-stat-value">@unmatchedScans</div>
                 </div>
                 <div class="mini-stat-card c4">
                     <div class="mini-stat-label">Errors</div>
-                    <div class="mini-stat-value">0</div>
+                    <div class="mini-stat-value">@errorCount</div>
                 </div>
             </div>
 
-            <!-- SVG Donut Chart -->
+            <!-- SVG Donut Chart — dynamically computed arcs -->
             <div class="donut-section">
                 <div class="donut-wrapper">
                     <svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);">
                         <circle cx="50" cy="50" r="38" fill="none" stroke="#f1f5f9" stroke-width="13" />
-                        <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gGreen)" stroke-width="13"
-                                stroke-dasharray="212.2 238.76" stroke-linecap="round" />
-                        <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gRed)" stroke-width="13"
-                                stroke-dasharray="24.9 238.76" stroke-linecap="round"
-                                style="stroke-dashoffset:-212.2;" />
+                        @if (totalScans > 0)
+                        {
+                            <!-- Matched arc (green) -->
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gGreen)" stroke-width="13"
+                                    stroke-dasharray="@matchedArc.ToString("F2") @circumference.ToString("F2")" stroke-linecap="round" />
+                            <!-- Unmatched arc (red) — offset by matched arc -->
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gRed)" stroke-width="13"
+                                    stroke-dasharray="@unmatchedArc.ToString("F2") @circumference.ToString("F2")" stroke-linecap="round"
+                                    style="stroke-dashoffset:-@matchedArc.ToString("F2");" />
+                        }
+                        else
+                        {
+                            <!-- No data — show grey full circle -->
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#e2e8f0" stroke-width="13" />
+                        }
                         <defs>
                             <linearGradient id="gGreen" x1="0" y1="0" x2="1" y2="0">
                                 <stop offset="0%" stop-color="#10b981" /><stop offset="100%" stop-color="#34d399" />
@@ -86,7 +117,7 @@
                         </defs>
                     </svg>
                     <div class="donut-inner-text">
-                        <div class="donut-inner-value">248</div>
+                        <div class="donut-inner-value">@totalScans</div>
                         <div class="donut-inner-label">Total Scans</div>
                     </div>
                 </div>
@@ -94,43 +125,40 @@
                     <div class="legend-item">
                         <div class="legend-color matched"></div>
                         <span class="legend-label">Matched</span>
-                        <span class="legend-value">222</span><span class="legend-pct">(89.5%)</span>
+                        <span class="legend-value">@matchedScans</span>
+                        <span class="legend-pct">(@matchedPct.ToString("F1")%)</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color unmatched"></div>
                         <span class="legend-label">Unmatched</span>
-                        <span class="legend-value">26</span>
-                        <span class="legend-pct">(10.5%)</span>
+                        <span class="legend-value">@unmatchedScans</span>
+                        <span class="legend-pct">(@unmatchedPct.ToString("F1")%)</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Error Breakdown -->
+            <!-- Error Breakdown — real data from RecognitionErrors table -->
             <div class="error-breakdown-section">
                 <h4 class="error-section-title">Error Breakdown</h4>
-                <div class="error-item">
-                    <span class="error-label">Image Quality</span>
-                    <span class="error-value">0 (0%)</span>
-                </div>
-                <div class="error-item">
-                    <span class="error-label">No Face Detected</span>
-                    <span class="error-value">0 (0%)</span>
-                </div>
-                <div class="error-item">
-                    <span class="error-label">Multiple Pets</span>
-                    <span class="error-value">0 (0%)</span>
-                </div>
-                <div class="error-item">
-                    <span class="error-label">System Error</span>
-                    <span class="error-value">0 (0%)</span>
-                </div>
-                <div class="error-item">
-                    <span class="error-label">Other</span>
-                    <span class="error-value">0 (0%)</span>
-                </div>
+                @if (Model.ErrorBreakdownItems != null && Model.ErrorBreakdownItems.Count > 0)
+                {
+                    @foreach (var err in Model.ErrorBreakdownItems)
+                    {
+                        <div class="error-item">
+                            <span class="error-label">@err.Label</span>
+                            <span class="error-value">@err.Count (@err.Percentage.ToString("F1")%)</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="error-item">
+                        <span class="error-label" style="color:#94a3b8;">No errors recorded</span>
+                    </div>
+                }
             </div>
 
-            <a href="#" class="view-logs-link">View all scan logs <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
+            <a href="@Url.Action("ScanLogs", "DashBoard")" class="view-logs-link">View all scan logs <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
         </div>
 
         <!-- Right: Table Panel -->
@@ -147,15 +175,7 @@
                 <div class="tab-content-wrapper">
                     <!-- Tab 1: Pet Scan Logs -->
                     <div class="tab-pane active" id="tab-scan-logs">
-                        <div class="table-controls">
-                            <div class="search-input-wrapper">
-                                <span class="search-icon"><i class="fas fa-search"></i></span>
-                                <input type="text" placeholder="Search by pet name, type or reason..." class="search-input" />
-                            </div>
-                            <select class="filter-select"><option>All Scans</option></select>
-                            <select class="filter-select"><option>All Conditions</option></select>
-                            <button class="filter-btn"><i class="fas fa-sliders-h" style="font-size:10px;"></i> Filter</button>
-                        </div>
+                        
 
                         <!-- Table scroll container -->
                         <div class="table-scroll-container">
@@ -165,42 +185,57 @@
                                         <th>Pet</th>
                                         <th>Name</th>
                                         <th>Type</th>
-                                        <th>Reason</th>
                                         <th>Result</th>
                                         <th>Confidence</th>
+                                        <th>Date and Time</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @if (Model.PetScanLogs != null && Model.PetScanLogs.Count > 0)
                                     {
-                                        @foreach (var log in Model.PetScanLogs.Take(10))
+                                        @foreach (var log in Model.PetScanLogs)
                                         {
                                             <tr>
-                                                <td><img src="@log.PetImagePath" alt="Pet" class="pet-avatar" /></td>
+                                                <td>
+                                                    <img src="@log.PetImagePath"
+                                                         alt="@log.PetName"
+                                                         class="pet-avatar"
+                                                         onerror="this.onerror=null;this.src='/images/pet-placeholder.svg';" />
+                                                </td>
                                                 <td><span class="pet-name-strong">@log.PetName</span></td>
                                                 <td>
                                                     @if (log.PetType == "Cat")
                                                     {
                                                         <span class="type-pill cat"><i class="fas fa-cat"></i> Cat</span>
                                                     }
-                                                    else
+                                                    else if (log.PetType == "Dog")
                                                     {
                                                         <span class="type-pill dog"><i class="fas fa-dog"></i> Dog</span>
                                                     }
+                                                    else
+                                                    {
+                                                        <span class="type-pill">@log.PetType</span>
+                                                    }
                                                 </td>
-                                                <td style="color:#64748b;">@(log.Result == "Matched" ? "Good quality" : log.Result == "Unmatched" ? "Low confidence" : "Poor image quality")</td>
                                                 <td>
-                                                    @if (log.Result == "Matched")
+                                                    @{
+                                                        var result = (log.Result ?? string.Empty).ToLowerInvariant();
+                                                    }
+                                                    @if (result == "matched" || result == "possible_match")
                                                     {
                                                         <span class="badge-custom success"><i class="fas fa-check-circle"></i> Matched</span>
                                                     }
-                                                    else if (log.Result == "Unmatched")
+                                                    else if (result == "no_match")
                                                     {
                                                         <span class="badge-custom danger"><i class="fas fa-times-circle"></i> Unmatched</span>
                                                     }
-                                                    else
+                                                    else if (result == "failed" || result == "rejected")
                                                     {
                                                         <span class="badge-custom info">Error</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge-custom warning">@log.Result</span>
                                                     }
                                                 </td>
                                                 <td>
@@ -213,9 +248,11 @@
                                                     }
                                                     else
                                                     {
-
                                                         <span style="color:#94a3b8;">—</span>
                                                     }
+                                                </td>
+                                                <td>
+                                                    @log.ScanDate.ToString("dd MMM yyyy HH:mm")
                                                 </td>
                                             </tr>
                                         }
@@ -229,15 +266,59 @@
                         </div>
 
                         <div class="table-footer">
-                            <span>Showing <strong>1–@(Model.PetScanLogs != null ? Math.Min(10, Model.PetScanLogs.Count) : 0)</strong> of <strong>248</strong> entries</span>
+                            <span>Showing <strong>@showFrom–@showTo</strong> of <strong>@totalLogs</strong> entries</span>
                             <div class="pagination-btn-group">
-                                <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
-                                <button class="page-btn active">1</button>
-                                <button class="page-btn">2</button>
-                                <button class="page-btn">3</button>
-                                <span style="padding:0 4px;align-self:center;font-size:10px;">...</span>
-                                <button class="page-btn">31</button>
-                                <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                                @{
+                                    if (currentPage > 1)
+                                    {
+                                        <a href="?page=@(currentPage - 1)" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+                                    }
+                                    else
+                                    {
+                                        <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                                    }
+                                    int windowStart = Math.Max(1, currentPage - 2);
+                                    int windowEnd   = Math.Min(totalPages, currentPage + 2);
+
+                                    if (windowStart > 1)
+                                    {
+                                        <a href="?page=1" class="page-btn">1</a>
+                                        if (windowStart > 2)
+                                        {
+                                            <span style="padding:0 4px;align-self:center;font-size:10px;">...</span>
+                                        }
+                                    }
+
+                                    for (int p = windowStart; p <= windowEnd; p++)
+                                    {
+                                        if (p == currentPage)
+                                        {
+                                            <button class="page-btn active">@p</button>
+                                        }
+                                        else
+                                        {
+                                            <a href="?page=@p" class="page-btn">@p</a>
+                                        }
+                                    }
+
+                                    if (windowEnd < totalPages)
+                                    {
+                                        if (windowEnd < totalPages - 1)
+                                        {
+                                            <span style="padding:0 4px;align-self:center;font-size:10px;">...</span>
+                                        }
+                                        <a href="?page=@totalPages" class="page-btn">@totalPages</a>
+                                    }
+
+                                    if (currentPage < totalPages)
+                                    {
+                                        <a href="?page=@(currentPage + 1)" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                                    }
+                                    else
+                                    {
+                                        <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
+                                    }
+                                }
                             </div>
                         </div>
                     </div>
@@ -267,29 +348,6 @@
                             </div>
                         </div>
 
-                        <div class="table-controls">
-                            <div class="search-input-wrapper">
-                                <span class="search-icon"><i class="fas fa-search"></i></span>
-                                <input type="text" placeholder="Search by pet name or condition..." class="search-input" />
-                            </div>
-                            <select class="filter-select">
-                                <option>All Status</option>
-                                <option>Flagged</option>
-                                <option>Under Review</option>
-                                <option>Reviewed</option>
-                                <option>Resolved</option>
-                            </select>
-                            <select class="filter-select">
-                                <option>All Conditions</option>
-                                <option>Skin Infection</option>
-                                <option>Ear Infection</option>
-                                <option>Fever</option>
-                                <option>Vomiting</option>
-                                <option>Eye Irritation</option>
-                            </select>
-                            <button class="filter-btn"><i class="fas fa-sliders-h" style="font-size:10px;"></i> Filter</button>
-                        </div>
-
                         <!-- Table scroll container -->
                         <div class="table-scroll-container">
                             <table>
@@ -302,6 +360,7 @@
                                         <th>Confidence</th>
                                         <th>Status</th>
                                         <th>AI Verdict</th>
+                                        <th>Date and Time</th>
                                         <th>Admin Override</th>
                                         <th>Notes</th>
                                         <th>Action</th>
@@ -313,7 +372,7 @@
                                         @foreach (var review in Model.IllHealthReviews)
                                         {
                                             <tr>
-                                                <td><img src="@review.PetImagePath" alt="@review.PetName" class="pet-avatar" /></td>
+                                                <td><img src="@review.PetImagePath" alt="@review.PetName" class="pet-avatar" onerror="this.onerror=null;this.src='/images/pet-placeholder.svg';" /></td>
                                                 <td><span class="pet-name-strong">@review.PetName</span></td>
                                                 <td>
                                                     @if (review.PetType == "Cat")
@@ -357,10 +416,10 @@
                                                     }
                                                     else
                                                     {
-
                                                         <span class="verdict-healthy"><i class="fas fa-check-circle" style="font-size:10px;margin-right:3px;"></i>Healthy</span>
                                                     }
                                                 </td>
+                                                <td>@review.SubmissionDate.ToString("dd MMM yyyy HH:mm")</td>
                                                 <td>
                                                     <select class="table-select"><option>Select</option><option>Healthy</option><option>Ill</option></select>
                                                 </td>
@@ -407,15 +466,12 @@
     $(document).ready(function () {
     var users = @Json.Serialize(Model.LstMonthlyUsers);
 
-    // Simple vanilla JS/jQuery Tab switching logic
     $('.tab-btn').on('click', function() {
     var tabId = $(this).data('tab');
 
-    // Remove active classes
     $('.tab-btn').removeClass('active');
     $('.tab-pane').removeClass('active');
 
-    // Activate selected tab button and pane
     $(this).addClass('active');
     $('#' + tabId).addClass('active');
     });
