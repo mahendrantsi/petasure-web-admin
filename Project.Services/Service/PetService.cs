@@ -492,6 +492,14 @@ namespace Project.Services.Service
                 : EnumPetScanStatus.Failed;
         }
 
+        // 400 (not 201): this is a malformed request from the caller, not an AI-driven
+        // not-a-pet/wrong-species verdict — RecognitionScanResult (BaseController) will
+        // propagate this status verbatim so it's visibly distinct from a validation popup.
+        private static string InvalidPetIdResponse()
+        {
+            return "{\"success\":false,\"status\":400,\"message\":\"A valid PetId is required to register biometrics for this pet.\"}";
+        }
+
         private async Task<string> FailImageSaveAsync(PetScans scan, Exception ex)
         {
             scan.Status = EnumPetScanStatus.Failed;
@@ -673,7 +681,16 @@ namespace Project.Services.Service
         /// <returns></returns>
         public async Task<string> RegisterDogRequest(RegisterDogRequestViewModel model)
         {
-            var petId = Guid.TryParse(model.PetId, out var parsedId) ? (Guid?)parsedId : null;
+            // A registration scan with no valid PetId is worse than useless: it still saves images,
+            // still calls the AI, and still sends "ds_id" to the AI's permanent embedding store below
+            // (form.AddParam("ds_id", model.PetId)) — with an invalid/missing id that can never be
+            // traced back to a real pet, and a PetScans row that can't be linked to one either. Reject
+            // up front instead of silently completing with an orphaned scan + a garbage embedding.
+            if (!Guid.TryParse(model.PetId, out var petId))
+            {
+                _logger.LogWarning("Pet/Register rejected: missing or invalid PetId (received: {PetId})", model.PetId);
+                return InvalidPetIdResponse();
+            }
             var scan = new PetScans { ScanType = EnumPetScanType.Register, Species = EnumRecognitionSpecies.Dog, PetId = petId };
             try
             {
@@ -757,7 +774,14 @@ namespace Project.Services.Service
 
         public async Task<string> RegisterCatRequest(RegisterCatRequestViewModel model)
         {
-            var petId = Guid.TryParse(model.PetId, out var parsedId) ? (Guid?)parsedId : null;
+            // See RegisterDogRequest's identical guard: an invalid/missing PetId here would still
+            // reach the AI's permanent embedding store via "ds_id" below and still write an
+            // unlinkable PetScans row — reject up front instead.
+            if (!Guid.TryParse(model.PetId, out var petId))
+            {
+                _logger.LogWarning("Pet/RegisterCat rejected: missing or invalid PetId (received: {PetId})", model.PetId);
+                return InvalidPetIdResponse();
+            }
             var scan = new PetScans { ScanType = EnumPetScanType.Register, Species = EnumRecognitionSpecies.Cat, PetId = petId };
             try
             {

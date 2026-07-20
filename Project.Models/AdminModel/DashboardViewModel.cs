@@ -46,6 +46,21 @@ namespace Project.Models.AdminModel
         public List<MonthlyUsers> LstMonthlyUsers { get; set; } = new List<MonthlyUsers>();
     }
 
+    // Backing model for UserService.GetScanLogsAsync — the standalone paginated/searchable
+    // scan-logs page, distinct from DashboardViewModel.PetScanLogs (the dashboard's
+    // unfiltered, unpaginated preview of the most recent scans).
+    public class ScanLogsPageViewModel
+    {
+        public List<PetScanLogViewModel> PetScanLogs { get; set; } = new List<PetScanLogViewModel>();
+        public int TotalScanLogs { get; set; }
+        public int CurrentPage { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalScanLogs / PageSize) : 0;
+        public string SearchText { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+    }
+
     public class PetScanLogViewModel
     {
         public Guid Id { get; set; }

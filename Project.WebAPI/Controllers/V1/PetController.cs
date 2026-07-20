@@ -111,7 +111,7 @@ namespace Project.WebAPI.Controllers.V1
             {
                 var response = await _petService.RegisterDogRequest(model);
                 _logger.LogInformation("Response returned: Pet/Register traceId={TraceId}", HttpContext.TraceIdentifier);
-                return this.Ok(response);
+                return this.RecognitionScanResult(response);
             }
             catch (SecurityTokenException e)
             {
@@ -127,7 +127,7 @@ namespace Project.WebAPI.Controllers.V1
             {
                 var response = await _petService.RegisterCatRequest(model);
                 _logger.LogInformation("Response returned: Pet/RegisterCat traceId={TraceId}", HttpContext.TraceIdentifier);
-                return this.Ok(response);
+                return this.RecognitionScanResult(response);
             }
             catch (SecurityTokenException e)
             {

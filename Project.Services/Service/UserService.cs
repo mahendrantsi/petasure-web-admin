@@ -78,8 +78,16 @@ namespace Project.Services.Service
                 var numberOfDogs = _unitOfWork.Instance.PetInfo.Count(p => p.PetTypeId == 1);
                 var numberOfCats = _unitOfWork.Instance.PetInfo.Count(p => p.PetTypeId == 2);
 
-                // ── Scan metrics across all scan types ──────────────────────────────────
+                // ── Scan metrics across recognition scan types only ─────────────────────
+                // Excludes ScanType.Classify: those rows are the incidental recognition-gate
+                // check that runs alongside every health-check submission (see
+                // IllHealthService.AnalyzeAsync, which sets healthCheckEvent.PetScan), not a
+                // user-initiated pet recognition/registration attempt. They never set
+                // MatchResult, so including them here inflated "Total Scans"/"Recognition
+                // Attempts" while never counting toward matched/unmatched — silently diluting
+                // MatchRate with denominator-only rows.
                 var allScans = await _unitOfWork.Instance.PetScans
+                    .Where(s => s.ScanType != EnumPetScanType.Classify)
                     .Select(s => new { s.MatchResult, s.Status })
                     .ToListAsync();
 

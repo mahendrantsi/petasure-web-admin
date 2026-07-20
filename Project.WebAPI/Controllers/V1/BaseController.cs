@@ -47,5 +47,37 @@ namespace Project.WebAPI.Controllers.V1
             var context = HttpContext.Request.Headers.Where(x => x.Key == "authToken").FirstOrDefault();
             return new Guid(context.Value);
         }
+
+        /// <summary>
+        /// Maps a recognition-scan AI response (raw JSON string shaped like
+        /// {success, status, message, data:{...}}) to the matching outer HTTP status code.
+        /// Previously every recognition endpoint (Similar/AnalyzeDog/Register/RegisterCat)
+        /// always returned this.Ok(...) regardless of what the AI decided, so a hard
+        /// validation rejection (not-a-pet / wrong-species) — signaled by the AI via an
+        /// embedded "status": 201 and "success": false — was invisible to any caller that
+        /// checks the transport-level HTTP status instead of deserializing the body.
+        /// </summary>
+        protected IActionResult RecognitionScanResult(string response)
+        {
+            if (string.IsNullOrWhiteSpace(response))
+            {
+                return this.Ok(response);
+            }
+
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(response);
+                var root = doc.RootElement;
+                var status = root.TryGetProperty("status", out var statusProp) && statusProp.TryGetInt32(out var statusVal)
+                    ? statusVal
+                    : 200;
+                return this.StatusCode(status, response);
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                // Unexpected/non-JSON body — fall back to the previous behaviour rather than fail the request.
+                return this.Ok(response);
+            }
+        }
     }
 }

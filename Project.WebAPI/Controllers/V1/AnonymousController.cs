@@ -130,7 +130,7 @@ namespace Project.WebAPI.Controllers.V1
         /// Proxy endpoint to find similar dogs by image (anonymous).
         /// </summary>
         /// <param name="model">Image payload for similarity check.</param>
-        /// <returns>200 OK with service response or 400 on error.</returns>
+        /// <returns>200 OK with service response; 201 when the AI hard-rejects the photo; 400 on error.</returns>
         [AllowAnonymous]
         [HttpPost("Similar")]
         public async Task<IActionResult> Similar(SimilarDogRequestViewModel model)
@@ -138,7 +138,27 @@ namespace Project.WebAPI.Controllers.V1
             try
             {
                 var response = await _petService.SimilarDogRequest(model);
-                return this.Ok(response);
+                return this.RecognitionScanResult(response);
+            }
+            catch (SecurityTokenException e)
+            {
+                return BadRequest(new { Message = e.Message + e.InnerException });
+            }
+        }
+
+        /// <summary>
+        /// Proxy endpoint to find similar cats by image (anonymous).
+        /// </summary>
+        /// <param name="model">Image payload for similarity check.</param>
+        /// <returns>200 OK with service response; 201 when the AI hard-rejects the photo; 400 on error.</returns>
+        [AllowAnonymous]
+        [HttpPost("SimilarCat")]
+        public async Task<IActionResult> SimilarCat(SimilarCatRequestViewModel model)
+        {
+            try
+            {
+                var response = await _petService.SimilarCatRequest(model);
+                return this.RecognitionScanResult(response);
             }
             catch (SecurityTokenException e)
             {
@@ -150,7 +170,7 @@ namespace Project.WebAPI.Controllers.V1
         /// Analyze dog images for breed and metadata (anonymous).
         /// </summary>
         /// <param name="model">Images required for analysis.</param>
-        /// <returns>200 OK with the analysis response or 400 on error.</returns>
+        /// <returns>200 OK with the analysis response; 201 when the AI hard-rejects the photo; 400 on error.</returns>
         [AllowAnonymous]
         [HttpPost("AnalyzeDog")]
         public async Task<IActionResult> AnalysImage(AnalyzeDogRequestViewModel model)
@@ -158,7 +178,27 @@ namespace Project.WebAPI.Controllers.V1
             try
             {
                 var response = await _petService.AnalyzeDogRequest(model);
-                return this.Ok(response);
+                return this.RecognitionScanResult(response);
+            }
+            catch (SecurityTokenException e)
+            {
+                return BadRequest(new { Message = e.Message + e.InnerException });
+            }
+        }
+
+        /// <summary>
+        /// Analyze cat images for breed and metadata (anonymous).
+        /// </summary>
+        /// <param name="model">Images required for analysis.</param>
+        /// <returns>200 OK with the analysis response; 201 when the AI hard-rejects the photo; 400 on error.</returns>
+        [AllowAnonymous]
+        [HttpPost("AnalyzeCat")]
+        public async Task<IActionResult> AnalyzeCat(AnalyzeCatRequestViewModel model)
+        {
+            try
+            {
+                var response = await _petService.AnalyzeCatRequest(model);
+                return this.RecognitionScanResult(response);
             }
             catch (SecurityTokenException e)
             {
