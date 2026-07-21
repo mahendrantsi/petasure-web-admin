@@ -24,7 +24,7 @@ function BindFeeDataResult() {
         responsive: true,
         "order": [[5, "desc"]],
         "ajax": {
-            url: "/admin/Fee/GetFeeListDataResult",
+            url: window.appBase + "admin/Fee/GetFeeListDataResult",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {
@@ -46,8 +46,8 @@ function BindFeeDataResult() {
                 render: function (data, type, row, meta) {
 
                     var link = '<div class="d-flex align-items-center flex-nowrap">';
-                    link += "<a class='icon-wrap-box' href='/admin/fee/Edit/" + row.enc_Id + "' data-toggle='tooltip' title='Edit'><i class='fa fa-edit'></i></a> ";
-                    link += "<a class='icon-wrap-box' href='/admin/fee/Detail/" + row.enc_Id + "' data-toggle='tooltip' title='Delete'><i class='fa fa-eye'></i></a> ";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "admin/fee/Edit/" + row.enc_Id + "' data-toggle='tooltip' title='Edit'><i class='fa fa-edit'></i></a> ";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "admin/fee/Detail/" + row.enc_Id + "' data-toggle='tooltip' title='Delete'><i class='fa fa-eye'></i></a> ";
                     link += "</div>"
                     return link;
                 }

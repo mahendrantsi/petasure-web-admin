@@ -25,7 +25,7 @@ function BindUsers() {
         responsive: true,
         "order": [[3, "desc"]],
         "ajax": {
-            url: "/admin/UserManagement/GetUsers",
+            url: window.appBase + "admin/UserManagement/GetUsers",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {
@@ -45,7 +45,7 @@ function BindUsers() {
                 data: null,
                 render: function (data, type, row, meta) {
                     var link = '<div class="d-flex align-items-center flex-nowrap">';
-                    link += "<a class='icon-wrap-box' href='/admin/UserManagement/EditUser/" + row.enc_Id + "'><i class='fa fa-edit'></i></a> ";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "admin/UserManagement/EditUser/" + row.enc_Id + "'><i class='fa fa-edit'></i></a> ";
                     link += "</div>"
                     return link;
                 }

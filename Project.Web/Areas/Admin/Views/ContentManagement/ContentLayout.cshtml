@@ -42,7 +42,7 @@
 
                 <div class="drag-item draggable" data-item="foursectioneight"> <img src="~/images/layoutimages/foursectioneight.jpg" alt="Image" /></div>
                  
-                <div class="drag-item draggable" data-item="FullWidthImage"> <img src="/images/layoutimages/fullwidthimage.jpg" alt="Image" /></div>
+                <div class="drag-item draggable" data-item="FullWidthImage"> <img src="~/images/layoutimages/fullwidthimage.jpg" alt="Image" /></div>
             </div>
         </div>
     </div>
@@ -352,7 +352,7 @@
                 var draggable = ui.draggable;
 
 
-                fetch("/html/" + draggable.attr("data-item") + ".html?" + Math.random())
+                fetch("@Url.Content("~/html/")" + draggable.attr("data-item") + ".html?" + Math.random())
                     .then(response => response.text())
                     .then(data => {
                         droppable.append('<div class="droppable"></div>' + data + '<div class="droppable"></div>')
@@ -443,7 +443,7 @@
 
         $.ajax({
             type: "POST",
-            url: "/admin/ContentManagement/UploadTempDocFile",
+            url: "@Url.Content("~/admin/ContentManagement/UploadTempDocFile")",
             data: formData,
             contentType: false,
             processData: false,

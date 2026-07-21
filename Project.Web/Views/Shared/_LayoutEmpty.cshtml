@@ -8,6 +8,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="icon" type="image/png" sizes="32x32" href="~/images/favicon.png">
     <title>@ViewData["Title"] Petasure</title>
+    @* Base path prefix (respects UsePathBase e.g. /development, /staging) for URLs built in JavaScript *@
+    <script type="text/javascript">window.appBase = "@Url.Content("~/")";</script>
     <!-- <link href="css/custom.scss" type="text/css" rel="stylesheet"> -->
     <environment include="Development">
         <script type="text/javascript" src="~/scripts/modernizr.custom.28468.js"></script>
@@ -66,8 +68,8 @@
                                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                                         <span class="navbar-toggler-icon"></span>
                                     </button>
-                                    <a href="/Account/Register" class="header__btn-signup mr-5">Sign Up</a>
-                                    <a href="/Account/Login" class="header__btn-signup">Sign In</a>
+                                    <a href="~/Account/Register" class="header__btn-signup mr-5">Sign Up</a>
+                                    <a href="~/Account/Login" class="header__btn-signup">Sign In</a>
                                 </nav>
                             </div>
                         </div>

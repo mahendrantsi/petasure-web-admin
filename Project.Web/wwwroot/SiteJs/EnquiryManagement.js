@@ -25,7 +25,7 @@ function BindEnquiries() {
         responsive: true,
         "order": [[4, "desc"]],
         "ajax": {
-            url: "/admin/EnquiryManagement/GetEnquiries",
+            url: window.appBase + "admin/EnquiryManagement/GetEnquiries",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {

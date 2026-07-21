@@ -22,7 +22,7 @@ function BindTable() {
         responsive: true,
         "order": [[2, "desc"]],
         "ajax": {
-            url: "/admin/Content/GetContent",
+            url: window.appBase + "admin/Content/GetContent",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {
@@ -55,7 +55,7 @@ function BindTable() {
                 data: null,
                 render: function (data, type, row, meta) {
                     var link = '<div class="d-flex align-items-center flex-nowrap">';
-                    link += "<a class='icon-wrap-box' href='/Admin/Content/Edit?id=" + row.enc_Id + "' data-toggle='tooltip' title='Edit'><i class='fa fa-edit'></i></a>&nbsp;";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "Admin/Content/Edit?id=" + row.enc_Id + "' data-toggle='tooltip' title='Edit'><i class='fa fa-edit'></i></a>&nbsp;";
                     link += "</div>"
                     return link;
                 }

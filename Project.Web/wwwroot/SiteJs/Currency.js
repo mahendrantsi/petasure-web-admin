@@ -25,7 +25,7 @@ function BindCurrencies() {
         responsive: true,
         "order": [[5, "desc"]],
         "ajax": {
-            url: "/admin/Currency/GetCurrencies",
+            url: window.appBase + "admin/Currency/GetCurrencies",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {
@@ -61,7 +61,7 @@ function BindCurrencies() {
                 data: null,
                 render: function (data, type, row, meta) {
                     var link = '<div class="d-flex align-items-center flex-nowrap">';
-                    link += "<a class='icon-wrap-box' href='/Admin/Currency/Edit?id=" + row.enc_Id + "' data-toggle='tooltip' title='Edit'><i class='fa fa-edit'></i></a>&nbsp;";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "Admin/Currency/Edit?id=" + row.enc_Id + "' data-toggle='tooltip' title='Edit'><i class='fa fa-edit'></i></a>&nbsp;";
                     link += "</div>"
                     return link;
                 }

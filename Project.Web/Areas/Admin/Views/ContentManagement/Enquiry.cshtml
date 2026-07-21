@@ -100,9 +100,9 @@
 <div class="row" style="background:#fff;border-bottom: 1px solid #e9e7e7;">
     <div class="col-12 col-md-12">
       @*   <ul class="tabs flex" style="margin-left:20px">
-            <li><a class="@((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus ==Project.Core.Enum.EnumEnquiryViewType.All ? "active" :"")" href="/Admin/ContentManagement/Enquiry?type=All">All</a></li>
-            <li><a class="@((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus ==Project.Core.Enum.EnumEnquiryViewType.Enquiry ? "active" :"")" href="/Admin/ContentManagement/Enquiry?type=Enquiry">Enquiry</a></li>
-            <li><a class="@((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus ==Project.Core.Enum.EnumEnquiryViewType.Deactivation? "active" :"")" href="/Admin/ContentManagement/Enquiry?type=Deactivation">Account Deactivation</a></li>
+            <li><a class="@((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus ==Project.Core.Enum.EnumEnquiryViewType.All ? "active" :"")" href="~/Admin/ContentManagement/Enquiry?type=All">All</a></li>
+            <li><a class="@((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus ==Project.Core.Enum.EnumEnquiryViewType.Enquiry ? "active" :"")" href="~/Admin/ContentManagement/Enquiry?type=Enquiry">Enquiry</a></li>
+            <li><a class="@((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus ==Project.Core.Enum.EnumEnquiryViewType.Deactivation? "active" :"")" href="~/Admin/ContentManagement/Enquiry?type=Deactivation">Account Deactivation</a></li>
         </ul> *@
     </div>
 </div>
@@ -187,7 +187,7 @@
 
     $(document).on('click', '.submitEnqAnswer', function (e) {
         console.log(tinyMCE.get('Answer').getContent());
-        $.post("/Admin/ContentManagement/SubmitEnquiryResponse", { EnquiryID: $("#enqID").val(), Answer: tinyMCE.get('Answer').getContent(), SendMail: $("#sendMail").is(':checked'), Status: $("#Status :selected").val(), PlainAnswer: $.trim(tinyMCE.get('Answer').getContent({ format: 'text' })) },
+        $.post("@Url.Content("~/Admin/ContentManagement/SubmitEnquiryResponse")", { EnquiryID: $("#enqID").val(), Answer: tinyMCE.get('Answer').getContent(), SendMail: $("#sendMail").is(':checked'), Status: $("#Status :selected").val(), PlainAnswer: $.trim(tinyMCE.get('Answer').getContent({ format: 'text' })) },
             function (data) {
                 if (data.isSuccess) {
                     $("#DeactivateModal").modal("hide");
@@ -203,7 +203,7 @@
     });
 
     $(document).on('click', '.btnEnquiryResponse', function (e) {
-        $.get("/Admin/ContentManagement/GetEnquiryResponseList?enquiryID=" + $(this).attr("data-item"),
+        $.get("@Url.Content("~/Admin/ContentManagement/GetEnquiryResponseList")?enquiryID=" + $(this).attr("data-item"),
             function (data) {
                 $("#EnqResponseContainer").html(data);
                 $("#EnqResponse").modal({ backdrop: 'static', keyboard: false }, "show");
@@ -230,7 +230,7 @@
             responsive: true,
             "order": [[0, "desc"]],
             "ajax": { 
-                url: "/Admin/ContentManagement/GetEnquiryList?type=" + "@(((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus).ToString())",
+                url: "@Url.Content("~/Admin/ContentManagement/GetEnquiryList")?type=" + "@(((Project.Core.Enum.EnumEnquiryViewType)ViewBag.myStatus).ToString())",
                 type: "POST",
                 datatype: "json",
                 complete: function (xhr, responseText) {}
@@ -314,7 +314,7 @@
         }
         catch (e) {
         }
-        $.post("/Admin/ContentManagement/GetEnquiryRequest", { id: id, },
+        $.post("@Url.Content("~/Admin/ContentManagement/GetEnquiryRequest")", { id: id, },
             function (data) {
                 $("#DeactivateModal").html(data);
                 $("#DeactivateModal").modal({ backdrop: 'static', keyboard: false }, "show");
@@ -339,7 +339,7 @@
 
     function OpenDeactivateModal(elem) {
         var id = $(elem).attr("data-id");
-        $.post("/Admin/ContentManagement/GetEnquiry", { id: id, },
+        $.post("@Url.Content("~/Admin/ContentManagement/GetEnquiry")", { id: id, },
             function (data) {
                 $("#DeactivateModal").html(data);
                 $("#DeactivateModal").modal("show");
@@ -361,7 +361,7 @@
                 var EnquiryId = $('#EnquiryId').val();
                 $("#DeactivateModal").modal("show");
 
-                $.post("/Admin/Account/DeActivateAccount", { userId: id, EnquiryId: EnquiryId, type: istatus },
+                $.post("@Url.Content("~/Admin/Account/DeActivateAccount")", { userId: id, EnquiryId: EnquiryId, type: istatus },
                     function (data) {
                         if (data.isSuccess) {
                             Swal.fire({ title: "Account Deactivated Successfully", text: "Account is Deactivated.", icon: "success" });

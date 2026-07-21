@@ -17,7 +17,7 @@
         responsive: true,
         "order": [[1, "asc"]],
         "ajax": {
-            url: "/admin/UserRoleManagement/GetRoleResult",
+            url: window.appBase + "admin/UserRoleManagement/GetRoleResult",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {
@@ -34,7 +34,7 @@
                 data: null,
                 render: function (data, type, row, meta) {
                     var link = '<div class="d-flex align-items-center flex-nowrap">';
-                    link += "<a class='icon-wrap-box' href='/admin/UserRoleManagement/EditRole/" + row.enc_Id + "'><i class='fa fa-edit'></i></a> ";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "admin/UserRoleManagement/EditRole/" + row.enc_Id + "'><i class='fa fa-edit'></i></a> ";
                     link += "<a class='icon-wrap-box' href='./ManageAccess/" + row.enc_Id + "'>Manage Access</a> ";
                     link += "</div>"
                     return link;

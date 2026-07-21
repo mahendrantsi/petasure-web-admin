@@ -23,7 +23,7 @@ function BindTransactions() {
         responsive: true,
         "order": [[0, "desc"]],
         "ajax": {
-            url: "/User/Transaction/GetTransactions",
+            url: window.appBase + "User/Transaction/GetTransactions",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) { 
@@ -91,14 +91,14 @@ function BindTransactions() {
         ],
        "initComplete": function (settings, json) {
            $(".dataTables_filter input").attr("placeholder", 'Search'); 
-           $(".dataTables_filter").append('<a class="btn btn-primary text-light" style="float:right" href="/User/Transaction/Excel"><i class="fas fa-download"></i> <span>Donwload transactions</span></a>');
+           $(".dataTables_filter").append('<a class="btn btn-primary text-light" style="float:right" href="' + window.appBase + 'User/Transaction/Excel"><i class="fas fa-download"></i> <span>Donwload transactions</span></a>');
         }
 
     });
 }
 function ViewDetails(elem) {
     $("#DetailsModel").modal("show"); 
-    $.post("/User/Transaction/GetTransactionsDetails", { transactionCode: $(elem).attr("data-id"), },
+    $.post(window.appBase + "User/Transaction/GetTransactionsDetails", { transactionCode: $(elem).attr("data-id"), },
         function (data) { 
             $("#detailsPartial").html(data);
         }
@@ -115,7 +115,7 @@ function refundTransaction(code) {
         confirmButtonText: "Go",
     }).then((result) => { 
         if (result.isConfirmed) {
-            window.location.href = "/User/Transaction/refund?transaction=" + code;
+            window.location.href = window.appBase + "User/Transaction/refund?transaction=" + code;
         } 
     });
 

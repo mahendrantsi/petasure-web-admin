@@ -7,7 +7,7 @@
 function BindOpenOrders() {
     $.ajax({
         type: "GET",
-        url: "/customer/exchange/GetOrderHistory",
+        url: window.appBase + "customer/exchange/GetOrderHistory",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         data: { symbol: $('#hidcurrencysymbol').val() },

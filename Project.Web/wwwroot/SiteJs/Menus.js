@@ -25,7 +25,7 @@ function BindMenus() {
         responsive: true,
         "order": [[1, "asc"]],
         "ajax": {
-            url: "/admin/Menu/GetMenuResult",
+            url: window.appBase + "admin/Menu/GetMenuResult",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {
@@ -55,8 +55,8 @@ function BindMenus() {
                 data: null,
                 render: function (data, type, row, meta) {
                     var link = '<div class="d-flex align-items-center flex-nowrap">';
-                    link += "<a class='icon-wrap-box' href='/admin/Menu/Edit/" + row.enc_Id + "'><i class='fa fa-edit'></i></a> ";
-                    link += "<a class='icon-wrap-box' href='/admin/Menu/Detail/" + row.enc_Id + "'><i class='fa fa-eye'></i></a> ";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "admin/Menu/Edit/" + row.enc_Id + "'><i class='fa fa-edit'></i></a> ";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "admin/Menu/Detail/" + row.enc_Id + "'><i class='fa fa-eye'></i></a> ";
                     link += "</div>"
                     return link;
                 }

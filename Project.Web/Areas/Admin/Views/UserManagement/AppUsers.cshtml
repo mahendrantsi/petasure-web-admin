@@ -5,7 +5,7 @@
 
 
 }
-<link href="/css/daterangepicker/daterangepicker.css" rel="stylesheet">
+<link href="~/css/daterangepicker/daterangepicker.css" rel="stylesheet">
 <style>
 
     .ui-datepicker-calendar {
@@ -901,7 +901,7 @@
                 },
                 responsive: true,
                 "ajax": {
-                    url: "/Admin/UserManagement/Users",
+                    url: "@Url.Content("~/Admin/UserManagement/Users")",
                     type: "POST",
                     "data": searchOptions,
                     datatype: "json",
@@ -995,7 +995,7 @@
                 e.preventDefault();
                 var userId = $(this).data('id') == undefined ? "" : $(this).data('id');
                 $.ajax({
-                    url: "/Admin/UserManagement/User?id=" + userId,
+                    url: "@Url.Content("~/Admin/UserManagement/User")?id=" + userId,
                     type: "GET",
                     beforeSend: function () {
                         clearValidationMessages();
@@ -1028,7 +1028,7 @@
                 $.ajax(
                     {
                         type: "delete",
-                        url: "/Admin/UserManagement/User",
+                        url: "@Url.Content("~/Admin/UserManagement/User")",
                         data: { Id: id },
                         success: function (response) {
                             window.location.reload();

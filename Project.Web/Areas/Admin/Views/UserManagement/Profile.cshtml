@@ -112,14 +112,14 @@
 
             $.ajax({
                 type: "POST",
-                url: '/User/Account/SaveBankDetails',
+                url: '@Url.Content("~/User/Account/SaveBankDetails")',
                 data: JSON.stringify(data),
                 contentType: "application/json",
 
                 success: function (response) {
                     console.log(response);
                     if (response.isSuccess) {
-                        $.get("/User/Account/GetBankDetails", function (res) {
+                        $.get("@Url.Content("~/User/Account/GetBankDetails")", function (res) {
                             if (res) {
                                 $('#BankDetails').html(res);
 

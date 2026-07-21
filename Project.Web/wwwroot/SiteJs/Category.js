@@ -25,7 +25,7 @@ function BindCategories() {
         responsive: true,
         "order": [[2, "desc"]],
         "ajax": {
-            url: "/admin/Category/GetCategories",
+            url: window.appBase + "admin/Category/GetCategories",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {
@@ -50,7 +50,7 @@ function BindCategories() {
                 data: null,
                 render: function (data, type, row, meta) {
                     var link = '<div class="d-flex align-items-center flex-nowrap">';
-                    link += "<a class='icon-wrap-box' href='/Admin/Category/Edit?id=" + row.enc_Id + "' data-toggle='tooltip' title='Edit'><i class='fa fa-edit'></i></a>&nbsp;";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "Admin/Category/Edit?id=" + row.enc_Id + "' data-toggle='tooltip' title='Edit'><i class='fa fa-edit'></i></a>&nbsp;";
                     link += "</div>"
                     return link;
                 }

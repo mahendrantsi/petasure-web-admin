@@ -25,7 +25,7 @@ function BindCustomers() {
         responsive: true,
         "order": [[1, "asc"]],
         "ajax": {
-            url: "/admin/Customer/GetCustomerResult",
+            url: window.appBase + "admin/Customer/GetCustomerResult",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {
@@ -45,8 +45,8 @@ function BindCustomers() {
                 data: null,
                 render: function (data, type, row, meta) {
                     var link = '<div class="d-flex align-items-center flex-nowrap">';
-                    link += "<a class='icon-wrap-box' href='/admin/Customer/Edit/" + row.enc_Id + "'><i class='fa fa-edit'></i></a> ";
-                    link += "<a class='icon-wrap-box' href='/admin/Customer/Detail/" + row.enc_Id + "'><i class='fa fa-eye'></i></a> ";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "admin/Customer/Edit/" + row.enc_Id + "'><i class='fa fa-edit'></i></a> ";
+                    link += "<a class='icon-wrap-box' href='" + window.appBase + "admin/Customer/Detail/" + row.enc_Id + "'><i class='fa fa-eye'></i></a> ";
                     link += "</div>"
                     return link;
                 }

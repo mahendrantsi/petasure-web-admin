@@ -31,7 +31,7 @@ function BindLogs() {
         responsive: true,
         "order": [[0, "desc"]],
         "ajax": {
-            url: "/Admin/TransactionManagement/GetErrorLog",
+            url: window.appBase + "Admin/TransactionManagement/GetErrorLog",
             type: "POST",
             datatype: "json",
             complete: function (xhr, responseText) {

@@ -235,7 +235,7 @@ $(".saveBankDetails").click(function (e) {
 $(".docPreview").click(function () {
     $('.loader').removeClass('d-none');
     var docId = $(this).data('id');
-    $.get("/Admin/UserManagement/GetDocumentById?Id=" + docId, function (res) {
+    $.get(window.appBase + "Admin/UserManagement/GetDocumentById?Id=" + docId, function (res) {
         if (res) {
             if (res.response.isSuccess) {
                 $("#DocumentPreviewModal").modal("show");
@@ -342,12 +342,12 @@ $(document).on('click', '.btnBankDelete', function (e) {
             $('.loader').show();
             var id = $(this).data('bankid');
             $.ajax({
-                url: '/User/Account/DeleteBankDetails',
+                url: window.appBase + 'User/Account/DeleteBankDetails',
                 type: 'GET',
                 data: { id: id },
                 success: function (response) {
                     if (response.isSuccess) {
-                        $.get("/User/Account/GetBankDetails", function (res) {
+                        $.get(window.appBase + "User/Account/GetBankDetails", function (res) {
                             if (res) {
                                 $('#BankDetails').html(res);
                                 $('#AddBankModal').modal('hide');
@@ -392,12 +392,12 @@ $(document).on('click', '.btnBankSetPrimary', function (e) {
     $('.loader').show();
     var id = $(this).data('bankid');
     $.ajax({
-        url: '/Admin/Account/SetPrimaryAccount?id=' + id,
+        url: window.appBase + 'Admin/Account/SetPrimaryAccount?id=' + id,
         type: 'POST',
         data: { id: id },
         success: function (response) {
             if (response.isSuccess) {
-                $.get("/Admin/Account/GetBankDetails?userID=" + $("#Id").val(), function (res) {
+                $.get(window.appBase + "Admin/Account/GetBankDetails?userID=" + $("#Id").val(), function (res) {
                     if (res) {
                         $('#BankDetails').html(res);
                         $('#AddBankModal').modal('hide');
@@ -430,12 +430,12 @@ $(document).on('click', '.btnUserBankSetPrimary', function (e) {
     $('.loader').show();
     var id = $(this).data('bankid');
     $.ajax({
-        url: '/User/Account/SetPrimaryAccount?id=' + id,
+        url: window.appBase + 'User/Account/SetPrimaryAccount?id=' + id,
         type: 'POST',
         data: { id: id },
         success: function (response) {
             if (response.isSuccess) {
-                $.get("/User/Account/GetBankDetails", function (res) {
+                $.get(window.appBase + "User/Account/GetBankDetails", function (res) {
                     if (res) {
                         $('#BankDetails').html(res);
                         $('#AddBankModal').modal('hide');
@@ -477,12 +477,12 @@ $(document).on('click', '.btnBankDeleteAdmin', function (e) {
             $('.loader').show();
             var id = $(this).data('bankid');
             $.ajax({
-                url: '/Admin/UserManagement/DeleteBankDetails',
+                url: window.appBase + 'Admin/UserManagement/DeleteBankDetails',
                 type: 'GET',
                 data: { id: id, userID: $("#Id").val() },
                 success: function (response) {
                     if (response.isSuccess) {
-                        $.get("/Admin/Account/GetBankDetails?userID=" + $("#Id").val(), function (res) {
+                        $.get(window.appBase + "Admin/Account/GetBankDetails?userID=" + $("#Id").val(), function (res) {
                             if (res) {
                                 $('#BankDetails').html(res);
                                 $('#AddBankModal').modal('hide');
@@ -510,7 +510,7 @@ $(document).on('click', '.btnBankEditAdmin', function (e) {
     userInstitutionId = $(this).data('bankid')
 
     $.ajax({
-        url: '/Admin/UserManagement/GetBankDetailsById',
+        url: window.appBase + 'Admin/UserManagement/GetBankDetailsById',
         type: 'GET',
         data: { userInstitutionId: userInstitutionId },
         success: function (response) {
@@ -543,7 +543,7 @@ $(document).on('click', '.btnBankEdit', function (e) {
     userInstitutionId = $(this).data('bankid')
 
     $.ajax({
-        url: '/User/Account/GetBankDetailsById',
+        url: window.appBase + 'User/Account/GetBankDetailsById',
         type: 'GET',
         data: { userInstitutionId: userInstitutionId },
         success: function (response) {

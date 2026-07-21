@@ -204,7 +204,7 @@
 
         function goToPage(page) {
             if (page < 1) return;
-            window.location.href = `/Admin/AlertCentre/Index?page=${page}`;
+            window.location.href = `@Url.Content("~/Admin/AlertCentre/Index")?page=${page}`;
         }
 
         document.querySelectorAll('.view-details-btn').forEach(btn => {
@@ -219,7 +219,7 @@
         document.getElementById('applyFilterBtn')?.addEventListener('click', function () {
             const status = document.getElementById('statusFilter').value;
 
-            fetch('/Admin/AlertCentre/Filter', {
+            fetch('@Url.Content("~/Admin/AlertCentre/Filter")', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status, pageNumber: 1 })

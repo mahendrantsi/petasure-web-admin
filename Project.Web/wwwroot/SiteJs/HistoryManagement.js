@@ -1,7 +1,7 @@
 ﻿function ShowHistoryModal(obj) {
     
     var id = $(obj).attr('UserId');
-    $.get("/Admin/HistoryManagement/GetUserHistory", { Id: id }, function (res) {
+    $.get(window.appBase + "Admin/HistoryManagement/GetUserHistory", { Id: id }, function (res) {
         debugger
         //  alert(res)
         $('#UserHistory .modal-body').html(res);

@@ -245,7 +245,7 @@
                 $('tr.selected').removeClass('selected');
                 var details = (getFaqAfterDragDrop());
 
-                $.post("/Admin/Settings/UpdateFAQOrder", { request: details },
+                $.post("@Url.Content("~/Admin/Settings/UpdateFAQOrder")", { request: details },
                     function (data) {
                         $("table tbody").find('tr').each(function (i, j) {
                             $(this).find('td:eq(1)').html((i + 1));
@@ -297,7 +297,7 @@
                 confirmButtonText: "Yes",
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.post("/Admin/Settings/DeleteFaq?id=" + $(this).attr("item"),
+                    $.post("@Url.Content("~/Admin/Settings/DeleteFaq")?id=" + $(this).attr("item"),
                         function (data) {
                             if (data.isSuccess) {
                                 Swal.fire({
@@ -329,7 +329,7 @@
 
         $(document).on('click', ".EditFAQ", function () {
             removePreValidation();
-            $.post("/Admin/Settings/GetFaq?id=" + $(this).attr("item"),
+            $.post("@Url.Content("~/Admin/Settings/GetFaq")?id=" + $(this).attr("item"),
                 function (data) {
 
                     if (data.isSuccess) {

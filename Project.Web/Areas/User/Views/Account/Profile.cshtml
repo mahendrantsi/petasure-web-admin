@@ -107,7 +107,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" action="/User/Account/SaveBankDetails">
+            <form method="post" action="~/User/Account/SaveBankDetails">
                 <div class="modal-body accountdetails user-bank-details-section" style="padding:35px">
                     <div class="row">
                         <div class="col-md-12">
@@ -212,14 +212,14 @@
 
             $.ajax({
                 type: "POST",
-                url: '/User/Account/SaveBankDetails',
+                url: '@Url.Content("~/User/Account/SaveBankDetails")',
                 data: JSON.stringify(data),
                 contentType: "application/json",
 
                 success: function (response) {
                     console.log(response);
                     if (response.isSuccess) {
-                        $.get("/User/Account/GetBankDetails", function (res) {
+                        $.get("@Url.Content("~/User/Account/GetBankDetails")", function (res) {
                             if (res) {
                                 $('#BankDetails').html(res);
 

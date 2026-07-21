@@ -15,7 +15,7 @@
                 <div class="row form-icon create-user-section">
                     <div class="col-xl-12 col-md-12">
                         <div class="card crm-card flex-fill create-user-form">
-                            <form id="menuForm" action="/Admin/IntegrationManagement/Integration" method="post" enctype="multipart/form-data" novalidate>
+                            <form id="menuForm" action="~/Admin/IntegrationManagement/Integration" method="post" enctype="multipart/form-data" novalidate>
                                 @Html.AntiForgeryToken()
                                 <div class="card-body">
                                     <div class="form-horizontal form-type-1">
@@ -85,7 +85,7 @@
                                                         <button type="submit" class="btn btn-dark " id="btnSubmit" style="width:100px">Create</button>
                                                     </div>
                                                     <div class="col-6">
-                                                        <a href="/admin/IntegrationManagement/Index" class="btn btn-secondary valid" style="width:100px">Cancel</a>
+                                                        <a href="~/admin/IntegrationManagement/Index" class="btn btn-secondary valid" style="width:100px">Cancel</a>
                                                     </div>
                                                 </div>
                                             </div>

@@ -215,7 +215,7 @@
         <p class="nui-paragraph nui-paragraph-sm nui-weight-normal nui-lead-normal text-muted-200 mb-3">
             No need to waste time on this page, let's take you back to your account
         </p>
-        <a href="/account/login" class="nui-button nui-button-medium nui-button-curved nui-button-solid nui-button-default w-full" rel="" disabled="false">
+        <a href="~/account/login" class="nui-button nui-button-medium nui-button-curved nui-button-solid nui-button-default w-full" rel="" disabled="false">
             Sign In to Account
         </a>
     </div>
@@ -321,7 +321,7 @@
                         <div class="col-12 text-left">
                             <input type="checkbox" asp-for="TermsConditions" name="TermsConditions" required />
                             <label class="control-label text-dark m-0" for="TermsConditions">
-                                Agree to our <a target="_blank" style="text-decoration: underline;" href="/legal/terms-and-conditions">Terms & Conditions</a>
+                                Agree to our <a target="_blank" style="text-decoration: underline;" href="~/legal/terms-and-conditions">Terms & Conditions</a>
                             </label>
                             <span asp-validation-for="TermsConditions" class="text-danger d-block"></span>
                           
@@ -438,7 +438,7 @@
                     $this = this;
                     $($this).attr("disabled", true);
                     $('.loader').show();
-                    $.post("/Account/GenerateOTP", { Username: $('#Username').val(), email: $('#Email').val(), PhoneNumber: $('#PhoneNumber').val()},
+                    $.post("@Url.Content("~/Account/GenerateOTP")", { Username: $('#Username').val(), email: $('#Email').val(), PhoneNumber: $('#PhoneNumber').val()},
                         function (data) {
                             $('.loader').hide();
                             if (data.isSuccess) {

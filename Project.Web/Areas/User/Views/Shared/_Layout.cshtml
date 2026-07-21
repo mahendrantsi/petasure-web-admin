@@ -27,6 +27,8 @@
     <link href="~/css/custom.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="~/scripts/jquery-3.5.1.min.js"></script>
     <script src="~/js/swelfire.js"></script>
+    @* Base path prefix (respects UsePathBase e.g. /development, /staging) for URLs built in JavaScript *@
+    <script type="text/javascript">window.appBase = "@Url.Content("~/")";</script>
     <link href="~/css/font-awesome-scss/fontawesome.css" rel="stylesheet" />
     <link href="~/css/select2.min.css" rel="stylesheet" />
     <style>
@@ -54,7 +56,7 @@
 
             <header class="main-nav">
                 <div class="logo-wrapper logo-section">
-                    <a data-original-title="" title="" class="logo-1" href="/User/dashboard">
+                    <a data-original-title="" title="" class="logo-1" href="~/User/dashboard">
                         <img class="img-fluid" src="~/images/petasure_logo.svg" alt="Image" data-original-title="" title="" />
                     </a>
                     <a class="navbar-toggler-left" href="javascript:void(0)">
@@ -68,7 +70,7 @@
                                 @if (roleClaim.Value == "Staff")
                                 {
                                      <li class="nav-item dropdown menu-icons">
-                                        <a id="a454a1324" class="nav-link menu-title" href="/User/Business">
+                                        <a id="a454a1324" class="nav-link menu-title" href="~/User/Business">
                                             <span class="fas fa-business-time"></span>
                                             <span class="menu-txt">Business</span>
                                         </a>
@@ -77,14 +79,14 @@
                                else
                                 {
                                 <li class="nav-item dropdown menu-icons">
-                                    <a id="a112344312" class="nav-link menu-title " href="/User/dashboard">
+                                    <a id="a112344312" class="nav-link menu-title " href="~/User/dashboard">
                                         <span class="fas fa-globe"></span>
                                         <span class="menu-txt">Dashboard</span>
                                     </a>
                                 </li>
                                 }
                                 <li class="nav-item dropdown menu-icons">
-                                    <a id="a143433443" class="nav-link menu-title " href="/User/Account/Profile">
+                                    <a id="a143433443" class="nav-link menu-title " href="~/User/Account/Profile">
                                         <span class="fas fa-user"></span>
                                         <span class="menu-txt">Profile</span>
                                     </a>
@@ -92,7 +94,7 @@
                                 @if (roleClaim.Value == "Merchant")
                                 {
                                     <li class="nav-item dropdown menu-icons">
-                                        <a id="a454a1324" class="nav-link menu-title" href="/User/Business">
+                                        <a id="a454a1324" class="nav-link menu-title" href="~/User/Business">
                                             <span class="fas fa-business-time"></span>
                                             <span class="menu-txt">Business</span>
                                         </a>
@@ -101,14 +103,14 @@
                                  @if (roleClaim.Value != "Staff")
                                 {
                                     <li class="nav-item dropdown menu-icons">
-                                        <a id="a454a1" class="nav-link menu-title " href="/User/Transaction">
+                                        <a id="a454a1" class="nav-link menu-title " href="~/User/Transaction">
                                             <span class="fas fa-globe"></span>
                                             <span class="menu-txt">Transactions</span>
                                         </a>
                                     </li>
                                 }
                                 <li class="nav-item dropdown menu-icons">
-                                    <a class="nav-link menu-title " href="/User/settings">
+                                    <a class="nav-link menu-title " href="~/User/settings">
                                         <span class="fas fa-wrench"></span> 
                                         <span class="menu-txt">Settings</span>
                                     </a>
