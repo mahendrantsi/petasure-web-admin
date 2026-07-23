@@ -73,6 +73,8 @@ namespace Project.Services.Service
             {
                 var allAlerts = GetAlertsFromHealthChecks();
                 var filteredAlerts = allAlerts;
+                var today = DateTime.Today;
+                var tomorrow = today.AddDays(1);
 
                 // Apply filters if provided
                 if (filter != null)
@@ -87,7 +89,7 @@ namespace Project.Services.Service
                 var stats = new AlertStatisticsViewModel
                 {
                     TotalAlerts = allAlerts.Count,
-                    NewAlerts = allAlerts.Count(a => a.Status == "Alert Sent"),
+                    NewAlerts = allAlerts.Count(a => a.AlertTime >= today && a.AlertTime < tomorrow),
                     AlertSent = allAlerts.Count(a => a.Status == "Alert Sent"),
                     VetAppointmentRecommendedAlerts = allAlerts.Count(a => a.Status == "Vet Appointment Recommended")
                 };
@@ -119,21 +121,31 @@ namespace Project.Services.Service
             }
         }
 
-        public Task<ServiceResponse<AlertCentreViewModel>> GetAlertsByPage(int pageNumber, int pageSize)
+        public Task<ServiceResponse<AlertCentreViewModel>> GetAlertsByPage(int pageNumber, int pageSize, string status = null)
         {
             try
             {
                 var allAlerts = GetAlertsFromHealthChecks();
-
+                var today = DateTime.Today;
+                var tomorrow = today.AddDays(1);
                 var stats = new AlertStatisticsViewModel
                 {
                     TotalAlerts = allAlerts.Count,
-                    NewAlerts = allAlerts.Count(a => a.Status == "Alert Sent"),
+                    NewAlerts = allAlerts.Count(a => a.AlertTime >= today && a.AlertTime < tomorrow),
                     AlertSent = allAlerts.Count(a => a.Status == "Alert Sent"),
                     VetAppointmentRecommendedAlerts = allAlerts.Count(a => a.Status == "Vet Appointment Recommended")
                 };
 
-                var pagedAlerts = allAlerts
+                // Apply status filter before paging
+                var filteredAlerts = allAlerts;
+                var activeStatus = "All Status";
+                if (!string.IsNullOrEmpty(status) && status != "All Status")
+                {
+                    filteredAlerts = filteredAlerts.Where(a => a.Status == status).ToList();
+                    activeStatus = status;
+                }
+
+                var pagedAlerts = filteredAlerts
                     .Skip((pageNumber - 1) * pageSize)
                     .Take(pageSize)
                     .ToList();
@@ -142,9 +154,10 @@ namespace Project.Services.Service
                 {
                     Alerts = pagedAlerts,
                     Statistics = stats,
-                    TotalRecords = allAlerts.Count,
+                    TotalRecords = filteredAlerts.Count,
                     CurrentPage = pageNumber,
-                    PageSize = pageSize
+                    PageSize = pageSize,
+                    ActiveStatus = activeStatus
                 };
 
                 return Task.FromResult(new ServiceResponse<AlertCentreViewModel>

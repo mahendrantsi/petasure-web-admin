@@ -1,4 +1,4 @@
-﻿@model Project.Models.CommonModel.LoginViewModel
+@model Project.Models.CommonModel.LoginViewModel
 @{
     ViewData["Title"] = "Sign In";
     Layout = "_OuterLayout";
@@ -20,6 +20,7 @@
 
                 <form method="post" class="form fv-plugins-bootstrap fv-plugins-framework" asp-area="" asp-controller="Account" asp-action="Login">
                     @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnUrl" />
                     <div class="form-group withLabel">
                         <label class="nforLabel">Email</label>
                         <input class="form-control placeholder-white" asp-for="Email" type="textplaceholder=" Email" autofocus placeholder="Email address" autocomplete="off" />

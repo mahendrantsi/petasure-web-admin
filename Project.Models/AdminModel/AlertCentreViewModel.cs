@@ -10,6 +10,7 @@ namespace Project.Models.AdminModel
         public int TotalRecords { get; set; }
         public int CurrentPage { get; set; } = 1;
         public int PageSize { get; set; } = 10;
+        public string ActiveStatus { get; set; } = "All Status";
     }
 
     public class AlertStatisticsViewModel

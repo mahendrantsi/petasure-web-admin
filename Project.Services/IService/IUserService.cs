@@ -55,6 +55,9 @@ namespace Project.Services.IService
         Task<ServiceResponse<ScanLogsPageViewModel>> GetScanLogsAsync(int page = 1, string search = null, DateTime? fromDate = null, DateTime? toDate = null);
         Task<ServiceResponse<List<PetScanLogViewModel>>> GetAllScanLogsAsync(string search = null, DateTime? fromDate = null, DateTime? toDate = null);
 
+        Task<ServiceResponse<IllHealthLogsPageViewModel>> GetIllHealthLogsAsync(int page = 1, string search = null, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<ServiceResponse<List<IllHealthReviewViewModel>>> GetAllIllHealthLogsAsync(string search = null, DateTime? fromDate = null, DateTime? toDate = null);
+
         Task<ServiceResponse<UserProfile>> DeleteProfile(Guid userId);
 
 

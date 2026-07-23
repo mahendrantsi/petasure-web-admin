@@ -67,98 +67,100 @@
                 <span class="panel-live-badge">Live</span>
             </div>
 
-            <!-- Mini Stats — real data -->
-            <div class="mini-stats-grid">
-                <div class="mini-stat-card c1">
-                    <div class="mini-stat-label">Total Scans</div>
-                    <div class="mini-stat-value">@totalScans</div>
+            <!-- Scrollable content matching tab-ill-health table-scroll-container behavior -->
+            <div style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:14px; padding-right:2px;">
+                <!-- Mini Stats — real data -->
+                <div class="mini-stats-grid">
+                    <div class="mini-stat-card c1">
+                        <div class="mini-stat-label">Total Missing Scans</div>
+                        <div class="mini-stat-value">@totalScans</div>
+                    </div>
+                    <div class="mini-stat-card c4">
+                        <div class="mini-stat-label">Ill-Health Scans</div>
+                        <div class="mini-stat-value">@Model.TotalIllHealthScans</div>
+                    </div>
+                    <div class="mini-stat-card c2">
+                        <div class="mini-stat-label">Matched</div>
+                        <div class="mini-stat-value">@matchedScans</div>
+                    </div>
+                    <div class="mini-stat-card c3">
+                        <div class="mini-stat-label">Errors</div>
+                        <div class="mini-stat-value">@errorCount</div>
+                    </div>
                 </div>
-                <div class="mini-stat-card c2">
-                    <div class="mini-stat-label">Matched</div>
-                    <div class="mini-stat-value">@matchedScans</div>
-                </div>
-                <div class="mini-stat-card c3">
-                    <div class="mini-stat-label">Unmatched</div>
-                    <div class="mini-stat-value">@unmatchedScans</div>
-                </div>
-                <div class="mini-stat-card c4">
-                    <div class="mini-stat-label">Errors</div>
-                    <div class="mini-stat-value">@errorCount</div>
-                </div>
-            </div>
 
-            <!-- SVG Donut Chart — dynamically computed arcs -->
-            <div class="donut-section">
-                <div class="donut-wrapper">
-                    <svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);">
-                        <circle cx="50" cy="50" r="38" fill="none" stroke="#f1f5f9" stroke-width="13" />
-                        @if (totalScans > 0)
-                        {
-                            <!-- Matched arc (green) -->
-                            <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gGreen)" stroke-width="13"
-                                    stroke-dasharray="@matchedArc.ToString("F2") @circumference.ToString("F2")" stroke-linecap="round" />
-                            <!-- Unmatched arc (red) — offset by matched arc -->
-                            <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gRed)" stroke-width="13"
-                                    stroke-dasharray="@unmatchedArc.ToString("F2") @circumference.ToString("F2")" stroke-linecap="round"
-                                    style="stroke-dashoffset:-@matchedArc.ToString("F2");" />
-                        }
-                        else
-                        {
-                            <!-- No data — show grey full circle -->
-                            <circle cx="50" cy="50" r="38" fill="none" stroke="#e2e8f0" stroke-width="13" />
-                        }
-                        <defs>
-                            <linearGradient id="gGreen" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%" stop-color="#10b981" /><stop offset="100%" stop-color="#34d399" />
-                            </linearGradient>
-                            <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="0">
-                                <stop offset="0%" stop-color="#ef4444" /><stop offset="100%" stop-color="#f87171" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <div class="donut-inner-text">
-                        <div class="donut-inner-value">@totalScans</div>
-                        <div class="donut-inner-label">Total Scans</div>
+                <!-- SVG Donut Chart — dynamically computed arcs -->
+                <div class="donut-section">
+                    <div class="donut-wrapper">
+                        <svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);">
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="#f1f5f9" stroke-width="13" />
+                            @if (totalScans > 0)
+                            {
+                                <!-- Matched arc (green) -->
+                                <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gGreen)" stroke-width="13"
+                                        stroke-dasharray="@matchedArc.ToString("F2") @circumference.ToString("F2")" stroke-linecap="round" />
+                                <!-- Unmatched arc (red) — offset by matched arc -->
+                                <circle cx="50" cy="50" r="38" fill="none" stroke="url(#gRed)" stroke-width="13"
+                                        stroke-dasharray="@unmatchedArc.ToString("F2") @circumference.ToString("F2")" stroke-linecap="round"
+                                        style="stroke-dashoffset:-@matchedArc.ToString("F2");" />
+                            }
+                            else
+                            {
+                                <!-- No data — show grey full circle -->
+                                <circle cx="50" cy="50" r="38" fill="none" stroke="#e2e8f0" stroke-width="13" />
+                            }
+                            <defs>
+                                <linearGradient id="gGreen" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#10b981" /><stop offset="100%" stop-color="#34d399" />
+                                </linearGradient>
+                                <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stop-color="#ef4444" /><stop offset="100%" stop-color="#f87171" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="donut-inner-text">
+                            <div class="donut-inner-value">@totalScans</div>
+                            <div class="donut-inner-label">Total Scans</div>
+                        </div>
+                    </div>
+                    <div class="donut-legend">
+                        <div class="legend-item">
+                            <div class="legend-color matched"></div>
+                            <span class="legend-label">Matched</span>
+                            <span class="legend-value">@matchedScans</span>
+                            <span class="legend-pct">(@matchedPct.ToString("F1")%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color unmatched"></div>
+                            <span class="legend-label">Unmatched</span>
+                            <span class="legend-value">@unmatchedScans</span>
+                            <span class="legend-pct">(@unmatchedPct.ToString("F1")%)</span>
+                        </div>
                     </div>
                 </div>
-                <div class="donut-legend">
-                    <div class="legend-item">
-                        <div class="legend-color matched"></div>
-                        <span class="legend-label">Matched</span>
-                        <span class="legend-value">@matchedScans</span>
-                        <span class="legend-pct">(@matchedPct.ToString("F1")%)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color unmatched"></div>
-                        <span class="legend-label">Unmatched</span>
-                        <span class="legend-value">@unmatchedScans</span>
-                        <span class="legend-pct">(@unmatchedPct.ToString("F1")%)</span>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Error Breakdown — real data from RecognitionErrors table -->
-            <div class="error-breakdown-section">
-                <h4 class="error-section-title">Error Breakdown</h4>
-                @if (Model.ErrorBreakdownItems != null && Model.ErrorBreakdownItems.Count > 0)
-                {
-                    @foreach (var err in Model.ErrorBreakdownItems)
+                <!-- Error Breakdown — real data from RecognitionErrors table -->
+                <div class="error-breakdown-section">
+                    <h4 class="error-section-title">Error Breakdown</h4>
+                    @if (Model.ErrorBreakdownItems != null && Model.ErrorBreakdownItems.Count > 0)
+                    {
+                        @foreach (var err in Model.ErrorBreakdownItems)
+                        {
+                            <div class="error-item">
+                                <span class="error-label">@err.Label</span>
+                                <span class="error-value">@err.Count (@err.Percentage.ToString("F1")%)</span>
+                            </div>
+                        }
+                    }
+                    else
                     {
                         <div class="error-item">
-                            <span class="error-label">@err.Label</span>
-                            <span class="error-value">@err.Count (@err.Percentage.ToString("F1")%)</span>
+                            <span class="error-label" style="color:#94a3b8;">No errors recorded</span>
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="error-item">
-                        <span class="error-label" style="color:#94a3b8;">No errors recorded</span>
-                    </div>
-                }
+                </div>
             </div>
 
-            <a href="@Url.Action("ScanLogs", "DashBoard")" class="view-logs-link">View all scan logs <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
         </div>
 
         <!-- Right: Table Panel -->
@@ -200,7 +202,7 @@
                                                     <img src="@log.PetImagePath"
                                                          alt="@log.PetName"
                                                          class="pet-avatar"
-                                                         onerror="this.onerror=null;this.src='/images/pet-placeholder.svg';" />
+                                                         onerror="this.onerror=null;this.outerHTML='<div class=\'pet-avatar\' style=\'display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#64748b;font-size:16px;\'><i class=\'fas fa-@(log.PetType.ToLower() == "cat" ? "cat" : "dog")\'></i></div>';" />
                                                 </td>
                                                 <td><span class="pet-name-strong">@log.PetName</span></td>
                                                 <td>
@@ -221,15 +223,15 @@
                                                     @{
                                                         var result = (log.Result ?? string.Empty).ToLowerInvariant();
                                                     }
-                                                    @if (result == "matched" || result == "possible_match")
+                                                    @if (result == "matched" || result == "possible_match" || result == "match")
                                                     {
                                                         <span class="badge-custom success"><i class="fas fa-check-circle"></i> Matched</span>
                                                     }
-                                                    else if (result == "no_match")
+                                                    else if (result == "no_match" || result == "unmatch" || result == "unmatched")
                                                     {
                                                         <span class="badge-custom danger"><i class="fas fa-times-circle"></i> Unmatched</span>
                                                     }
-                                                    else if (result == "failed" || result == "rejected")
+                                                    else if (result == "failed" || result == "rejected" || result == "error")
                                                     {
                                                         <span class="badge-custom info">Error</span>
                                                     }
@@ -266,87 +268,12 @@
                         </div>
 
                         <div class="table-footer">
-                            <span>Showing <strong>@showFrom–@showTo</strong> of <strong>@totalLogs</strong> entries</span>
-                            <div class="pagination-btn-group">
-                                @{
-                                    if (currentPage > 1)
-                                    {
-                                        <a href="?page=@(currentPage - 1)" class="page-btn"><i class="fas fa-chevron-left"></i></a>
-                                    }
-                                    else
-                                    {
-                                        <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
-                                    }
-                                    int windowStart = Math.Max(1, currentPage - 2);
-                                    int windowEnd   = Math.Min(totalPages, currentPage + 2);
-
-                                    if (windowStart > 1)
-                                    {
-                                        <a href="?page=1" class="page-btn">1</a>
-                                        if (windowStart > 2)
-                                        {
-                                            <span style="padding:0 4px;align-self:center;font-size:10px;">...</span>
-                                        }
-                                    }
-
-                                    for (int p = windowStart; p <= windowEnd; p++)
-                                    {
-                                        if (p == currentPage)
-                                        {
-                                            <button class="page-btn active">@p</button>
-                                        }
-                                        else
-                                        {
-                                            <a href="?page=@p" class="page-btn">@p</a>
-                                        }
-                                    }
-
-                                    if (windowEnd < totalPages)
-                                    {
-                                        if (windowEnd < totalPages - 1)
-                                        {
-                                            <span style="padding:0 4px;align-self:center;font-size:10px;">...</span>
-                                        }
-                                        <a href="?page=@totalPages" class="page-btn">@totalPages</a>
-                                    }
-
-                                    if (currentPage < totalPages)
-                                    {
-                                        <a href="?page=@(currentPage + 1)" class="page-btn"><i class="fas fa-chevron-right"></i></a>
-                                    }
-                                    else
-                                    {
-                                        <button class="page-btn" disabled><i class="fas fa-chevron-right"></i></button>
-                                    }
-                                }
-                            </div>
+                            <a href="@Url.Action("ScanLogs", "DashBoard")" class="view-logs-link" style="margin:0;">View all scan logs <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
                         </div>
                     </div>
 
                     <!-- Tab 2: Ill-health Reviews -->
                     <div class="tab-pane" id="tab-ill-health">
-                        <div class="review-stats-bar">
-                            <div class="review-stat-item flagged">
-                                <i class="fas fa-flag"></i>
-                                <span class="review-stat-lbl">Flagged:</span>
-                                <span class="review-stat-val">@Model.FlaggedSubmissions</span>
-                            </div>
-                            <div class="review-stat-item pending">
-                                <i class="fas fa-hourglass-half"></i>
-                                <span class="review-stat-lbl">Under Review:</span>
-                                <span class="review-stat-val">@Model.UnderReview</span>
-                            </div>
-                            <div class="review-stat-item reviewed">
-                                <i class="fas fa-eye"></i>
-                                <span class="review-stat-lbl">Reviewed:</span>
-                                    <span class="review-stat-val">@Model.Reviewed</span>
-                                </div>
-                            <div class="review-stat-item resolved">
-                                <i class="fas fa-check-circle"></i>
-                                <span class="review-stat-lbl">Resolved:</span>
-                                <span class="review-stat-val">@Model.Resolved</span>
-                            </div>
-                        </div>
 
                         <!-- Table scroll container -->
                         <div class="table-scroll-container">
@@ -356,14 +283,11 @@
                                         <th>Pet</th>
                                         <th>Name</th>
                                         <th>Type</th>
-                                        <th>AI Condition</th>
+                                        <th class="col-obs-cond">Observable Symptoms</th>
                                         <th>Confidence</th>
                                         <th>Status</th>
                                         <th>AI Verdict</th>
                                         <th>Date and Time</th>
-                                        <th>Admin Override</th>
-                                        <th>Notes</th>
-                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -372,7 +296,7 @@
                                         @foreach (var review in Model.IllHealthReviews)
                                         {
                                             <tr>
-                                                <td><img src="@review.PetImagePath" alt="@review.PetName" class="pet-avatar" onerror="this.onerror=null;this.src='/images/pet-placeholder.svg';" /></td>
+                                                <td><img src="@review.PetImagePath" alt="@review.PetName" class="pet-avatar" onerror="this.onerror=null;this.outerHTML='<div class=\'pet-avatar\' style=\'display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#64748b;font-size:16px;\'><i class=\'fas fa-@(review.PetType.ToLower() == "cat" ? "cat" : "dog")\'></i></div>';" /></td>
                                                 <td><span class="pet-name-strong">@review.PetName</span></td>
                                                 <td>
                                                     @if (review.PetType == "Cat")
@@ -384,7 +308,7 @@
                                                         <span class="type-pill dog"><i class="fas fa-dog"></i> Dog</span>
                                                     }
                                                 </td>
-                                                <td style="color:#475569;">@review.AISuggestedCondition</td>
+                                                <td class="col-obs-cond" style="color:#475569;">@review.AISuggestedCondition</td>
                                                 <td>
                                                     <div class="conf-wrap">
                                                         <span class="conf-num">@review.Confidence.ToString("F0")%</span>
@@ -420,13 +344,6 @@
                                                     }
                                                 </td>
                                                 <td>@review.SubmissionDate.ToString("dd MMM yyyy HH:mm")</td>
-                                                <td>
-                                                    <select class="table-select"><option>Select</option><option>Healthy</option><option>Ill</option></select>
-                                                </td>
-                                                <td><input type="text" placeholder="Add notes..." class="table-input" value="@review.OverrideNotes" /></td>
-                                                <td>
-                                                    <button class="table-btn-save"><i class="fas fa-save" style="font-size:9px;margin-right:3px;"></i>Save</button>
-                                                </td>
                                             </tr>
                                         }
                                     }
@@ -446,11 +363,11 @@
                         </div>
 
                         <div class="table-footer">
-                            <a href="#" class="view-logs-link" style="margin:0;">View all ill-health submissions <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
+                            <a href="@Url.Action("IllHealthSubmissions", "DashBoard")" class="view-logs-link" style="margin:0;">View all ill-health submissions <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
                         </div>
                     </div>
                 </div>
-            </div><!-- tp-body -->
+            </div>
         </div>
     </div>
 </div>

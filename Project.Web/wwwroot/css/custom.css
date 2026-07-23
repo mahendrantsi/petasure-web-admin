@@ -23403,7 +23403,7 @@ img.logo-img.logo-manage {
     }
 
     .mini-stat-card.c4::after {
-        background: #f97316;
+        background: #8b5cf6;
     }
 
 .mini-stat-label {
@@ -23813,6 +23813,16 @@ img.logo-img.logo-manage {
     #tab-ill-health .table-scroll-container th,
     #tab-ill-health .table-scroll-container td {
         white-space: nowrap !important;
+    }
+
+    #tab-ill-health .table-scroll-container th.col-obs-cond,
+    #tab-ill-health .table-scroll-container td.col-obs-cond,
+    .col-obs-cond {
+        white-space: normal !important;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        min-width: 180px;
+        max-width: 280px;
     }
 
 .table-scroll-container table {

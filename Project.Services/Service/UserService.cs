@@ -78,23 +78,31 @@ namespace Project.Services.Service
                 var numberOfDogs = _unitOfWork.Instance.PetInfo.Count(p => p.PetTypeId == 1);
                 var numberOfCats = _unitOfWork.Instance.PetInfo.Count(p => p.PetTypeId == 2);
 
-                // ── Scan metrics across recognition scan types only ─────────────────────
-                // Excludes ScanType.Classify: those rows are the incidental recognition-gate
-                // check that runs alongside every health-check submission (see
-                // IllHealthService.AnalyzeAsync, which sets healthCheckEvent.PetScan), not a
-                // user-initiated pet recognition/registration attempt. They never set
-                // MatchResult, so including them here inflated "Total Scans"/"Recognition
-                // Attempts" while never counting toward matched/unmatched — silently diluting
-                // MatchRate with denominator-only rows.
+                // ── Scan metrics — all scan types, matching what the scan log table shows ──
+                // The summary cards must use the SAME field-resolution and case-insensitive
+                // logic as the table view:
+                //   table:   (MatchResult ?? RouteDecision ?? Status.ToString()).ToLowerInvariant()
+                //   summary: must mirror that exactly — otherwise rows visible in the table
+                //            are invisible to the counter (e.g. MatchResult = null but
+                //            RouteDecision = "matched", or DB stored "Matched" with capital M).
                 var allScans = await _unitOfWork.Instance.PetScans
-                    .Where(s => s.ScanType != EnumPetScanType.Classify)
-                    .Select(s => new { s.MatchResult, s.Status })
+                    .Select(s => new { s.MatchResult, s.RouteDecision, s.Status })
                     .ToListAsync();
 
                 var totalScans = allScans.Count;
-                var matchedScans = allScans.Count(s => s.MatchResult == "matched" || s.MatchResult == "possible_match");
-                var unmatchedScans = allScans.Count(s => s.MatchResult == "no_match");
-                var errorScans = allScans.Count(s => s.Status == EnumPetScanStatus.Failed || s.Status == EnumPetScanStatus.Rejected);
+
+                // Resolve the effective result the same way the table view does:
+                // Result = MatchResult ?? RouteDecision ?? Status.ToString(), lowercased.
+                var matchedScans = allScans.Count(s =>
+                {
+                    var r = (s.MatchResult ?? s.RouteDecision ?? s.Status.ToString()).ToLowerInvariant();
+                    return r == "matched" || r == "possible_match" || r == "match";
+                });
+                var unmatchedScans = allScans.Count(s =>
+                {
+                    var r = (s.MatchResult ?? s.RouteDecision ?? s.Status.ToString()).ToLowerInvariant();
+                    return r == "no_match" || r == "unmatched" || r == "unmatch";
+                });
 
                 // ── Error breakdown by stage ────────────────────────────────────────────
                 var allErrors = await _unitOfWork.Instance.RecognitionErrors
@@ -102,6 +110,7 @@ namespace Project.Services.Service
                     .ToListAsync();
 
                 var errorTotal = allErrors.Count;
+                var errorScans = errorTotal;
                 var errorBreakdownItems = new List<ErrorBreakdownItem>
                 {
                     BuildErrorItem("Image Quality",    allErrors, EnumRecognitionErrorStage.ImageSave,       errorTotal),
@@ -159,9 +168,10 @@ namespace Project.Services.Service
                     .Include(e => e.Pet)
                     .Include(e => e.HealthStatuses)
                     .OrderByDescending(e => e.CreatedOn)
-                    .Take(20)
+                    .Take(10)
                     .ToListAsync();
-
+                
+                var totalIllHealthScans = await _unitOfWork.Instance.HealthCheckEvents.CountAsync();
                 var illHealthReviewViewModels = illHealthReviews.Select(e =>
                 {
                     var topFinding = e.HealthStatuses.OrderByDescending(h => h.Confidence).FirstOrDefault();
@@ -176,8 +186,6 @@ namespace Project.Services.Service
                         Confidence = (topFinding?.Confidence ?? 0m) * 100m,
                         Status = MapHealthCheckReviewStatus(e.Status, hasFindings),
                         AIVerdict = hasFindings ? "Ill" : "Healthy",
-                        AdminOverride = "Select",
-                        OverrideNotes = string.Empty,
                         SubmissionDate = e.SubmittedAt,
                     };
                 }).ToList();
@@ -212,6 +220,7 @@ namespace Project.Services.Service
                     MatchedScans = matchedScans,
                     UnmatchedScans = unmatchedScans,
                     ErrorCount = errorScans,
+                    TotalIllHealthScans = totalIllHealthScans,
                     ErrorBreakdownItems = errorBreakdownItems,
 
                     PetScanLogs = petScanLogViewModels,
@@ -245,6 +254,7 @@ namespace Project.Services.Service
                     MatchedScans = 0,
                     UnmatchedScans = 0,
                     ErrorCount = 0,
+                    TotalIllHealthScans = 0,
                     ErrorBreakdownItems = new List<ErrorBreakdownItem>(),
                     PetScanLogs = new List<PetScanLogViewModel>(),
                     TotalScanLogs = 0,
@@ -367,8 +377,6 @@ namespace Project.Services.Service
 
                 var totalScanLogs = await petScanLogsQuery.CountAsync();
                 var petScanLogs = await petScanLogsQuery
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
                     .ToListAsync();
 
                 var petScanLogViewModels = petScanLogs.Select(s => new PetScanLogViewModel
@@ -389,7 +397,7 @@ namespace Project.Services.Service
                 var model = new ScanLogsPageViewModel
                 {
                     PetScanLogs = petScanLogViewModels,
-                    TotalScanLogs = totalScanLogs,
+                    TotalScanLogs = petScanLogViewModels.Count,
                     CurrentPage = page,
                     PageSize = pageSize,
                     SearchText = search,
@@ -475,6 +483,152 @@ namespace Project.Services.Service
             catch (Exception ex)
             {
                 response = SetResultStatus<List<PetScanLogViewModel>>(new List<PetScanLogViewModel>(), Messages_Resources.Error, false);
+            }
+            return response;
+        }
+
+        public async Task<ServiceResponse<IllHealthLogsPageViewModel>> GetIllHealthLogsAsync(int page = 1, string search = null, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            var response = new ServiceResponse<IllHealthLogsPageViewModel>();
+            try
+            {
+                int pageSize = 10;
+                var query = _unitOfWork.Instance.HealthCheckEvents
+                    .Include(e => e.Pet)
+                    .Include(e => e.HealthStatuses)
+                    .AsQueryable();
+
+                if (fromDate.HasValue)
+                {
+                    query = query.Where(s => s.CreatedOn >= fromDate.Value.Date);
+                }
+                if (toDate.HasValue)
+                {
+                    var toDateEnd = toDate.Value.Date.AddDays(1).AddTicks(-1);
+                    query = query.Where(s => s.CreatedOn <= toDateEnd);
+                }
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var lowerSearch = search.Trim().ToLower();
+                    query = query.Where(s => 
+                        (s.Pet != null && s.Pet.PName.ToLower().Contains(lowerSearch)) ||
+                        (s.AiSummary != null && s.AiSummary.ToLower().Contains(lowerSearch)) ||
+                        s.HealthStatuses.Any(h => h.ConditionName.ToLower().Contains(lowerSearch))
+                    );
+                }
+
+                var totalLogs = await query.CountAsync();
+                
+                var pagedLogs = await query
+                    .OrderByDescending(s => s.CreatedOn)
+                    .ToListAsync();
+
+                var viewModels = pagedLogs.Select(e =>
+                {
+                    var topFinding = e.HealthStatuses.OrderByDescending(h => h.Confidence).FirstOrDefault();
+                    var hasFindings = e.HealthStatuses.Any();
+                    return new IllHealthReviewViewModel
+                    {
+                        Id = e.Id,
+                        PetName = e.Pet != null ? e.Pet.PName : "Unknown",
+                        PetType = e.Species.ToString(),
+                        PetImagePath = ResolveImageUrl(e.ImageRef),
+                        AISuggestedCondition = topFinding?.ConditionName ?? (e.AiSummary ?? "No concerns detected"),
+                        Confidence = (topFinding?.Confidence ?? 0m) * 100m,
+                        Status = MapHealthCheckReviewStatus(e.Status, hasFindings),
+                        AIVerdict = hasFindings ? "Ill" : "Healthy",
+                        SubmissionDate = e.SubmittedAt,
+                    };
+                }).ToList();
+
+                var pageModel = new IllHealthLogsPageViewModel
+                {
+                    IllHealthReviews = viewModels,
+                    TotalIllHealthLogs = viewModels.Count,
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    SearchText = search,
+                    FromDate = fromDate,
+                    ToDate = toDate
+                };
+
+                response = SetResultStatus<IllHealthLogsPageViewModel>(pageModel, Messages_Resources.Success, true);
+            }
+            catch (Exception ex)
+            {
+                var defaultPageModel = new IllHealthLogsPageViewModel
+                {
+                    IllHealthReviews = new List<IllHealthReviewViewModel>(),
+                    TotalIllHealthLogs = 0,
+                    CurrentPage = page,
+                    PageSize = 10,
+                    SearchText = search,
+                    FromDate = fromDate,
+                    ToDate = toDate
+                };
+                response = SetResultStatus<IllHealthLogsPageViewModel>(defaultPageModel, Messages_Resources.Error, false);
+            }
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<IllHealthReviewViewModel>>> GetAllIllHealthLogsAsync(string search = null, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            var response = new ServiceResponse<List<IllHealthReviewViewModel>>();
+            try
+            {
+                var query = _unitOfWork.Instance.HealthCheckEvents
+                    .Include(e => e.Pet)
+                    .Include(e => e.HealthStatuses)
+                    .AsQueryable();
+
+                if (fromDate.HasValue)
+                {
+                    query = query.Where(s => s.CreatedOn >= fromDate.Value.Date);
+                }
+                if (toDate.HasValue)
+                {
+                    var toDateEnd = toDate.Value.Date.AddDays(1).AddTicks(-1);
+                    query = query.Where(s => s.CreatedOn <= toDateEnd);
+                }
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var lowerSearch = search.Trim().ToLower();
+                    query = query.Where(s => 
+                        (s.Pet != null && s.Pet.PName.ToLower().Contains(lowerSearch)) ||
+                        (s.AiSummary != null && s.AiSummary.ToLower().Contains(lowerSearch)) ||
+                        s.HealthStatuses.Any(h => h.ConditionName.ToLower().Contains(lowerSearch))
+                    );
+                }
+
+                var logs = await query
+                    .OrderByDescending(s => s.CreatedOn)
+                    .ToListAsync();
+
+                var viewModels = logs.Select(e =>
+                {
+                    var topFinding = e.HealthStatuses.OrderByDescending(h => h.Confidence).FirstOrDefault();
+                    var hasFindings = e.HealthStatuses.Any();
+                    return new IllHealthReviewViewModel
+                    {
+                        Id = e.Id,
+                        PetName = e.Pet != null ? e.Pet.PName : "Unknown",
+                        PetType = e.Species.ToString(),
+                        PetImagePath = ResolveImageUrl(e.ImageRef),
+                        AISuggestedCondition = topFinding?.ConditionName ?? (e.AiSummary ?? "No concerns detected"),
+                        Confidence = (topFinding?.Confidence ?? 0m) * 100m,
+                        Status = MapHealthCheckReviewStatus(e.Status, hasFindings),
+                        AIVerdict = hasFindings ? "Ill" : "Healthy",
+                        SubmissionDate = e.SubmittedAt,
+                    };
+                }).ToList();
+
+                response = SetResultStatus<List<IllHealthReviewViewModel>>(viewModels, Messages_Resources.Success, true);
+            }
+            catch (Exception ex)
+            {
+                response = SetResultStatus<List<IllHealthReviewViewModel>>(new List<IllHealthReviewViewModel>(), Messages_Resources.Error, false);
             }
             return response;
         }

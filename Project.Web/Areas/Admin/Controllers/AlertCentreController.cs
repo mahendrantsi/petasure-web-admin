@@ -18,10 +18,10 @@ namespace Project.Web.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, string status = null)
         {
             ViewData["Title"] = "Alert Centre";
-            var serviceResponse = await _alertCentreService.GetAlertsByPage(page, 10);
+            var serviceResponse = await _alertCentreService.GetAlertsByPage(page, 10, status);
 
             if (serviceResponse.IsSuccess)
             {
@@ -51,8 +51,8 @@ namespace Project.Web.Areas.Admin.Controllers
 
             if (serviceResponse.IsSuccess)
             {
-                var newAlertsCount = serviceResponse.Data.Statistics.NewAlerts;
-                return Json(new { count = newAlertsCount });
+                var totalAlertsCount = serviceResponse.Data.Statistics.TotalAlerts;
+                return Json(new { count = totalAlertsCount });
             }
 
             return Json(new { count = 0 });

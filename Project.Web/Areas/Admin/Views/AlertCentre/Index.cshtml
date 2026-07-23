@@ -51,9 +51,11 @@
     <div class="ac-filters">
         <div class="ac-filter-group">
             <select class="ac-select" id="statusFilter">
-                <option value="All Status">All Status</option>
-                <option value="Alert Sent">Alert Sent</option>
-                <option value="Vet Appointment Recommended">Vet Appointment Recommended</option>
+                <option value="All Status" selected="@(Model.ActiveStatus == "All Status")">All Status</option>
+                <option value="Alert Sent" selected="@(Model.ActiveStatus == "Alert Sent")">Alert Sent</option>
+                <option value="Vet Appointment Recommended" selected="@(Model.ActiveStatus == "Vet Appointment Recommended")">
+                    Vet Appointment Recommended
+                </option>
             </select>
         </div>
         <button class="ac-filter-btn" id="applyFilterBtn">
@@ -76,7 +78,7 @@
                         <tr>
                             <th>Pet Name</th>
                             <th>Pet Type</th>
-                            <th>Observable Symptoms</th>
+                            <th class="col-obs-cond">Observable Symptoms</th>
                             <th>Status</th>
                             <th>Alert Time</th>
                             <th>Action</th>
@@ -108,7 +110,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="ac-cond-name">@alert.ObservableSymptoms</div>
+                                    <div class="ac-cond-name col-obs-cond">@alert.ObservableSymptoms</div>
                                 </td>
                                 <td>
                                     @{
@@ -204,7 +206,12 @@
 
         function goToPage(page) {
             if (page < 1) return;
-            window.location.href = `@Url.Content("~/Admin/AlertCentre/Index")?page=${page}`;
+            const status = document.getElementById('statusFilter').value;
+            let url = `@Url.Content("~/Admin/AlertCentre/Index")?page=${page}`;
+            if (status && status !== 'All Status') {
+                url += `&status=${encodeURIComponent(status)}`;
+            }
+            window.location.href = url;
         }
 
         document.querySelectorAll('.view-details-btn').forEach(btn => {
@@ -218,15 +225,11 @@
 
         document.getElementById('applyFilterBtn')?.addEventListener('click', function () {
             const status = document.getElementById('statusFilter').value;
-
-            fetch('@Url.Content("~/Admin/AlertCentre/Filter")', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status, pageNumber: 1 })
-            })
-            .then(r => r.json())
-            .then(data => { if (data.success) location.reload(); })
-            .catch(err => console.error('Filter error:', err));
+            let url = '@Url.Content("~/Admin/AlertCentre/Index")?page=1';
+            if (status && status !== 'All Status') {
+                url += '&status=' + encodeURIComponent(status);
+            }
+            window.location.href = url;
         });
     </script>
 }

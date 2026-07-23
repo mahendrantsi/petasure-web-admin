@@ -22,6 +22,7 @@ namespace Project.Models.AdminModel
         public int MatchedScans { get; set; }
         public int UnmatchedScans { get; set; }
         public int ErrorCount { get; set; }
+        public int TotalIllHealthScans { get; set; }
 
         // Error breakdown by stage
         public List<ErrorBreakdownItem> ErrorBreakdownItems { get; set; } = new List<ErrorBreakdownItem>();
@@ -61,6 +62,18 @@ namespace Project.Models.AdminModel
         public DateTime? ToDate { get; set; }
     }
 
+    public class IllHealthLogsPageViewModel
+    {
+        public List<IllHealthReviewViewModel> IllHealthReviews { get; set; } = new List<IllHealthReviewViewModel>();
+        public int TotalIllHealthLogs { get; set; }
+        public int CurrentPage { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalIllHealthLogs / PageSize) : 0;
+        public string SearchText { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+    }
+
     public class PetScanLogViewModel
     {
         public Guid Id { get; set; }
@@ -84,8 +97,7 @@ namespace Project.Models.AdminModel
         public decimal Confidence { get; set; }
         public string Status { get; set; }
         public string AIVerdict { get; set; }
-        public string AdminOverride { get; set; }
-        public string OverrideNotes { get; set; }
+
         public DateTime SubmissionDate { get; set; }
     }
 

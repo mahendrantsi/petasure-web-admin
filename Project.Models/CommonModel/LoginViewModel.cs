@@ -1,4 +1,4 @@
-﻿using Project.Core.Settings;
+using Project.Core.Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -27,6 +27,7 @@ namespace Project.Models.CommonModel
 
         [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
+        public string ReturnUrl { get; set; }
     }
 
 

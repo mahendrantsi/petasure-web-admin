@@ -1,0 +1,135 @@
+@model Project.Models.AdminModel.IllHealthLogsPageViewModel
+
+@{
+    ViewData["Title"] = "Ill-Health Submissions";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row pageHeader">
+    <div class="">
+        <div class="col-xl-12 ml-3 flex flex-col justify-between md:flex-row md:items-center">
+            <div class="ltablet:max-w-full flex max-w-[425px] items-center gap-4 text-center md:flex-row md:text-left lg:max-w-full">
+                <div class="text-left">
+                    <h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
+                        <span>Ill-Health Submissions</span>
+                    </h3>
+
+                    <p class="nui-paragraph nui-paragraph-md nui-weight-normal nui-lead-normal"
+                       style="color:#979797;">
+                        <span class="text-muted-500">
+                            All ill-health scan history
+                        </span>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-xl-12 mt-5 mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+
+            <form method="get"
+                  asp-action="IllHealthSubmissions"
+                  class="d-flex align-items-center flex-grow-1"
+                  style="max-width:700px;">
+
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Search pet name, condition"
+                       value="@Model.SearchText" />
+
+                <label class="ml-2 mb-0 text-nowrap" for="fromDate">From:</label>
+                <input type="date"
+                       id="fromDate"
+                       name="fromDate"
+                       class="form-control ml-2"
+                       value="@Model.FromDate?.ToString("yyyy-MM-dd")" />
+
+                <label class="ml-2 mb-0 text-nowrap" for="toDate">To:</label>
+                <input type="date"
+                       id="toDate"
+                       name="toDate"
+                       class="form-control ml-2"
+                       value="@Model.ToDate?.ToString("yyyy-MM-dd")" />
+
+                <button class="btn btn-primary ml-2">
+                    Search
+                </button>
+            </form>
+
+            <div class="mt-3 mt-md-0">
+
+                <a asp-action="DownloadIllHealthCsv"
+                   asp-route-search="@Model.SearchText"
+                   asp-route-fromDate="@Model.FromDate?.ToString("yyyy-MM-dd")"
+                   asp-route-toDate="@Model.ToDate?.ToString("yyyy-MM-dd")"
+                   class="btn btn-success">
+                    Download CSV
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="col-xl-12">
+        <div class="table-responsive">
+            <table aria-describedby="mydesc" id="IllHealth_tbl" class="table tableCutom table-th-nowrap w-100">
+                <thead>
+                    <tr>
+                        <th>Pet Name</th>
+                        <th>Type</th>
+                        <th class="col-obs-cond">Observable Symptoms</th>
+                        <th>Confidence</th>
+                        <th>Status</th>
+                        <th>AI Verdict</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var log in Model.IllHealthReviews)
+                    {
+                        <tr>
+                            <td>@log.PetName</td>
+                            <td>@log.PetType</td>
+                            <td class="col-obs-cond">@log.AISuggestedCondition</td>
+                            <td>
+                                @(log.Confidence > 0 ? $"{log.Confidence:F0}%" : "-")
+                            </td>
+                            <td>@log.Status</td>
+                            <td>@log.AIVerdict</td>
+                            <td>
+                                @log.SubmissionDate.ToString("dd MMM yyyy HH:mm")
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#IllHealth_tbl').DataTable({
+            bLengthChange: false,
+            bInfo: false,
+            ordering: false,
+            searching: false,
+            paging: true,
+            language: {
+                paginate: {
+                    next: '<i class="fas fa-arrow-right"></i>',
+                    previous: '<i class="fas fa-arrow-left"></i>'
+                }
+            }
+        });
+    });
+</script>
