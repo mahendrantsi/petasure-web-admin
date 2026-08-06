@@ -23354,16 +23354,6 @@ img.logo-img.logo-manage {
     display: inline-block;
 }
 
-.panel-live-badge {
-    font-size: 10px;
-    font-weight: 600;
-    background: #eff6ff;
-    color: #3b82f6;
-    padding: 2px 8px;
-    border-radius: 20px;
-    border: 1px solid #bfdbfe;
-}
-
 .mini-stats-grid {
     display: grid;
     grid-template-columns: repeat(2,1fr);
@@ -23598,27 +23588,6 @@ img.logo-img.logo-manage {
     padding: 14px 18px 12px;
 }
 
-.tp-live-badge {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: #f0fdf4;
-    color: #16a34a;
-    border: 1px solid #bbf7d0;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
-}
-
-.tp-live-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #16a34a;
-    animation: pulseDot 1.5s infinite;
-}
-
 @keyframes pulseDot {
     0%,100% {
         opacity: 1;
@@ -23824,6 +23793,15 @@ img.logo-img.logo-manage {
         min-width: 180px;
         max-width: 280px;
     }
+
+.col-obs-cond-inner {
+    max-width: 280px;
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+    display: block;
+}
 
 .table-scroll-container table {
     width: 100%;

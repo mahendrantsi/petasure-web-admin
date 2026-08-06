@@ -31,12 +31,14 @@ namespace Project.Models.AdminModel
         public string ObservableSymptoms { get; set; }
         public string Status { get; set; } // Alert Sent, Vet Appointment Recommended
         public DateTime AlertTime { get; set; }
+        public bool IsNew { get; set; }
         public string FormattedAlertTime => AlertTime.ToString("hh:mm tt") + "\n" + AlertTime.ToString("MMM d, yyyy");
     }
 
     public class AlertFilterViewModel
     {
-        public string Status { get; set; } = "All Status"; 
+        public string Status { get; set; } = "All Status";
+        public string Search { get; set; }
         public int PageNumber { get; set; } = 1;
     }
 }

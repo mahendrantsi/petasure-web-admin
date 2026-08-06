@@ -6,29 +6,32 @@
 }
 
 <div class="row pageHeader">
-    <div class="">
-        <div class="col-xl-12 ml-3 flex flex-col justify-between md:flex-row md:items-center">
-            <div class="ltablet:max-w-full flex max-w-[425px] items-center gap-4 text-center md:flex-row md:text-left lg:max-w-full">
-                <div class="text-left">
-                    <h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
-                        <span>Ill-Health Submissions</span>
-                    </h3>
+    <div class="col-xl-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="nui-heading nui-heading-xl nui-weight-light nui-lead-tight mb-1">
+                    Ill-Health logs
+                </h3>
 
-                    <p class="nui-paragraph nui-paragraph-md nui-weight-normal nui-lead-normal"
-                       style="color:#979797;">
-                        <span class="text-muted-500">
-                            All ill-health scan history
-                        </span>
-                    </p>
-                </div>
-
+                <p style="color: #979797;" class="nui-paragraph nui-paragraph-md nui-weight-normal nui-lead-normal">
+                    All ill-health scan history
+                </p>
+            </div>
+            <div>
+                <a asp-area="Admin"
+                   asp-controller="Dashboard"
+                   asp-action="Index"
+                   class="btn btn-light"
+                   style="padding:9px 22px;border:1.5px solid #cbd5e1;color:#475569;border-radius:8px;">
+                    <i class="fas fa-arrow-left me-1"></i> Back
+                </a>
             </div>
         </div>
     </div>
 </div>
 <div class="row">
 
-    <div class="col-xl-12 mt-5 mb-4">
+    <div class="col-xl-12 mt-4 mb-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap">
 
             <form method="get"
@@ -39,7 +42,7 @@
                 <input type="text"
                        name="search"
                        class="form-control"
-                       placeholder="Search pet name, condition"
+                       placeholder="Search pet name, type, status, AI verdict"
                        value="@Model.SearchText" />
 
                 <label class="ml-2 mb-0 text-nowrap" for="fromDate">From:</label>
@@ -97,7 +100,9 @@
                         <tr>
                             <td>@log.PetName</td>
                             <td>@log.PetType</td>
-                            <td class="col-obs-cond">@log.AISuggestedCondition</td>
+                            <td class="col-obs-cond">
+                                <div class="col-obs-cond-inner">@log.AISuggestedCondition</div>
+                            </td>
                             <td>
                                 @(log.Confidence > 0 ? $"{log.Confidence:F0}%" : "-")
                             </td>
@@ -120,7 +125,7 @@
     $(document).ready(function () {
         $('#IllHealth_tbl').DataTable({
             bLengthChange: false,
-            bInfo: false,
+            bInfo: true,
             ordering: false,
             searching: false,
             paging: true,

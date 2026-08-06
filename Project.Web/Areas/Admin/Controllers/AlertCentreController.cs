@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Project.Models.AdminModel;
 using Project.Services.IService;
 using Project.Web.Common;
+using System;
 using System.Threading.Tasks;
 
 namespace Project.Web.Areas.Admin.Controllers
@@ -18,17 +19,36 @@ namespace Project.Web.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(int page = 1, string status = null)
+        public async Task<IActionResult> Index(string status = null, string search = null, int page = 1)
         {
             ViewData["Title"] = "Alert Centre";
-            var serviceResponse = await _alertCentreService.GetAlertsByPage(page, 10, status);
+            ViewBag.Search = search;
+            var filter = new AlertFilterViewModel { Status = status, Search = search, PageNumber = page };
+            var serviceResponse = await _alertCentreService.GetAlerts(filter);
 
             if (serviceResponse.IsSuccess)
+            {
+                // Ensure ActiveStatus is set so the dropdown binds correctly
+                serviceResponse.Data.ActiveStatus = string.IsNullOrEmpty(status) ? "All Status" : status;
+                return View(serviceResponse.Data);
+            }
+
+            return View(new AlertCentreViewModel { ActiveStatus = string.IsNullOrEmpty(status) ? "All Status" : status });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            ViewData["Title"] = "Alert Details";
+            var serviceResponse = await _alertCentreService.GetAlertDetail(id);
+
+            if (serviceResponse.IsSuccess && serviceResponse.Data != null)
             {
                 return View(serviceResponse.Data);
             }
 
-            return View(new AlertCentreViewModel());
+            TempData["Error"] = serviceResponse.Message ?? "Alert not found.";
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -51,8 +71,8 @@ namespace Project.Web.Areas.Admin.Controllers
 
             if (serviceResponse.IsSuccess)
             {
-                var totalAlertsCount = serviceResponse.Data.Statistics.TotalAlerts;
-                return Json(new { count = totalAlertsCount });
+                var newAlertsCount = serviceResponse.Data.Statistics.NewAlerts;
+                return Json(new { count = newAlertsCount });
             }
 
             return Json(new { count = 0 });

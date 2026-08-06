@@ -205,6 +205,9 @@ namespace Project.Services.Service
                 var resolved = await _unitOfWork.Instance.HealthCheckEvents
                     .CountAsync(e => e.Status == EnumHealthCheckStatus.Closed);
 
+                var illedPetsCount = await _unitOfWork.Instance.HealthCheckEvents
+                    .CountAsync(e => e.HealthStatuses.Any());
+
                 var dashboardDetails = new DashboardViewModel
                 {
                     TotalUsers = totalUser,
@@ -219,7 +222,7 @@ namespace Project.Services.Service
                     TotalScans = totalScans,
                     MatchedScans = matchedScans,
                     UnmatchedScans = unmatchedScans,
-                    ErrorCount = errorScans,
+                    IlledPetsCount = illedPetsCount,
                     TotalIllHealthScans = totalIllHealthScans,
                     ErrorBreakdownItems = errorBreakdownItems,
 
@@ -253,7 +256,7 @@ namespace Project.Services.Service
                     TotalScans = 0,
                     MatchedScans = 0,
                     UnmatchedScans = 0,
-                    ErrorCount = 0,
+                    IlledPetsCount = 0,
                     TotalIllHealthScans = 0,
                     ErrorBreakdownItems = new List<ErrorBreakdownItem>(),
                     PetScanLogs = new List<PetScanLogViewModel>(),
@@ -365,19 +368,7 @@ namespace Project.Services.Service
                                            PetFullBodyImagePath = pet != null ? pet.FullBodyImagePath : null,
                                        };
 
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    var lowerSearch = search.Trim().ToLower();
-                    petScanLogsQuery = petScanLogsQuery.Where(s => 
-                        (s.PetName != null && s.PetName.ToLower().Contains(lowerSearch)) ||
-                        (s.MatchResult != null && s.MatchResult.ToLower().Contains(lowerSearch)) ||
-                        (s.RouteDecision != null && s.RouteDecision.ToLower().Contains(lowerSearch))
-                    );
-                }
-
-                var totalScanLogs = await petScanLogsQuery.CountAsync();
-                var petScanLogs = await petScanLogsQuery
-                    .ToListAsync();
+                var petScanLogs = await petScanLogsQuery.ToListAsync();
 
                 var petScanLogViewModels = petScanLogs.Select(s => new PetScanLogViewModel
                 {
@@ -393,6 +384,17 @@ namespace Project.Services.Service
                     ScanType = s.ScanType.ToString(),
                     Notes = s.Notes,
                 }).ToList();
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var lowerSearch = search.Trim().ToLower();
+                    petScanLogViewModels = petScanLogViewModels.Where(s =>
+                        (s.PetName != null && s.PetName.ToLower().Contains(lowerSearch)) ||
+                        (s.PetType != null && s.PetType.ToLower().Contains(lowerSearch)) ||
+                        (s.ScanType != null && s.ScanType.ToLower().Contains(lowerSearch)) ||
+                        (s.Result != null && s.Result.ToLower().Contains(lowerSearch))
+                    ).ToList();
+                }
 
                 var model = new ScanLogsPageViewModel
                 {
@@ -451,16 +453,6 @@ namespace Project.Services.Service
                                            PetFullBodyImagePath = pet != null ? pet.FullBodyImagePath : null,
                                        };
 
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    var lowerSearch = search.Trim().ToLower();
-                    petScanLogsQuery = petScanLogsQuery.Where(s => 
-                        (s.PetName != null && s.PetName.ToLower().Contains(lowerSearch)) ||
-                        (s.MatchResult != null && s.MatchResult.ToLower().Contains(lowerSearch)) ||
-                        (s.RouteDecision != null && s.RouteDecision.ToLower().Contains(lowerSearch))
-                    );
-                }
-
                 var petScanLogs = await petScanLogsQuery.ToListAsync();
 
                 var petScanLogViewModels = petScanLogs.Select(s => new PetScanLogViewModel
@@ -477,6 +469,17 @@ namespace Project.Services.Service
                     ScanType = s.ScanType.ToString(),
                     Notes = s.Notes,
                 }).ToList();
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var lowerSearch = search.Trim().ToLower();
+                    petScanLogViewModels = petScanLogViewModels.Where(s =>
+                        (s.PetName != null && s.PetName.ToLower().Contains(lowerSearch)) ||
+                        (s.PetType != null && s.PetType.ToLower().Contains(lowerSearch)) ||
+                        (s.ScanType != null && s.ScanType.ToLower().Contains(lowerSearch)) ||
+                        (s.Result != null && s.Result.ToLower().Contains(lowerSearch))
+                    ).ToList();
+                }
 
                 response = SetResultStatus<List<PetScanLogViewModel>>(petScanLogViewModels, Messages_Resources.Success, true);
             }
@@ -508,18 +511,6 @@ namespace Project.Services.Service
                     query = query.Where(s => s.CreatedOn <= toDateEnd);
                 }
 
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    var lowerSearch = search.Trim().ToLower();
-                    query = query.Where(s => 
-                        (s.Pet != null && s.Pet.PName.ToLower().Contains(lowerSearch)) ||
-                        (s.AiSummary != null && s.AiSummary.ToLower().Contains(lowerSearch)) ||
-                        s.HealthStatuses.Any(h => h.ConditionName.ToLower().Contains(lowerSearch))
-                    );
-                }
-
-                var totalLogs = await query.CountAsync();
-                
                 var pagedLogs = await query
                     .OrderByDescending(s => s.CreatedOn)
                     .ToListAsync();
@@ -541,6 +532,17 @@ namespace Project.Services.Service
                         SubmissionDate = e.SubmittedAt,
                     };
                 }).ToList();
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var lowerSearch = search.Trim().ToLower();
+                    viewModels = viewModels.Where(s =>
+                        (s.PetName != null && s.PetName.ToLower().Contains(lowerSearch)) ||
+                        (s.PetType != null && s.PetType.ToLower().Contains(lowerSearch)) ||
+                        (s.Status != null && s.Status.ToLower().Contains(lowerSearch)) ||
+                        (s.AIVerdict != null && s.AIVerdict.ToLower().Contains(lowerSearch))
+                    ).ToList();
+                }
 
                 var pageModel = new IllHealthLogsPageViewModel
                 {
@@ -592,16 +594,6 @@ namespace Project.Services.Service
                     query = query.Where(s => s.CreatedOn <= toDateEnd);
                 }
 
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    var lowerSearch = search.Trim().ToLower();
-                    query = query.Where(s => 
-                        (s.Pet != null && s.Pet.PName.ToLower().Contains(lowerSearch)) ||
-                        (s.AiSummary != null && s.AiSummary.ToLower().Contains(lowerSearch)) ||
-                        s.HealthStatuses.Any(h => h.ConditionName.ToLower().Contains(lowerSearch))
-                    );
-                }
-
                 var logs = await query
                     .OrderByDescending(s => s.CreatedOn)
                     .ToListAsync();
@@ -623,6 +615,17 @@ namespace Project.Services.Service
                         SubmissionDate = e.SubmittedAt,
                     };
                 }).ToList();
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var lowerSearch = search.Trim().ToLower();
+                    viewModels = viewModels.Where(s =>
+                        (s.PetName != null && s.PetName.ToLower().Contains(lowerSearch)) ||
+                        (s.PetType != null && s.PetType.ToLower().Contains(lowerSearch)) ||
+                        (s.Status != null && s.Status.ToLower().Contains(lowerSearch)) ||
+                        (s.AIVerdict != null && s.AIVerdict.ToLower().Contains(lowerSearch))
+                    ).ToList();
+                }
 
                 response = SetResultStatus<List<IllHealthReviewViewModel>>(viewModels, Messages_Resources.Success, true);
             }

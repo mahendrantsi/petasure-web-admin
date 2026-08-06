@@ -21,7 +21,7 @@ namespace Project.Models.AdminModel
         public int TotalScans { get; set; }
         public int MatchedScans { get; set; }
         public int UnmatchedScans { get; set; }
-        public int ErrorCount { get; set; }
+        public int IlledPetsCount { get; set; }
         public int TotalIllHealthScans { get; set; }
 
         // Error breakdown by stage

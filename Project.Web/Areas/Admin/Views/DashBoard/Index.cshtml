@@ -6,7 +6,7 @@
     var totalScans   = Model.TotalScans;
     var matchedScans = Model.MatchedScans;
     var unmatchedScans = Model.UnmatchedScans;
-    var errorCount   = Model.ErrorCount;
+    var illedPetsCount = Model.IlledPetsCount;
 
     // Circumference of the donut ring  (r=38)  ≈ 238.76
     const double circumference = 238.76;
@@ -64,7 +64,6 @@
         <div class="analytics-panel">
             <div class="panel-header">
                 <h3 class="panel-title"><span class="panel-title-dot"></span> Recognition Analytics</h3>
-                <span class="panel-live-badge">Live</span>
             </div>
 
             <!-- Scrollable content matching tab-ill-health table-scroll-container behavior -->
@@ -76,7 +75,7 @@
                         <div class="mini-stat-value">@totalScans</div>
                     </div>
                     <div class="mini-stat-card c4">
-                        <div class="mini-stat-label">Ill-Health Scans</div>
+                        <div class="mini-stat-label">Total Health Scans</div>
                         <div class="mini-stat-value">@Model.TotalIllHealthScans</div>
                     </div>
                     <div class="mini-stat-card c2">
@@ -84,8 +83,8 @@
                         <div class="mini-stat-value">@matchedScans</div>
                     </div>
                     <div class="mini-stat-card c3">
-                        <div class="mini-stat-label">Errors</div>
-                        <div class="mini-stat-value">@errorCount</div>
+                        <div class="mini-stat-label">Ill-Pets Count</div>
+                        <div class="mini-stat-value">@illedPetsCount</div>
                     </div>
                 </div>
 
@@ -168,9 +167,8 @@
             <div class="tp-header">
                 <div class="tabs-nav">
                     <button class="tab-btn active" data-tab="tab-scan-logs"><i class="fas fa-qrcode" style="margin-right:5px;font-size:11px;"></i>Pet Scan Logs</button>
-                    <button class="tab-btn" data-tab="tab-ill-health"><i class="fas fa-heartbeat" style="margin-right:5px;font-size:11px;"></i>Ill-health Reviews</button>
+                    <button class="tab-btn" data-tab="tab-ill-health"><i class="fas fa-heartbeat" style="margin-right:5px;font-size:11px;"></i>Ill-health Logs</button>
                 </div>
-                <span class="tp-live-badge"><span class="tp-live-dot"></span> Live Data</span>
             </div>
             <div class="tp-body">
 
@@ -308,7 +306,9 @@
                                                         <span class="type-pill dog"><i class="fas fa-dog"></i> Dog</span>
                                                     }
                                                 </td>
-                                                <td class="col-obs-cond" style="color:#475569;">@review.AISuggestedCondition</td>
+                                                <td class="col-obs-cond" style="color:#475569;">
+                                                     <div class="col-obs-cond-inner">@review.AISuggestedCondition</div>
+                                                 </td>
                                                 <td>
                                                     <div class="conf-wrap">
                                                         <span class="conf-num">@review.Confidence.ToString("F0")%</span>

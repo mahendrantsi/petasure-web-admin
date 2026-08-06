@@ -61,6 +61,7 @@ namespace Project.Services.Service
                         PetImageUrl = string.IsNullOrEmpty(e.ImageRef) ? "~/images/pet-placeholder.svg" : ResolveImageUrl(e.ImageRef),
                         ObservableSymptoms = topFinding.ConditionName,
                         Status = topFinding.Severity >= 3 ? "Vet Appointment Recommended" : "Alert Sent",
+                        IsNew = e.Status == Project.Core.Enum.EnumHealthCheckStatus.Pending,
                         AlertTime = e.CreatedOn,
                     };
                 })
@@ -85,11 +86,21 @@ namespace Project.Services.Service
                     }
                 }
 
+                var pageNumber = filter?.PageNumber ?? 1;
+                var pageSize = 10;
+                var totalRecords = filteredAlerts.Count;
+
+                // Apply pagination
+                var pagedAlerts = filteredAlerts
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
                 // Calculate statistics
                 var stats = new AlertStatisticsViewModel
                 {
                     TotalAlerts = allAlerts.Count,
-                    NewAlerts = allAlerts.Count(a => a.AlertTime >= today && a.AlertTime < tomorrow),
+                    NewAlerts = allAlerts.Count(a => a.IsNew),
                     AlertSent = allAlerts.Count(a => a.Status == "Alert Sent"),
                     VetAppointmentRecommendedAlerts = allAlerts.Count(a => a.Status == "Vet Appointment Recommended")
                 };
@@ -98,9 +109,9 @@ namespace Project.Services.Service
                 {
                     Alerts = filteredAlerts,
                     Statistics = stats,
-                    TotalRecords = filteredAlerts.Count,
-                    CurrentPage = filter?.PageNumber ?? 1,
-                    PageSize = 10
+                    TotalRecords = totalRecords,
+                    CurrentPage = pageNumber,
+                    PageSize = pageSize
                 };
 
                 return Task.FromResult(new ServiceResponse<AlertCentreViewModel>
@@ -131,7 +142,7 @@ namespace Project.Services.Service
                 var stats = new AlertStatisticsViewModel
                 {
                     TotalAlerts = allAlerts.Count,
-                    NewAlerts = allAlerts.Count(a => a.AlertTime >= today && a.AlertTime < tomorrow),
+                    NewAlerts = allAlerts.Count(a => a.IsNew),
                     AlertSent = allAlerts.Count(a => a.Status == "Alert Sent"),
                     VetAppointmentRecommendedAlerts = allAlerts.Count(a => a.Status == "Vet Appointment Recommended")
                 };
@@ -175,6 +186,75 @@ namespace Project.Services.Service
                     Message = $"Error retrieving alerts: {ex.Message}",
                     Data = null
                 });
+            }
+        }
+        public async Task<ServiceResponse<AlertDetailViewModel>> GetAlertDetail(Guid alertId)
+        {
+            try
+            {
+                var healthEvent = await _unitOfWork.Instance.HealthCheckEvents
+                    .Include(e => e.Pet)
+                    .Include(e => e.HealthStatuses)
+                    .FirstOrDefaultAsync(e => e.Id == alertId);
+
+                if (healthEvent == null)
+                {
+                    return new ServiceResponse<AlertDetailViewModel>
+                    {
+                        IsSuccess = false,
+                        Message = "Alert not found",
+                        Data = null
+                    };
+                }
+
+                if (healthEvent.Status == Project.Core.Enum.EnumHealthCheckStatus.Pending)
+                {
+                    healthEvent.Status = Project.Core.Enum.EnumHealthCheckStatus.Reviewed;
+                    await _unitOfWork.SaveChangesAsync();
+                }
+
+                var topFinding = healthEvent.HealthStatuses
+                    .OrderByDescending(h => h.Severity)
+                    .ThenByDescending(h => h.Confidence)
+                    .FirstOrDefault();
+
+                var detail = new AlertDetailViewModel
+                {
+                    AlertId = healthEvent.Id,
+                    PetName = healthEvent.Pet != null ? healthEvent.Pet.PName : "Unknown",
+                    PetType = healthEvent.Species.ToString(),
+                    ObservableSymptoms = topFinding?.ConditionName ?? "N/A",
+                    AiConfidenceScore = topFinding?.Confidence ?? 0,
+                    Status = topFinding != null && topFinding.Severity >= 3
+                        ? "Vet Appointment Recommended"
+                        : "Alert Sent",
+                    AlertTime = healthEvent.CreatedOn,
+                    CurrentImageUrl = string.IsNullOrEmpty(healthEvent.ImageRef)
+                        ? null
+                        : ResolveImageUrl(healthEvent.ImageRef),
+                    PreviousImageUrl = string.IsNullOrEmpty(healthEvent.PreviousImageRef)
+                        ? null
+                        : ResolveImageUrl(healthEvent.PreviousImageRef),
+                    Severity = topFinding?.Severity ?? 0,
+                    AffectedArea = topFinding?.AffectedArea,
+                    AiSummary = healthEvent.AiSummary
+                };
+
+                return new ServiceResponse<AlertDetailViewModel>
+                {
+                    IsSuccess = true,
+                    Message = "Alert detail retrieved successfully",
+                    Data = detail
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponse<AlertDetailViewModel>
+                {
+                    IsSuccess = false,
+                    Message = $"Error retrieving alert detail: {ex.Message}",
+                    Data = null
+                };
             }
         }
     }
