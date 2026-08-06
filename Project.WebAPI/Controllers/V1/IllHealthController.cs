@@ -41,7 +41,7 @@ namespace Project.WebAPI.Controllers.V1
                 CurrentUserId = base.GetCurrentUserId(),
             });
 
-            _logger.LogInformation("Response returned: illhealth/dog success={Success} traceId={TraceId}", response.IsSuccess, HttpContext.TraceIdentifier);
+            _logger.LogInformation("Response returned & : illhealth/dog success={Success} traceId={TraceId}", response.IsSuccess, HttpContext.TraceIdentifier);
             return response.IsSuccess ? this.Ok(response.Data) : this.BadRequest(response.Data);
         }
 
@@ -60,6 +60,26 @@ namespace Project.WebAPI.Controllers.V1
 
             _logger.LogInformation("Response returned: illhealth/cat success={Success} traceId={TraceId}", response.IsSuccess, HttpContext.TraceIdentifier);
             return response.IsSuccess ? this.Ok(response.Data) : this.BadRequest(response.Data);
+        }
+
+        // Every past scan for a pet, sourced from health_check_events (+ health_status) —
+        // the durable record, independent of any on-device cache the mobile app keeps.
+        [HttpGet("history")]
+        public async Task<IActionResult> History(string petId)
+        {
+            _logger.LogInformation("Request received: illhealth/history petId={PetId} traceId={TraceId}", petId, HttpContext.TraceIdentifier);
+
+            var response = await _illHealthService.GetHistoryAsync(petId, base.GetCurrentUserId());
+
+            _logger.LogInformation("Response returned: illhealth/history success={Success} traceId={TraceId}", response.IsSuccess, HttpContext.TraceIdentifier);
+            // On failure return an OBJECT, never the empty List. CommonResponseMiddleware's
+            // bad-request handler deserializes the body as ServiceResponse; handed a JSON
+            // array ("[]") that throws inside its own catch block, escapes to the outer
+            // handler and turns a plain 400 into a 500. Every other endpoint here happens
+            // to return an object, which is why this only bit the history endpoint.
+            return response.IsSuccess
+                ? this.Ok(response.Data)
+                : this.BadRequest(new { message = response.Message });
         }
     }
 

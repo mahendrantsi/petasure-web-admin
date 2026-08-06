@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ using Project.Persistence.UOW;
 using Project.Services.IService;
 using Project.Services.ServiceEntities;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -61,18 +63,25 @@ namespace Project.Services.Service
                     return this.SetResultStatus(IllHealthGuidanceMapper.Map(null), MessageStatus.PetNotExists, false);
                 }
 
-                // Most recent previously stored ill-health image for this pet, if any.
-                var previousEvent = _unitOfWork.Instance.HealthCheckEvents
-                    .Where(e => e.PetId == petGuid)
+                // This pet's full scan history, most recent first, capped so a long-lived
+                // pet doesn't force the AI service to run the trained classifier over an
+                // unbounded number of historical photos on every single check.
+                const int maxHistoryForTrend = 10;
+                var previousEventsDescending = _unitOfWork.Instance.HealthCheckEvents
+                    .Where(e => e.PetId == petGuid && e.ImageRef != null)
                     .OrderByDescending(e => e.CreatedOn)
-                    .FirstOrDefault();
-                var previousImagePath = previousEvent?.ImageRef;
+                    .Take(maxHistoryForTrend)
+                    .ToList();
+                // Oldest first -- this is the chronological order the AI service's
+                // New/Progressing/Stable/Improving trend expects.
+                var previousEvents = Enumerable.Reverse(previousEventsDescending).ToList();
+                var previousImagePath = previousEvents.LastOrDefault()?.ImageRef;
 
                 var currentImagePath = await SaveUploadedImageAsync(request.Image);
 
                 // On AI failure this returns null; the mapper's fallback still carries the
                 // disclaimer and we persist the event so the next scan has a previous image.
-                var aiResult = await CallAiServiceAsync(request.Image, previousImagePath, petGuid, request.Species);
+                var aiResult = await CallAiServiceAsync(request.Image, previousEvents, petGuid, request.Species);
 
                 // Recognition gate HARD-blocked the scan (not-a-pet / wrong species / different
                 // pet). Do NOT persist a HealthCheckEvent — nothing was analyzed — and return the
@@ -178,6 +187,74 @@ namespace Project.Services.Service
             }
         }
 
+        public async Task<ServiceResponse<List<IllHealthHistoryEntry>>> GetHistoryAsync(string petId, Guid currentUserId)
+        {
+            var requestId = CurrentRequestId;
+            try
+            {
+                if (!Guid.TryParse(petId, out var petGuid))
+                {
+                    return this.SetResultStatus(new List<IllHealthHistoryEntry>(), MessageStatus.Error, false);
+                }
+
+                var pet = _unitOfWork.PetRepository.GetPetDataByPetId(petGuid);
+                if (pet == null || pet.PetOwnerId != currentUserId)
+                {
+                    return this.SetResultStatus(new List<IllHealthHistoryEntry>(), MessageStatus.PetNotExists, false);
+                }
+
+                var events = await _unitOfWork.Instance.HealthCheckEvents
+                    .Where(e => e.PetId == petGuid)
+                    .Include(e => e.HealthStatuses)
+                    .OrderByDescending(e => e.SubmittedAt)
+                    .ToListAsync();
+
+                // Reconstruct the same input shape AnalyzeAsync feeds IllHealthGuidanceMapper,
+                // so a historical entry's guidance_text/severity_level/recommended_action come
+                // from the exact same rules as a live scan — one source of truth, no duplicated
+                // severity-threshold logic between the live and history paths.
+                var history = events.Select(e =>
+                {
+                    var aiResult = new IllHealthAiResult
+                    {
+                        Conditions = e.HealthStatuses.Select(h => new IllHealthAiCondition
+                        {
+                            ConditionName = h.ConditionName,
+                            AffectedArea = h.AffectedArea,
+                            Confidence = h.Confidence,
+                            Severity = h.Severity,
+                        }).ToList(),
+                        Summary = e.AiSummary,
+                        ModelVersion = e.ModelVersion,
+                        IsStub = e.ModelVersion == "stub-0.1",
+                    };
+                    var guidance = IllHealthGuidanceMapper.Map(aiResult);
+
+                    return new IllHealthHistoryEntry
+                    {
+                        EventId = e.Id.ToString(),
+                        SubmittedAt = e.SubmittedAt,
+                        ImagePath = e.ImageRef,
+                        Conditions = guidance.Conditions,
+                        GuidanceText = guidance.GuidanceText,
+                        SeverityLevel = guidance.SeverityLevel,
+                        RecommendedAction = guidance.RecommendedAction,
+                        IsStub = guidance.IsStub,
+                    };
+                }).ToList();
+
+                _logger.LogInformation("Illness history returned: petId={PetId} count={Count} requestId={RequestId}", petId, history.Count, requestId);
+
+                return this.SetResultStatus(history, MessageStatus.Success, true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Illness history fetch failed requestId={RequestId}", requestId);
+                _exceptionLoggerService.LogException(ex);
+                return this.SetResultStatus(new List<IllHealthHistoryEntry>(), MessageStatus.Error, false);
+            }
+        }
+
         private async Task<string> SaveUploadedImageAsync(Microsoft.AspNetCore.Http.IFormFile image)
         {
             var webProjectRootPath = configuataion.GetValue<string>("WebProjectRootPath");
@@ -202,14 +279,15 @@ namespace Project.Services.Service
         }
 
         /// <summary>
-        /// Forwards the current (and, when available, previous) image to the Python AI service.
-        /// Contract: multipart/form-data with file parts current_image (required) + previous_image
-        /// (optional, both image/jpeg) and form fields pet_id + species. Returns null on any
+        /// Forwards the current image (and this pet's scan history, when available) to the
+        /// Python AI service. Contract: multipart/form-data with file part current_image
+        /// (required), repeated previous_images file parts + matching previous_timestamps form
+        /// fields (both oldest first), and form fields pet_id + species. Returns null on any
         /// transport/timeout/non-2xx failure so the caller can fall back gracefully (never throws).
         /// </summary>
         private async Task<IllHealthAiResult> CallAiServiceAsync(
             Microsoft.AspNetCore.Http.IFormFile currentImage,
-            string previousImagePath,
+            List<HealthCheckEvent> previousEvents,
             Guid petId,
             EnumHealthCheckSpecies species)
         {
@@ -228,17 +306,23 @@ namespace Project.Services.Service
                     form.Add(fileContent, "current_image", currentImage.FileName);
                 }
 
-                if (!string.IsNullOrWhiteSpace(previousImagePath))
+                var webProjectRootPath = configuataion.GetValue<string>("WebProjectRootPath");
+                foreach (var previousEvent in previousEvents ?? new List<HealthCheckEvent>())
                 {
-                    var webProjectRootPath = configuataion.GetValue<string>("WebProjectRootPath");
-                    var previousFullPath = Path.Combine(webProjectRootPath, previousImagePath.TrimStart('/', '\\'));
-                    if (File.Exists(previousFullPath))
+                    if (string.IsNullOrWhiteSpace(previousEvent.ImageRef))
                     {
-                        var previousBytes = await File.ReadAllBytesAsync(previousFullPath);
-                        var previousContent = new ByteArrayContent(previousBytes);
-                        previousContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
-                        form.Add(previousContent, "previous_image", Path.GetFileName(previousFullPath));
+                        continue;
                     }
+                    var previousFullPath = Path.Combine(webProjectRootPath, previousEvent.ImageRef.TrimStart('/', '\\'));
+                    if (!File.Exists(previousFullPath))
+                    {
+                        continue;
+                    }
+                    var previousBytes = await File.ReadAllBytesAsync(previousFullPath);
+                    var previousContent = new ByteArrayContent(previousBytes);
+                    previousContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
+                    form.Add(previousContent, "previous_images", Path.GetFileName(previousFullPath));
+                    form.Add(new StringContent(previousEvent.CreatedOn.ToString("o")), "previous_timestamps");
                 }
 
                 // Form fields expected alongside the image parts.

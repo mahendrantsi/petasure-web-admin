@@ -77,6 +77,41 @@ namespace Project.Models.GeneralModel
         // The AI service's user-facing message for a validation block.
         [JsonPropertyName("message")]
         public string Message { get; set; }
+
+        // Per-condition trend across this pet's full scan history (New / Progressing /
+        // Stable / Improving). Null when there's no previous scan yet or the trained
+        // model was unavailable -- callers must not treat null the same as an empty list.
+        [JsonPropertyName("progression")]
+        public List<IllHealthConditionProgression> Progression { get; set; }
+    }
+
+    public class IllHealthProgressionPoint
+    {
+        // Opaque scan timestamp as sent to the AI service (see IllHealthService's
+        // previous_timestamps); null if not supplied for that historical scan.
+        [JsonPropertyName("timestamp")]
+        public string Timestamp { get; set; }
+
+        [JsonPropertyName("probability")]
+        public decimal Probability { get; set; }
+    }
+
+    public class IllHealthConditionProgression
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("current")]
+        public decimal Current { get; set; }
+
+        // This condition's probability at every historical scan that could be scored,
+        // oldest first.
+        [JsonPropertyName("history")]
+        public List<IllHealthProgressionPoint> History { get; set; } = new List<IllHealthProgressionPoint>();
+
+        // "new" | "progressing" | "stable" | "improving"
+        [JsonPropertyName("status")]
+        public string Status { get; set; }
     }
 
     public class IllHealthAiCondition
@@ -153,6 +188,11 @@ namespace Project.Models.GeneralModel
         // The blocking message to display to the user (from the AI service).
         [JsonPropertyName("message")]
         public string Message { get; set; }
+
+        // Per-condition trend across this pet's full scan history. Null when there's
+        // no previous scan yet or the trained model was unavailable.
+        [JsonPropertyName("progression")]
+        public List<IllHealthConditionProgression> Progression { get; set; }
     }
 
     public class IllHealthConditionDto
@@ -168,5 +208,43 @@ namespace Project.Models.GeneralModel
 
         [JsonPropertyName("severity")]
         public int Severity { get; set; }
+    }
+
+    /// <summary>
+    /// One persisted scan returned by the mobile-facing history endpoint (GET
+    /// api/illhealth/history). Shares field names/casing with <see cref="IllHealthResponse"/>
+    /// so the mobile client's existing response parser can be reused for each entry.
+    /// </summary>
+    public class IllHealthHistoryEntry
+    {
+        [JsonPropertyName("event_id")]
+        public string EventId { get; set; }
+
+        [JsonPropertyName("submitted_at")]
+        public System.DateTime SubmittedAt { get; set; }
+
+        // Relative path (e.g. "/uploads/illhealth/xxx.jpg") — the mobile client already
+        // resolves these against its own configured image base URL (APIAdapter.getImageUrl),
+        // matching how other pet images are already served to the app.
+        [JsonPropertyName("image_path")]
+        public string ImagePath { get; set; }
+
+        [JsonPropertyName("conditions")]
+        public List<IllHealthConditionDto> Conditions { get; set; } = new List<IllHealthConditionDto>();
+
+        [JsonPropertyName("guidance_text")]
+        public string GuidanceText { get; set; }
+
+        [JsonPropertyName("severity_level")]
+        public string SeverityLevel { get; set; }
+
+        [JsonPropertyName("recommended_action")]
+        public string RecommendedAction { get; set; }
+
+        [JsonPropertyName("disclaimer")]
+        public string Disclaimer { get; set; } = IllHealthConstants.Disclaimer;
+
+        [JsonPropertyName("is_stub")]
+        public bool IsStub { get; set; }
     }
 }

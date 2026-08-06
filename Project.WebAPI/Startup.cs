@@ -193,21 +193,35 @@ namespace Project.WebAPI
                 //    (serviceScope.ServiceProvider.GetRequiredService<ISystemSetting>()).SetSystemVariables(response.Data);
 
             }
-
-            // Serve recognition/illness images that IllHealthService/PetService/AccountService
-            // save under {WebProjectRootPath}/uploads/... back out at /uploads/... . Without
-            // this, uploaded images are saved to disk but have no route that serves them.
             var webProjectRootPath = Configuration["WebProjectRootPath"];
-            if (!string.IsNullOrWhiteSpace(webProjectRootPath))
+
+            // If not configured, use the application's root folder
+            if (string.IsNullOrWhiteSpace(webProjectRootPath))
             {
-                var uploadsRootPath = Path.Combine(webProjectRootPath, "uploads");
-                Directory.CreateDirectory(uploadsRootPath);
-                app.UseStaticFiles(new StaticFileOptions
-                {
-                    FileProvider = new PhysicalFileProvider(uploadsRootPath),
-                    RequestPath = "/uploads",
-                });
+                webProjectRootPath = env.ContentRootPath;
             }
+            // If configured as a relative path, convert it to an absolute path
+            else if (!Path.IsPathRooted(webProjectRootPath))
+            {
+                webProjectRootPath = Path.GetFullPath(
+                    Path.Combine(env.ContentRootPath, webProjectRootPath));
+            }
+
+            var uploadsRootPath = Path.Combine(webProjectRootPath, "uploads");
+
+            // Add these lines
+            Console.WriteLine($"ContentRootPath: {env.ContentRootPath}");
+            Console.WriteLine($"WebProjectRootPath: {webProjectRootPath}");
+            Console.WriteLine($"UploadsRootPath: {uploadsRootPath}");
+
+            // Ensure uploads folder exists
+            Directory.CreateDirectory(uploadsRootPath);
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(uploadsRootPath),
+                RequestPath = "/uploads"
+            });
 
             app.UseMiddleware(x =>
             {

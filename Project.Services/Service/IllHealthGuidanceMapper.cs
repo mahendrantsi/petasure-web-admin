@@ -27,6 +27,7 @@ namespace Project.Services.Service
             response.ImageUnclear = aiResult.ImageUnclear;
             response.SpeciesMismatch = aiResult.SpeciesMismatch;
             response.DetectedSpecies = aiResult.DetectedSpecies;
+            response.Progression = aiResult.Progression;
 
             response.Conditions = aiResult.Conditions.Select(c => new IllHealthConditionDto
             {

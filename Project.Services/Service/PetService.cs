@@ -702,7 +702,7 @@ namespace Project.Services.Service
                 return await FailImageSaveAsync(scan, ex);
             }
 
-            return await ExecuteRecognitionScanAsync(scan, "register", form =>
+            var responseContent = await ExecuteRecognitionScanAsync(scan, "register", form =>
             {
                 var noseContent = new ByteArrayContent(ReadAllBytes(model.NoseImage));
                 noseContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
@@ -716,6 +716,57 @@ namespace Project.Services.Service
                 form.AddParam("ds_id", model.PetId);
                 form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "dog" : model.Species);
             });
+
+            if (scan.Status == EnumPetScanStatus.Success)
+            {
+                await SeedIllHealthBaselineAsync(petId, EnumHealthCheckSpecies.Dog, scan.SecondaryImage?.StoragePath, scan.Id);
+            }
+
+            return responseContent;
+        }
+
+        /// <summary>
+        /// Seeds this pet's ill-health scan history with its registration full-body photo, so
+        /// the history list (GetHistoryAsync) and the AI's progression trend have a day-0
+        /// baseline entry BEFORE any illness scan ever runs, with every later illness-check
+        /// image appended after it chronologically. No conditions/AI diagnosis attached — this
+        /// is the registration photo, not a screening result — callers must not mistake it for
+        /// one (see the fixed AiSummary/ModelVersion below).
+        ///
+        /// Best-effort only: a failure here must never fail pet registration, which already
+        /// succeeded by the time this runs.
+        /// </summary>
+        private async Task SeedIllHealthBaselineAsync(Guid petId, EnumHealthCheckSpecies species, string fullBodyImagePath, Guid petScanId)
+        {
+            if (string.IsNullOrWhiteSpace(fullBodyImagePath))
+            {
+                return;
+            }
+            try
+            {
+                await _unitOfWork.Instance.HealthCheckEvents.AddAsync(new HealthCheckEvent
+                {
+                    PetId = petId,
+                    PetScanId = petScanId,
+                    Species = species,
+                    ImageRef = fullBodyImagePath,
+                    SubmittedAt = DateTime.UtcNow,
+                    Status = EnumHealthCheckStatus.Reviewed, // nothing pending review — no analysis ran
+                    AiSummary = "Baseline photo captured when this pet was registered.",
+                    DisclaimerShown = true,
+                    ModelVersion = "registration-baseline",
+                });
+                var saved = await _unitOfWork.SaveChangesAsync();
+                if (!saved)
+                {
+                    _logger.LogWarning("Failed to seed ill-health baseline event for petId={PetId}", petId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Ill-health baseline seed failed for petId={PetId}", petId);
+                _exceptionLoggerService.LogException(ex);
+            }
         }
 
         // Cats use the same nose-based AI service as dogs; the service auto-classifies the
@@ -793,7 +844,7 @@ namespace Project.Services.Service
                 return await FailImageSaveAsync(scan, ex);
             }
 
-            return await ExecuteRecognitionScanAsync(scan, "register", form =>
+            var responseContent = await ExecuteRecognitionScanAsync(scan, "register", form =>
             {
                 var noseContent = new ByteArrayContent(ReadAllBytes(model.NoseImage));
                 noseContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
@@ -806,6 +857,13 @@ namespace Project.Services.Service
                 form.AddParam("ds_id", model.PetId);
                 form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "cat" : model.Species);
             });
+
+            if (scan.Status == EnumPetScanStatus.Success)
+            {
+                await SeedIllHealthBaselineAsync(petId, EnumHealthCheckSpecies.Cat, scan.SecondaryImage?.StoragePath, scan.Id);
+            }
+
+            return responseContent;
         }
 
         //delete the pets on AI
