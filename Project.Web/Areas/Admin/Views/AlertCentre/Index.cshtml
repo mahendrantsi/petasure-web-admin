@@ -114,22 +114,22 @@
                         @foreach (var alert in Model.Alerts)
                         {
                             <tr>
-                                <td>
+                                <td style="@(alert.IsNew ? "background-color: #f5f5f5 !important; font-weight: 500;" : "")">
                                     <div class="flaxCenter">
                                         <span>@alert.PetName</span>
                                     </div>
                                 </td>
-                                <td>
+                                <td style="@(alert.IsNew ? "background-color: #f5f5f5 !important; font-weight: 500;" : "")">
                                     <div class="flaxCenter">
                                         <span>@alert.PetType</span>
                                     </div>
                                 </td>
-                                <td>
+                                <td style="@(alert.IsNew ? "background-color: #f5f5f5 !important; font-weight: 500;" : "")">
                                     <div class="flaxCenter">
                                         <span>@alert.ObservableSymptoms</span>
                                     </div>
                                 </td>
-                                <td>
+                                <td style="@(alert.IsNew ? "background-color: #f5f5f5 !important; font-weight: 500;" : "")">
                                     @{
                                         var statusClass = alert.Status == "Vet Appointment Recommended" ? "vet-recommended" : "alert-sent";
                                     }
@@ -145,12 +145,12 @@
                                         @alert.Status
                                     </span>
                                 </td>
-                                <td>
+                                <td style="@(alert.IsNew ? "background-color: #f5f5f5 !important; font-weight: 500;" : "")">
                                     <div class="flaxCenter">
                                         <span>@alert.AlertTime.ToString("dd MMM yyyy HH:mm")</span>
                                     </div>
                                 </td>
-                                <td class="text-center align-middle">
+                                <td class="text-center align-middle" style="@(alert.IsNew ? "background-color: #f5f5f5 !important; font-weight: 500;" : "")">
                                     <div class="dropdown">
                                         <button class="btn btn-secondary btn-sm dropdown-toggle"
                                                 type="button"
