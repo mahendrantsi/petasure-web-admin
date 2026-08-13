@@ -106,6 +106,21 @@ namespace Project.WebAPI.Controllers.V1
 
             var response = await _petService.petDetail(petId);
 
+            // This endpoint is unauthenticated and reachable by any finder who scans a pet
+            // and gets a match (see the mobile "Found A Pet" / ID-check flow) -- the owner's
+            // contact number and address must never be exposed here. A finder submits their
+            // OWN contact details separately (Anonymous/FoundMissingPet), which notifies the
+            // owner/support rather than handing out the owner's details directly. Redacting
+            // here (rather than removing the fields from PetsViewModel) keeps this endpoint's
+            // DTO safe without touching the authenticated owner-facing pet views that reuse
+            // the same view model.
+            if (response?.Data != null)
+            {
+                response.Data.Address = null;
+                response.Data.ContactNumber = null;
+                response.Data.PetOwnerId = Guid.Empty;
+            }
+
             return response.IsSuccess ? this.Ok(response) : this.BadRequest(response);
 
         }
