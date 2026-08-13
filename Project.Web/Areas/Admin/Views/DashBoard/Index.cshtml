@@ -175,7 +175,7 @@
                 <div class="tab-content-wrapper">
                     <!-- Tab 1: Pet Scan Logs -->
                     <div class="tab-pane active" id="tab-scan-logs">
-                        
+
 
                         <!-- Table scroll container -->
                         <div class="table-scroll-container">
@@ -312,7 +312,9 @@
                                                 <td>
                                                     <div class="conf-wrap">
                                                         <span class="conf-num">@review.Confidence.ToString("F0")%</span>
-                                                        <div class="conf-bar"><div class="conf-fill @(review.Confidence >= 75 ? "" : review.Confidence >= 50 ? "mid" : "low")" style="width:@($"{review.Confidence:F0}%")"></div></div>
+                                                        <div class="conf-bar"><div class="conf-fill @(review.Confidence >= 50 ? "low" : "")" 
+                                                            style="width:@($"{review.Confidence:F0}%")"></div>
+                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
@@ -334,13 +336,17 @@
                                                     }
                                                 </td>
                                                 <td>
-                                                    @if (review.Status == "Flagged Submission")
+                                                    @if (!string.IsNullOrEmpty(review.AIVerdict) && (review.AIVerdict.ToLower() == "ill" || review.AIVerdict.ToLower() == "unhealthy"))
                                                     {
-                                                        <span class="verdict-ill"><i class="fas fa-exclamation-triangle" style="font-size:10px;margin-right:3px;"></i>Ill</span>
+                                                        <span class="verdict-ill"><i class="fas fa-exclamation-triangle" style="font-size:10px;margin-right:3px;"></i>@review.AIVerdict</span>
+                                                    }
+                                                    else if (!string.IsNullOrEmpty(review.AIVerdict))
+                                                    {
+                                                        <span class="verdict-healthy"><i class="fas fa-check-circle" style="font-size:10px;margin-right:3px;"></i>@review.AIVerdict</span>
                                                     }
                                                     else
                                                     {
-                                                        <span class="verdict-healthy"><i class="fas fa-check-circle" style="font-size:10px;margin-right:3px;"></i>Healthy</span>
+                                                        <span style="color:#94a3b8;">—</span>
                                                     }
                                                 </td>
                                                 <td>@review.SubmissionDate.ToString("dd MMM yyyy HH:mm")</td>
