@@ -87,8 +87,31 @@ namespace Project.WebAPI.Infrastructure
             };
             _usersRefreshTokens.AddOrUpdate(refreshToken.TokenString, refreshToken, (s, t) => refreshToken);
 
-            //Save Refresh token
-            //this._accountService.UpdateUserToken(username, refreshToken.TokenString, refreshToken.ExpireAt).ConfigureAwait(false);
+            // Persist durably so refresh survives across requests: this class is registered
+            // Transient (see Startup.cs), so _usersRefreshTokens above is only ever visible to
+            // THIS instance -- a different request resolves a brand-new, empty dictionary.
+            // Refresh() below already has a DB-backed fallback (DerivedIdentityUser.RefreshToken
+            // / RefreshTokenExpiryTime), it was just never populated because this write used to
+            // be commented out (and referenced an IAccountService.UpdateUserToken method that
+            // was never actually implemented). Best-effort: a persistence failure here must
+            // never break login/token issuance itself -- the in-memory dictionary still lets a
+            // same-instance refresh succeed as before.
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<DerivedIdentityUser>>();
+                var user = userManager.FindByNameAsync(username).Result;
+                if (user != null)
+                {
+                    user.RefreshToken = refreshToken.TokenString;
+                    user.RefreshTokenExpiryTime = refreshToken.ExpireAt;
+                    userManager.UpdateAsync(user).Wait();
+                }
+            }
+            catch (Exception)
+            {
+                // Best-effort only -- see comment above.
+            }
 
             return new JwtAuthResult
             {
