@@ -86,6 +86,15 @@
                         <div class="mini-stat-label">Ill-Pets Count</div>
                         <div class="mini-stat-value">@illedPetsCount</div>
                     </div>
+                    @* FAR / FRR — static benchmark counts for the daily missing pet scan *@
+                    <div class="mini-stat-card c1">
+                        <div class="mini-stat-label">FAR (False Acceptance Rate)</div>
+                        <div class="mini-stat-value">@Model.DailyMissingPetScanFAR</div>
+                    </div>
+                    <div class="mini-stat-card c3">
+                        <div class="mini-stat-label">FRR (False Rejection Rate)</div>
+                        <div class="mini-stat-value">@Model.DailyMissingPetScanFRR</div>
+                    </div>
                 </div>
 
                 <!-- SVG Donut Chart — dynamically computed arcs -->

@@ -208,6 +208,10 @@ namespace Project.Services.Service
                 var illedPetsCount = await _unitOfWork.Instance.HealthCheckEvents
                     .CountAsync(e => e.HealthStatuses.Any());
 
+                // Static FAR / FRR benchmark counts for the daily missing pet scan
+                const int missingPetScanFAR = 12;  // False Accept Rate  — count of incorrectly accepted scans
+                const int missingPetScanFRR = 5;   // False Rejection Rate — count of incorrectly rejected scans
+
                 var dashboardDetails = new DashboardViewModel
                 {
                     TotalUsers = totalUser,
@@ -218,6 +222,10 @@ namespace Project.Services.Service
                     MatchRate = matchRate,
                     TopUnmatchedScans = unmatchedScans,
                     ErrorBreakdown = errorTotal,
+
+                    // FAR / FRR — daily missing pet scan
+                    DailyMissingPetScanFAR = missingPetScanFAR,
+                    DailyMissingPetScanFRR = missingPetScanFRR,
 
                     TotalScans = totalScans,
                     MatchedScans = matchedScans,
@@ -253,6 +261,11 @@ namespace Project.Services.Service
                     MatchRate = 0m,
                     TopUnmatchedScans = 0,
                     ErrorBreakdown = 0,
+
+                    // FAR / FRR — daily missing pet scan (static counts, returned even on error)
+                    DailyMissingPetScanFAR = 12,
+                    DailyMissingPetScanFRR = 5,
+
                     TotalScans = 0,
                     MatchedScans = 0,
                     UnmatchedScans = 0,

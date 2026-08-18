@@ -17,6 +17,10 @@ namespace Project.Models.AdminModel
         public int TopUnmatchedScans { get; set; }
         public int ErrorBreakdown { get; set; }
 
+        // FAR / FRR — static benchmark counts for the daily missing pet scan
+        public int DailyMissingPetScanFAR { get; set; }
+        public int DailyMissingPetScanFRR { get; set; }
+
         // Scan analytics
         public int TotalScans { get; set; }
         public int MatchedScans { get; set; }
