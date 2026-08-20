@@ -78,31 +78,18 @@ namespace Project.Services.Service
                 var numberOfDogs = _unitOfWork.Instance.PetInfo.Count(p => p.PetTypeId == 1);
                 var numberOfCats = _unitOfWork.Instance.PetInfo.Count(p => p.PetTypeId == 2);
 
-                // ── Scan metrics — all scan types, matching what the scan log table shows ──
-                // The summary cards must use the SAME field-resolution and case-insensitive
-                // logic as the table view:
-                //   table:   (MatchResult ?? RouteDecision ?? Status.ToString()).ToLowerInvariant()
-                //   summary: must mirror that exactly — otherwise rows visible in the table
-                //            are invisible to the counter (e.g. MatchResult = null but
-                //            RouteDecision = "matched", or DB stored "Matched" with capital M).
+                // ── Scan metrics — based directly on MatchResult column ──────────────────
+                // Summary cards count only rows where MatchResult is explicitly set.
+                // "matched" → Matched count   |   "no_match" → Unmatched count
                 var allScans = await _unitOfWork.Instance.PetScans
-                    .Select(s => new { s.MatchResult, s.RouteDecision, s.Status })
+                    .Select(s => new { s.MatchResult })
                     .ToListAsync();
 
+                var matchedScans   = allScans.Count(s => s.MatchResult != null &&
+                    (s.MatchResult.ToLower() == "matched" || s.MatchResult.ToLower() == "match" || s.MatchResult.ToLower() == "possible_match"));
+                var unmatchedScans  = allScans.Count(s => s.MatchResult != null &&
+                    (s.MatchResult.ToLower() == "no_match" || s.MatchResult.ToLower() == "unmatched" || s.MatchResult.ToLower() == "unmatch"));
                 var totalScans = allScans.Count;
-
-                // Resolve the effective result the same way the table view does:
-                // Result = MatchResult ?? RouteDecision ?? Status.ToString(), lowercased.
-                var matchedScans = allScans.Count(s =>
-                {
-                    var r = (s.MatchResult ?? s.RouteDecision ?? s.Status.ToString()).ToLowerInvariant();
-                    return r == "matched" || r == "possible_match" || r == "match";
-                });
-                var unmatchedScans = allScans.Count(s =>
-                {
-                    var r = (s.MatchResult ?? s.RouteDecision ?? s.Status.ToString()).ToLowerInvariant();
-                    return r == "no_match" || r == "unmatched" || r == "unmatch";
-                });
 
                 // ── Error breakdown by stage ────────────────────────────────────────────
                 var allErrors = await _unitOfWork.Instance.RecognitionErrors
@@ -120,8 +107,12 @@ namespace Project.Services.Service
                     BuildErrorItem("System Error",     allErrors, EnumRecognitionErrorStage.DbSave,          errorTotal),
                 };
 
-                // ── Pet Scan Logs — server-side paginated ───────────────────────────────
+                // ── Pet Scan Logs (Dashboard) — only "matched" rows, paginated ─────────
                 var petScanLogsQuery = from s in _unitOfWork.Instance.PetScans
+                                       where s.MatchResult != null &&
+                                             (s.MatchResult.ToLower() == "matched" ||
+                                              s.MatchResult.ToLower() == "match" ||
+                                              s.MatchResult.ToLower() == "possible_match")
                                        join p in _unitOfWork.Instance.PetInfo on s.PetId equals p.Id into petGroup
                                        from pet in petGroup.DefaultIfEmpty()
                                        orderby s.CreatedOn descending
@@ -156,7 +147,7 @@ namespace Project.Services.Service
                     PetImagePath = !string.IsNullOrWhiteSpace(s.PetFullBodyImagePath)
                         ? ResolveImageUrl(s.PetFullBodyImagePath)
                         : "/images/pet-placeholder.svg",
-                    Result = s.MatchResult ?? s.RouteDecision ?? s.Status.ToString(),
+                    Result = s.MatchResult,
                     Confidence = (s.MatchConfidence ?? s.ClassifierConfidence ?? 0m) * 100m,
                     ScanDate = s.CreatedOn,
                     ScanType = s.ScanType.ToString(),
@@ -349,7 +340,16 @@ namespace Project.Services.Service
             try
             {
                 int pageSize = 10;
-                var query = _unitOfWork.Instance.PetScans.AsQueryable();
+                // Scan Log page shows only matched + no_match scans (scans that have a definitive result)
+                var query = _unitOfWork.Instance.PetScans
+                    .Where(s => s.MatchResult != null &&
+                                (s.MatchResult.ToLower() == "matched" ||
+                                 s.MatchResult.ToLower() == "match" ||
+                                 s.MatchResult.ToLower() == "possible_match" ||
+                                 s.MatchResult.ToLower() == "no_match" ||
+                                 s.MatchResult.ToLower() == "unmatched" ||
+                                 s.MatchResult.ToLower() == "unmatch"))
+                    .AsQueryable();
 
                 if (fromDate.HasValue)
                 {
@@ -370,8 +370,6 @@ namespace Project.Services.Service
                                            s.Id,
                                            s.Species,
                                            s.MatchResult,
-                                           s.RouteDecision,
-                                           s.Status,
                                            s.MatchConfidence,
                                            s.ClassifierConfidence,
                                            s.CreatedOn,
@@ -391,7 +389,7 @@ namespace Project.Services.Service
                     PetImagePath = !string.IsNullOrWhiteSpace(s.PetFullBodyImagePath)
                         ? ResolveImageUrl(s.PetFullBodyImagePath)
                         : "/images/pet-placeholder.svg",
-                    Result = s.MatchResult ?? s.RouteDecision ?? s.Status.ToString(),
+                    Result = s.MatchResult,
                     Confidence = (s.MatchConfidence ?? s.ClassifierConfidence ?? 0m) * 100m,
                     ScanDate = s.CreatedOn,
                     ScanType = s.ScanType.ToString(),
@@ -434,7 +432,16 @@ namespace Project.Services.Service
             var response = new ServiceResponse<List<PetScanLogViewModel>>();
             try
             {
-                var query = _unitOfWork.Instance.PetScans.AsQueryable();
+                // CSV export mirrors the Scan Log page: only matched + no_match rows
+                var query = _unitOfWork.Instance.PetScans
+                    .Where(s => s.MatchResult != null &&
+                                (s.MatchResult.ToLower() == "matched" ||
+                                 s.MatchResult.ToLower() == "match" ||
+                                 s.MatchResult.ToLower() == "possible_match" ||
+                                 s.MatchResult.ToLower() == "no_match" ||
+                                 s.MatchResult.ToLower() == "unmatched" ||
+                                 s.MatchResult.ToLower() == "unmatch"))
+                    .AsQueryable();
 
                 if (fromDate.HasValue)
                 {
@@ -455,8 +462,6 @@ namespace Project.Services.Service
                                            s.Id,
                                            s.Species,
                                            s.MatchResult,
-                                           s.RouteDecision,
-                                           s.Status,
                                            s.MatchConfidence,
                                            s.ClassifierConfidence,
                                            s.CreatedOn,
@@ -476,7 +481,7 @@ namespace Project.Services.Service
                     PetImagePath = !string.IsNullOrWhiteSpace(s.PetFullBodyImagePath)
                         ? ResolveImageUrl(s.PetFullBodyImagePath)
                         : "/images/pet-placeholder.svg",
-                    Result = s.MatchResult ?? s.RouteDecision ?? s.Status.ToString(),
+                    Result = s.MatchResult,
                     Confidence = (s.MatchConfidence ?? s.ClassifierConfidence ?? 0m) * 100m,
                     ScanDate = s.CreatedOn,
                     ScanType = s.ScanType.ToString(),
