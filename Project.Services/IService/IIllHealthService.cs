@@ -11,5 +11,7 @@ namespace Project.Services.IService
         Task<ServiceResponse<IllHealthResponse>> AnalyzeAsync(IllHealthAnalyzeRequest request);
 
         Task<ServiceResponse<List<IllHealthHistoryEntry>>> GetHistoryAsync(string petId, Guid currentUserId);
+
+        Task<string> TestPythonConnectionAsync();
     }
 }

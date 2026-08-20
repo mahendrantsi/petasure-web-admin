@@ -64,6 +64,14 @@ namespace Project.WebAPI.Controllers.V1
 
         // Every past scan for a pet, sourced from health_check_events (+ health_status) —
         // the durable record, independent of any on-device cache the mobile app keeps.
+        [HttpGet("test-python")]
+        [AllowAnonymous]
+        public async Task<IActionResult> TestPythonConnection()
+        {
+            var result = await _illHealthService.TestPythonConnectionAsync();
+            return this.Ok(new { test = result });
+        }
+
         [HttpGet("history")]
         public async Task<IActionResult> History(string petId)
         {

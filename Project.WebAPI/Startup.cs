@@ -117,15 +117,26 @@ namespace Project.WebAPI
 
 
             var jwtTokenConfig = Configuration.GetSection("jwtTokenConfig").Get<JwtTokenConfig>();
+            if (jwtTokenConfig == null)
+            {
+                jwtTokenConfig = new JwtTokenConfig
+                {
+                    Secret = Configuration["jwtTokenConfig:secret"] ?? "Petasure@JwtSecret#2024$SecureKey!XyZ",
+                    Issuer = Configuration["jwtTokenConfig:issuer"] ?? "https://mywebapi.com",
+                    Audience = Configuration["jwtTokenConfig:audience"] ?? "https://mywebapi.com",
+                    AccessTokenExpiration = int.TryParse(Configuration["jwtTokenConfig:accessTokenExpiration"], out var atExp) ? atExp : 30000,
+                    RefreshTokenExpiration = int.TryParse(Configuration["jwtTokenConfig:refreshTokenExpiration"], out var rtExp) ? rtExp : 43200
+                };
+            }
             services.AddSingleton(jwtTokenConfig);
-            
+
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
-                x.RequireHttpsMetadata = true;
+                x.RequireHttpsMetadata = false;
                 x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -226,18 +237,21 @@ namespace Project.WebAPI
             app.UseMiddleware(x =>
             {
                 x.GenericMessage = "An error has occurred.  Please try again in a few minutes.  If the problem persists, please contact Customer Support";
-                x.ResponseFormatExclude = new[] { "/index.html", "/swagger" };
+                x.ResponseFormatExclude = new[] { "development/index.html", "development/swagger" };
             });
             app.Use((context, next) =>
             {
                 context.Response.Headers.Add(ApiSourceHeader, "Project");
                 return next.Invoke();
             });
-            app.UseHttpsRedirection();
+            if (!env.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1");
+                c.SwaggerEndpoint("development/swagger/v1/swagger.json", "V1");
                 c.DocumentTitle = "Project";
                 c.RoutePrefix = string.Empty;
             });

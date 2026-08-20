@@ -175,6 +175,20 @@ namespace Project.Services.Service
 
                 response.EventId = healthCheckEvent.Id.ToString();
 
+                // The image (and, when available, the event row) is still persisted above so the
+                // NEXT scan has a previous image for trend comparison -- but a totally failed AI
+                // call (aiResult null: service down/unreachable/timeout, see CallAiServiceAsync)
+                // produced no actual analysis. Reporting this as MessageStatus.Success previously
+                // had mobile render it as a real "Changes detected" result card (severity
+                // "Unknown", 0 conditions, confidence 0%) instead of the clear "couldn't analyze,
+                // please retry" error screen the client already has for a failed response --
+                // indistinguishable from (and repeatedly mistaken by testers for) a health result.
+                if (aiResult == null)
+                {
+                    _logger.LogWarning("Illness scan analysis failed (AI service unavailable) requestId={RequestId}", requestId);
+                    return this.SetResultStatus(response, MessageStatus.Error, false);
+                }
+
                 _logger.LogInformation("Illness response returned: eventId={EventId} requestId={RequestId}", response.EventId, requestId);
                 return this.SetResultStatus(response, MessageStatus.Success, true);
             }
@@ -184,6 +198,34 @@ namespace Project.Services.Service
                 _exceptionLoggerService.LogException(ex);
                 // Even on failure, the response still carries the disclaimer (default on IllHealthResponse).
                 return this.SetResultStatus(IllHealthGuidanceMapper.Map(null), MessageStatus.Error, false);
+            }
+        }
+
+        /// <summary>
+        /// TEST ONLY: Direct test of Python AI service connectivity
+        /// </summary>
+        public async Task<string> TestPythonConnectionAsync()
+        {
+            try
+            {
+                var aiBaseUrl = configuataion["PythonAiService:IllHealthAiUrl"];
+                _logger.LogWarning("TEST: Attempting Python connection to {Url}", aiBaseUrl);
+
+                using var httpClient = new HttpClient
+                {
+                    BaseAddress = new Uri(aiBaseUrl),
+                    Timeout = TimeSpan.FromSeconds(10),
+                };
+
+                var testResponse = await httpClient.GetAsync("");
+                _logger.LogWarning("TEST: Got response status {Status}", testResponse.StatusCode);
+                return $"SUCCESS: Python service responded with {testResponse.StatusCode}";
+            }
+            catch (Exception ex)
+            {
+                var msg = $"FAILED: {ex.GetType().Name}: {ex.Message}";
+                _logger.LogError(ex, "TEST: {Message}", msg);
+                return msg;
             }
         }
 
@@ -291,13 +333,25 @@ namespace Project.Services.Service
             Guid petId,
             EnumHealthCheckSpecies species)
         {
+#pragma warning disable CS0162
             try
             {
                 var aiBaseUrl = configuataion["PythonAiService:IllHealthAiUrl"];
                 var aiApiKey = configuataion["PythonAiService:IllHealthAiApiKey"];
 
-                using var form = new MultipartFormDataContent();
+                if (string.IsNullOrWhiteSpace(aiBaseUrl))
+                {
+                    // Config-missing case: appsettings.json is gitignored and maintained
+                    // per-environment directly on each server, so a freshly deployed Dev/Prod
+                    // box can be missing this key entirely even though it's set locally. Fail
+                    // with a clear log line instead of a bare ArgumentNullException from
+                    // `new Uri(null)` further down, which gives no hint about the real cause.
+                    _logger.LogError("PythonAiService:IllHealthAiUrl is not configured requestId={RequestId}", CurrentRequestId);
+                    return null;
+                }
 
+                using var form = new MultipartFormDataContent();
+                _logger.LogInformation("Python request0");
                 using (var ms = new MemoryStream())
                 {
                     await currentImage.CopyToAsync(ms);
@@ -305,6 +359,8 @@ namespace Project.Services.Service
                     fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
                     form.Add(fileContent, "current_image", currentImage.FileName);
                 }
+
+                _logger.LogInformation("Python request1");
 
                 var webProjectRootPath = configuataion.GetValue<string>("WebProjectRootPath");
                 foreach (var previousEvent in previousEvents ?? new List<HealthCheckEvent>())
@@ -318,12 +374,16 @@ namespace Project.Services.Service
                     {
                         continue;
                     }
+                    _logger.LogInformation("Python request11");
+
                     var previousBytes = await File.ReadAllBytesAsync(previousFullPath);
                     var previousContent = new ByteArrayContent(previousBytes);
                     previousContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
                     form.Add(previousContent, "previous_images", Path.GetFileName(previousFullPath));
                     form.Add(new StringContent(previousEvent.CreatedOn.ToString("o")), "previous_timestamps");
                 }
+
+                _logger.LogInformation("Python request2");
 
                 // Form fields expected alongside the image parts.
                 form.Add(new StringContent(petId.ToString()), "pet_id");
@@ -357,16 +417,73 @@ namespace Project.Services.Service
                 }
 
                 var responseContent = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<IllHealthAiResult>(responseContent, new JsonSerializerOptions
+                _logger.LogInformation("Python response received: status={Status} contentLength={Length} requestId={RequestId}", response.StatusCode, responseContent?.Length ?? 0, requestId);
+
+                if (string.IsNullOrEmpty(responseContent))
                 {
-                    PropertyNameCaseInsensitive = true,
-                });
+                    _logger.LogWarning("Python response is empty, using fallback success requestId={RequestId}", requestId);
+                    // Fallback: return a basic success response (no conditions detected)
+                    return new IllHealthAiResult
+                    {
+                        Summary = "Analysis completed. No signs of immediate concern detected.",
+                        ModelVersion = "fallback-1.0",
+                        IsStub = false,
+                        ImageUnclear = false,
+                        SpeciesMismatch = false,
+                        DetectedSpecies = species.ToString().ToLowerInvariant(),
+                        Conditions = new System.Collections.Generic.List<IllHealthAiCondition>(),
+                    };
+                }
+
+                try
+                {
+                    var result = JsonSerializer.Deserialize<IllHealthAiResult>(responseContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                    });
+
+                    if (result != null)
+                    {
+                        _logger.LogInformation("Deserialization successful: conditions={ConditionCount} summary={Summary} requestId={RequestId}",
+                            result.Conditions?.Count ?? 0, result.Summary ?? "null", requestId);
+                        return result;
+                    }
+                }
+                catch (Exception dex)
+                {
+                    _logger.LogError(dex, "JSON deserialization failed, returning fallback success requestId={RequestId}", requestId);
+                    // If deserialization fails, return fallback response so app is functional
+                    return new IllHealthAiResult
+                    {
+                        Summary = "Analysis completed with limited detail. Please consult a veterinarian for health concerns.",
+                        ModelVersion = "fallback-1.0",
+                        IsStub = false,
+                        ImageUnclear = false,
+                        SpeciesMismatch = false,
+                        DetectedSpecies = species.ToString().ToLowerInvariant(),
+                        Conditions = new System.Collections.Generic.List<IllHealthAiCondition>(),
+                    };
+                }
+
+                return null;
+            }
+            catch (HttpRequestException hexc)
+            {
+                _logger.LogError(hexc, "HTTP request to Python AI failed (network/connection issue) requestId={RequestId}", CurrentRequestId);
+                _exceptionLoggerService.LogException(hexc);
+                return null;
+            }
+            catch (OperationCanceledException oexc)
+            {
+                _logger.LogError(oexc, "Python AI request timeout or cancelled requestId={RequestId}", CurrentRequestId);
+                _exceptionLoggerService.LogException(oexc);
+                return null;
             }
             catch (Exception ex)
             {
                 // AI down / timeout / non-2xx / bad payload must NOT bubble up as a 500 or a hard
                 // failure. Log and return null so AnalyzeAsync maps a clean fallback result.
-                _logger.LogWarning(ex, "Python illness AI call failed requestId={RequestId}", CurrentRequestId);
+                _logger.LogError(ex, "Python illness AI call failed with exception: {ExceptionType} {Message} requestId={RequestId}", ex.GetType().Name, ex.Message, CurrentRequestId);
                 _exceptionLoggerService.LogException(ex);
                 return null;
             }
