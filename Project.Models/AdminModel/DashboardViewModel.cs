@@ -25,8 +25,6 @@ namespace Project.Models.AdminModel
         public int TotalScans { get; set; }
         public int MatchedScans { get; set; }
         public int UnmatchedScans { get; set; }
-        public int IlledPetsCount { get; set; }
-        public int TotalIllHealthScans { get; set; }
 
         // Error breakdown by stage
         public List<ErrorBreakdownItem> ErrorBreakdownItems { get; set; } = new List<ErrorBreakdownItem>();
@@ -38,14 +36,6 @@ namespace Project.Models.AdminModel
         public int PageSize { get; set; } = 10;
         public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalScanLogs / PageSize) : 0;
 
-        // Ill-health Review Metrics
-        public int FlaggedSubmissions { get; set; }
-        public int UnderReview { get; set; }
-        public int Reviewed { get; set; }
-        public int Resolved { get; set; }
-
-        // Ill-health Reviews
-        public List<IllHealthReviewViewModel> IllHealthReviews { get; set; } = new List<IllHealthReviewViewModel>();
         public string UserProfile { get; set; }
         public string UserName { get; set; }
         public List<MonthlyUsers> LstMonthlyUsers { get; set; } = new List<MonthlyUsers>();
@@ -66,18 +56,6 @@ namespace Project.Models.AdminModel
         public DateTime? ToDate { get; set; }
     }
 
-    public class IllHealthLogsPageViewModel
-    {
-        public List<IllHealthReviewViewModel> IllHealthReviews { get; set; } = new List<IllHealthReviewViewModel>();
-        public int TotalIllHealthLogs { get; set; }
-        public int CurrentPage { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
-        public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalIllHealthLogs / PageSize) : 0;
-        public string SearchText { get; set; }
-        public DateTime? FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
-    }
-
     public class PetScanLogViewModel
     {
         public Guid Id { get; set; }
@@ -89,20 +67,6 @@ namespace Project.Models.AdminModel
         public DateTime ScanDate { get; set; }
         public string ScanType { get; set; }
         public string Notes { get; set; }
-    }
-
-    public class IllHealthReviewViewModel
-    {
-        public Guid Id { get; set; }
-        public string PetName { get; set; }
-        public string PetType { get; set; }
-        public string PetImagePath { get; set; }
-        public string AISuggestedCondition { get; set; }
-        public decimal Confidence { get; set; }
-        public string Status { get; set; }
-        public string AIVerdict { get; set; }
-
-        public DateTime SubmissionDate { get; set; }
     }
 
     public class MonthlyUsers

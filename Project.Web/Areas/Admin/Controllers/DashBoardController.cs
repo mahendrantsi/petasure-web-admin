@@ -58,39 +58,6 @@ namespace Project.Web.Areas.Admin.Controllers
             return File(buffer, "text/csv", "ScanLogs.csv");
         }
 
-        public async Task<IActionResult> IllHealthSubmissions(int page = 1, string search = null, DateTime? fromDate = null, DateTime? toDate = null)
-        {
-            @ViewData["Title"] = "Ill-Health Submissions";
-            var serviceResponse = await this._userService.GetIllHealthLogsAsync(page, search, fromDate, toDate);
-            return View(serviceResponse.Data);
-        }
-
-        [HttpGet("Admin/DashBoard/DownloadIllHealthCsv")]
-        public async Task<IActionResult> DownloadIllHealthCsv(string search = null, DateTime? fromDate = null, DateTime? toDate = null)
-        {
-            var response = await _userService.GetAllIllHealthLogsAsync(search, fromDate, toDate);
-            var logs = response.Data ?? new List<Project.Models.AdminModel.IllHealthReviewViewModel>();
-
-            var csvBuilder = new System.Text.StringBuilder();
-            csvBuilder.AppendLine("Pet Name,Pet Type,Suggested Condition,Confidence,Status,AI Verdict,Submission Date");
-
-            foreach (var log in logs)
-            {
-                csvBuilder.AppendLine(
-                    $"{Escape(log.PetName)}," +
-                    $"{Escape(log.PetType)}," +
-                    $"{Escape(log.AISuggestedCondition)}," +
-                    $"{log.Confidence:F2}%," +
-                    $"{Escape(log.Status)}," +
-                    $"{Escape(log.AIVerdict)}," +
-                    $"{log.SubmissionDate:yyyy-MM-dd HH:mm:ss}"
-                );
-            }
-
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(csvBuilder.ToString());
-            return File(buffer, "text/csv", "IllHealthLogs.csv");
-        }
-
         private static string Escape(string input)
         {
             if (string.IsNullOrWhiteSpace(input)) return "";

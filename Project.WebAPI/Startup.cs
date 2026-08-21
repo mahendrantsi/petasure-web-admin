@@ -80,13 +80,12 @@ namespace Project.WebAPI
             services.AddTransient<ISettingService, SettingService>();
             services.AddTransient<IExceptionLoggerService, ExceptionLoggerService>();
             services.AddTransient<ISubscriptionService, SubscriptionService>();
-           
+
             //Created By Manthan tak
             services.AddTransient<IContentService, ContentService>();
             //Created By Manthan Tak
             services.AddTransient<IPetService, PetService>();
             services.AddTransient<IMissingService, MissingService>();
-            services.AddTransient<IIllHealthService, IllHealthService>();
 
             services.AddTransient<ISystemSetting, SystemSetting>();
 
@@ -194,9 +193,7 @@ namespace Project.WebAPI
 
             }
 
-            // Serve recognition/illness images that IllHealthService/PetService/AccountService
-            // save under {WebProjectRootPath}/uploads/... back out at /uploads/... . Without
-            // this, uploaded images are saved to disk but have no route that serves them.
+            // Serve uploaded images from disk via /uploads route.
             var webProjectRootPath = Configuration["WebProjectRootPath"];
             if (!string.IsNullOrWhiteSpace(webProjectRootPath))
             {

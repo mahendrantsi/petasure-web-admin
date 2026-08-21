@@ -85,9 +85,9 @@ namespace Project.Services.Service
                     .Select(s => new { s.MatchResult })
                     .ToListAsync();
 
-                var matchedScans   = allScans.Count(s => s.MatchResult != null &&
+                var matchedScans = allScans.Count(s => s.MatchResult != null &&
                     (s.MatchResult.ToLower() == "matched" || s.MatchResult.ToLower() == "match" || s.MatchResult.ToLower() == "possible_match"));
-                var unmatchedScans  = allScans.Count(s => s.MatchResult != null &&
+                var unmatchedScans = allScans.Count(s => s.MatchResult != null &&
                     (s.MatchResult.ToLower() == "no_match" || s.MatchResult.ToLower() == "unmatched" || s.MatchResult.ToLower() == "unmatch"));
                 var totalScans = allScans.Count;
 
@@ -154,50 +154,10 @@ namespace Project.Services.Service
                     Notes = s.Notes,
                 }).ToList();
 
-                // ── Ill-health reviews ──────────────────────────────────────────────────
-                var illHealthReviews = await _unitOfWork.Instance.HealthCheckEvents
-                    .Include(e => e.Pet)
-                    .Include(e => e.HealthStatuses)
-                    .OrderByDescending(e => e.CreatedOn)
-                    .Take(10)
-                    .ToListAsync();
-                
-                var totalIllHealthScans = await _unitOfWork.Instance.HealthCheckEvents.CountAsync();
-                var illHealthReviewViewModels = illHealthReviews.Select(e =>
-                {
-                    var topFinding = e.HealthStatuses.OrderByDescending(h => h.Confidence).FirstOrDefault();
-                    var hasFindings = e.HealthStatuses.Any();
-                    return new IllHealthReviewViewModel
-                    {
-                        Id = e.Id,
-                        PetName = e.Pet != null ? e.Pet.PName : "Unknown",
-                        PetType = e.Species.ToString(),
-                        PetImagePath = ResolveImageUrl(e.ImageRef),
-                        AISuggestedCondition = topFinding?.ConditionName ?? (e.AiSummary ?? "No concerns detected"),
-                        Confidence = (topFinding?.Confidence ?? 0m) * 100m,
-                        Status = MapHealthCheckReviewStatus(e.Status, hasFindings),
-                        AIVerdict = hasFindings ? "Ill" : "Healthy",
-                        SubmissionDate = e.SubmittedAt,
-                    };
-                }).ToList();
-
                 // ── Match rate across all scan types ───────────────────────────────────
                 var matchRate = totalScans > 0
                     ? (decimal)matchedScans / totalScans * 100m
                     : 0m;
-
-                // ── Health-check buckets ────────────────────────────────────────────────
-                var flaggedSubmissions = await _unitOfWork.Instance.HealthCheckEvents
-                    .CountAsync(e => e.Status == EnumHealthCheckStatus.Pending && e.HealthStatuses.Any());
-                var underReview = await _unitOfWork.Instance.HealthCheckEvents
-                    .CountAsync(e => e.Status == EnumHealthCheckStatus.Pending && !e.HealthStatuses.Any());
-                var reviewed = await _unitOfWork.Instance.HealthCheckEvents
-                    .CountAsync(e => e.Status == EnumHealthCheckStatus.Reviewed);
-                var resolved = await _unitOfWork.Instance.HealthCheckEvents
-                    .CountAsync(e => e.Status == EnumHealthCheckStatus.Closed);
-
-                var illedPetsCount = await _unitOfWork.Instance.HealthCheckEvents
-                    .CountAsync(e => e.HealthStatuses.Any());
 
                 // Static FAR / FRR benchmark counts for the daily missing pet scan
                 const int missingPetScanFAR = 12;  // False Accept Rate  — count of incorrectly accepted scans
@@ -221,20 +181,12 @@ namespace Project.Services.Service
                     TotalScans = totalScans,
                     MatchedScans = matchedScans,
                     UnmatchedScans = unmatchedScans,
-                    IlledPetsCount = illedPetsCount,
-                    TotalIllHealthScans = totalIllHealthScans,
                     ErrorBreakdownItems = errorBreakdownItems,
 
                     PetScanLogs = petScanLogViewModels,
                     TotalScanLogs = totalScanLogs,
                     CurrentPage = currentPage,
                     PageSize = pageSize,
-
-                    FlaggedSubmissions = flaggedSubmissions,
-                    UnderReview = underReview,
-                    Reviewed = reviewed,
-                    Resolved = resolved,
-                    IllHealthReviews = illHealthReviewViewModels,
                     LstMonthlyUsers = lstMonthlyNewUsers,
                 };
 
@@ -260,18 +212,11 @@ namespace Project.Services.Service
                     TotalScans = 0,
                     MatchedScans = 0,
                     UnmatchedScans = 0,
-                    IlledPetsCount = 0,
-                    TotalIllHealthScans = 0,
                     ErrorBreakdownItems = new List<ErrorBreakdownItem>(),
                     PetScanLogs = new List<PetScanLogViewModel>(),
                     TotalScanLogs = 0,
                     CurrentPage = 1,
                     PageSize = 10,
-                    FlaggedSubmissions = 0,
-                    UnderReview = 0,
-                    Reviewed = 0,
-                    Resolved = 0,
-                    IllHealthReviews = new List<IllHealthReviewViewModel>(),
                     UserProfile = string.Empty,
                     UserName = string.Empty,
                     LstMonthlyUsers = new List<MonthlyUsers>(),
@@ -507,162 +452,7 @@ namespace Project.Services.Service
             }
             return response;
         }
-
-        public async Task<ServiceResponse<IllHealthLogsPageViewModel>> GetIllHealthLogsAsync(int page = 1, string search = null, DateTime? fromDate = null, DateTime? toDate = null)
-        {
-            var response = new ServiceResponse<IllHealthLogsPageViewModel>();
-            try
-            {
-                int pageSize = 10;
-                var query = _unitOfWork.Instance.HealthCheckEvents
-                    .Include(e => e.Pet)
-                    .Include(e => e.HealthStatuses)
-                    .AsQueryable();
-
-                if (fromDate.HasValue)
-                {
-                    query = query.Where(s => s.CreatedOn >= fromDate.Value.Date);
-                }
-                if (toDate.HasValue)
-                {
-                    var toDateEnd = toDate.Value.Date.AddDays(1).AddTicks(-1);
-                    query = query.Where(s => s.CreatedOn <= toDateEnd);
-                }
-
-                var pagedLogs = await query
-                    .OrderByDescending(s => s.CreatedOn)
-                    .ToListAsync();
-
-                var viewModels = pagedLogs.Select(e =>
-                {
-                    var topFinding = e.HealthStatuses.OrderByDescending(h => h.Confidence).FirstOrDefault();
-                    var hasFindings = e.HealthStatuses.Any();
-                    return new IllHealthReviewViewModel
-                    {
-                        Id = e.Id,
-                        PetName = e.Pet != null ? e.Pet.PName : "Unknown",
-                        PetType = e.Species.ToString(),
-                        PetImagePath = ResolveImageUrl(e.ImageRef),
-                        AISuggestedCondition = topFinding?.ConditionName ?? (e.AiSummary ?? "No concerns detected"),
-                        Confidence = (topFinding?.Confidence ?? 0m) * 100m,
-                        Status = MapHealthCheckReviewStatus(e.Status, hasFindings),
-                        AIVerdict = hasFindings ? "Ill" : "Healthy",
-                        SubmissionDate = e.SubmittedAt,
-                    };
-                }).ToList();
-
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    var lowerSearch = search.Trim().ToLower();
-                    viewModels = viewModels.Where(s =>
-                        (s.PetName != null && s.PetName.ToLower().Contains(lowerSearch)) ||
-                        (s.PetType != null && s.PetType.ToLower().Contains(lowerSearch)) ||
-                        (s.Status != null && s.Status.ToLower().Contains(lowerSearch)) ||
-                        (s.AIVerdict != null && s.AIVerdict.ToLower().Contains(lowerSearch))
-                    ).ToList();
-                }
-
-                var pageModel = new IllHealthLogsPageViewModel
-                {
-                    IllHealthReviews = viewModels,
-                    TotalIllHealthLogs = viewModels.Count,
-                    CurrentPage = page,
-                    PageSize = pageSize,
-                    SearchText = search,
-                    FromDate = fromDate,
-                    ToDate = toDate
-                };
-
-                response = SetResultStatus<IllHealthLogsPageViewModel>(pageModel, Messages_Resources.Success, true);
-            }
-            catch (Exception ex)
-            {
-                var defaultPageModel = new IllHealthLogsPageViewModel
-                {
-                    IllHealthReviews = new List<IllHealthReviewViewModel>(),
-                    TotalIllHealthLogs = 0,
-                    CurrentPage = page,
-                    PageSize = 10,
-                    SearchText = search,
-                    FromDate = fromDate,
-                    ToDate = toDate
-                };
-                response = SetResultStatus<IllHealthLogsPageViewModel>(defaultPageModel, Messages_Resources.Error, false);
-            }
-            return response;
-        }
-
-        public async Task<ServiceResponse<List<IllHealthReviewViewModel>>> GetAllIllHealthLogsAsync(string search = null, DateTime? fromDate = null, DateTime? toDate = null)
-        {
-            var response = new ServiceResponse<List<IllHealthReviewViewModel>>();
-            try
-            {
-                var query = _unitOfWork.Instance.HealthCheckEvents
-                    .Include(e => e.Pet)
-                    .Include(e => e.HealthStatuses)
-                    .AsQueryable();
-
-                if (fromDate.HasValue)
-                {
-                    query = query.Where(s => s.CreatedOn >= fromDate.Value.Date);
-                }
-                if (toDate.HasValue)
-                {
-                    var toDateEnd = toDate.Value.Date.AddDays(1).AddTicks(-1);
-                    query = query.Where(s => s.CreatedOn <= toDateEnd);
-                }
-
-                var logs = await query
-                    .OrderByDescending(s => s.CreatedOn)
-                    .ToListAsync();
-
-                var viewModels = logs.Select(e =>
-                {
-                    var topFinding = e.HealthStatuses.OrderByDescending(h => h.Confidence).FirstOrDefault();
-                    var hasFindings = e.HealthStatuses.Any();
-                    return new IllHealthReviewViewModel
-                    {
-                        Id = e.Id,
-                        PetName = e.Pet != null ? e.Pet.PName : "Unknown",
-                        PetType = e.Species.ToString(),
-                        PetImagePath = ResolveImageUrl(e.ImageRef),
-                        AISuggestedCondition = topFinding?.ConditionName ?? (e.AiSummary ?? "No concerns detected"),
-                        Confidence = (topFinding?.Confidence ?? 0m) * 100m,
-                        Status = MapHealthCheckReviewStatus(e.Status, hasFindings),
-                        AIVerdict = hasFindings ? "Ill" : "Healthy",
-                        SubmissionDate = e.SubmittedAt,
-                    };
-                }).ToList();
-
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    var lowerSearch = search.Trim().ToLower();
-                    viewModels = viewModels.Where(s =>
-                        (s.PetName != null && s.PetName.ToLower().Contains(lowerSearch)) ||
-                        (s.PetType != null && s.PetType.ToLower().Contains(lowerSearch)) ||
-                        (s.Status != null && s.Status.ToLower().Contains(lowerSearch)) ||
-                        (s.AIVerdict != null && s.AIVerdict.ToLower().Contains(lowerSearch))
-                    ).ToList();
-                }
-
-                response = SetResultStatus<List<IllHealthReviewViewModel>>(viewModels, Messages_Resources.Success, true);
-            }
-            catch (Exception ex)
-            {
-                response = SetResultStatus<List<IllHealthReviewViewModel>>(new List<IllHealthReviewViewModel>(), Messages_Resources.Error, false);
-            }
-            return response;
-        }
-
-        private static string MapHealthCheckReviewStatus(EnumHealthCheckStatus status, bool hasFindings)
-        {
-            return status switch
-            {
-                EnumHealthCheckStatus.Pending => hasFindings ? "Flagged Submission" : "Under Review",
-                EnumHealthCheckStatus.Reviewed => "Reviewed",
-                EnumHealthCheckStatus.Closed => "Resolved",
-                _ => "Under Review",
-            };
-        }
     }
 }
+
+

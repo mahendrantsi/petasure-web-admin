@@ -48,9 +48,7 @@
                 // Previously swallowed with no logging at all — every caller of Save()/
                 // SaveChanges()/SaveChangesAsync() across the app ignores the bool return
                 // value, so a failed save (e.g. a constraint violation) was completely
-                // invisible: no exception, no log entry, just a silent no-op rollback. This
-                // is exactly what hid the illness-scan ConditionName/NOT NULL bug (see
-                // IllHealthModels.cs) for every real scan attempt.
+                // invisible: no exception, no log entry, just a silent no-op rollback.
                 _logger.LogError(ex, "UnitOfWork.Save failed — changes were not persisted.");
                 returnValue = false;
             }
