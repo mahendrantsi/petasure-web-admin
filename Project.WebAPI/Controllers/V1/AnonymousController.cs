@@ -29,6 +29,7 @@ namespace Project.WebAPI.Controllers.V1
         private readonly IPetService _petService;
         private readonly IAccountService _accountService;
         private readonly IEmailService _emailService;
+        private readonly IExceptionLoggerService _exceptionLoggerService;
 
         /// <summary>
         /// Initializes a new instance of <see cref="AnonymousController"/>.
@@ -37,13 +38,15 @@ namespace Project.WebAPI.Controllers.V1
         /// <param name="accountService">Account service used to create/check anonymous ID users.</param>
         /// <param name="petService">Pet service for pet lookups.</param>
         /// <param name="emailService">Email service for notifications.</param>
-        public AnonymousController(IMissingService missingService, IAccountService accountService, IPetService petService, IEmailService emailService)
+        /// <param name="exceptionLoggerService">Logger used for non-critical/secondary failures.</param>
+        public AnonymousController(IMissingService missingService, IAccountService accountService, IPetService petService, IEmailService emailService, IExceptionLoggerService exceptionLoggerService)
         {
 
             _missingService = missingService;
             _accountService = accountService;
             _petService = petService;
             _emailService = emailService;
+            _exceptionLoggerService = exceptionLoggerService;
         }
 
         /// <summary>
@@ -70,19 +73,37 @@ namespace Project.WebAPI.Controllers.V1
 
                     if (accountResponse.Data != null)
                     {
-                        model.FoundBy = accountResponse.Data.UserID;
+                        // Temporary workaround: the anonymous UserID from CreateIDCheckUser is expected
+                        // to already exist in AspNetUsers, but we defensively re-verify it here so a
+                        // never-persisted/invalid Guid becomes null instead of tripping
+                        // FK_MissingPets_AspNetUsers_FoundBy inside the pet-found update below.
+                        model.FoundBy = await this.ResolveFoundByAsync(accountResponse.Data.UserID);
+
+                        // Primary operation: this must succeed/fail on its own merits.
                         var response = await _missingService.FoundMissingPetByAnonymous(model);
                         if (response.IsSuccess)
                         {
                             var petData = await _petService.petDetail(model.PetId);
-                            await _emailService.SendFoundMissingPetSupportEmail(model.Email, petData.Data.PName, model.ContactNumber);
+                            if (petData.IsSuccess && petData.Data != null)
+                            {
+                                // Secondary/non-critical operation: a failure here must not affect
+                                // the already-successful pet-found update above.
+                                try
+                                {
+                                    await _emailService.SendFoundMissingPetSupportEmail(model.Email, petData.Data.PName, model.ContactNumber);
+                                }
+                                catch (Exception emailEx)
+                                {
+                                    await _exceptionLoggerService.LogException(emailEx);
+                                }
+                            }
                             return this.Ok(response);
                         }
                         return this.BadRequest(response);
                     }
                     else
                     {
-                        throw new ArgumentNullException(nameof(model), "User Not Registered");
+                        return BadRequest(new { Message = "User Not Registered" });
                     }
 
                 }
@@ -93,6 +114,26 @@ namespace Project.WebAPI.Controllers.V1
             {
                 return BadRequest(new { Message = e.Message + e.InnerException });
             }
+            catch (Exception e)
+            {
+                return BadRequest(new { Message = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// Resolves a candidate FoundBy id to a value safe to persist: the id itself when it
+        /// exists in AspNetUsers, otherwise null. Prevents FK_MissingPets_AspNetUsers_FoundBy
+        /// from ever reaching SaveChangesAsync with an invalid value.
+        /// </summary>
+        private async Task<Guid?> ResolveFoundByAsync(Guid candidateId)
+        {
+            if (candidateId == Guid.Empty)
+            {
+                return null;
+            }
+
+            var userCheck = await _accountService.GetUserDetailById(candidateId);
+            return userCheck.IsSuccess && userCheck.Data != null ? candidateId : (Guid?)null;
         }
 
         /// <summary>

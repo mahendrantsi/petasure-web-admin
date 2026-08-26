@@ -45,6 +45,35 @@ namespace Project.Services.Service
             }
             return _imageBaseUrl + "/" + relativePath.TrimStart('~', '/');
         }
+
+        // A /similar or /analyze scan never carries PetId (see PetScans.PetId doc comment) —
+        // only /register does. On a match, the only clue to which pet it is is MatchedDsId,
+        // which registration sends to the AI as the pet's own Guid (PetService.RegisterDogRequest /
+        // RegisterCatRequest: form.AddParam("ds_id", model.PetId)). So the effective pet id for a
+        // scan is PetId when present, else MatchedDsId parsed as a Guid.
+        private static Guid? GetEffectivePetId(Guid? petId, string matchedDsId)
+        {
+            if (petId.HasValue) return petId;
+            return Guid.TryParse(matchedDsId, out var parsed) ? parsed : (Guid?)null;
+        }
+
+        // Guid.TryParse can't be translated into SQL, so this resolves names against
+        // already-materialized scan rows rather than inside the EF query.
+        private async Task<Dictionary<Guid, PetInfo>> GetPetInfoLookupAsync(IEnumerable<(Guid? PetId, string MatchedDsId)> scans)
+        {
+            var petIds = scans
+                .Select(s => GetEffectivePetId(s.PetId, s.MatchedDsId))
+                .Where(id => id.HasValue)
+                .Select(id => id.Value)
+                .Distinct()
+                .ToList();
+
+            if (petIds.Count == 0) return new Dictionary<Guid, PetInfo>();
+
+            return await _unitOfWork.Instance.PetInfo
+                .Where(p => petIds.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id);
+        }
         public Task<ServiceResponse<UserProfile>> DeleteProfile(Guid userId)
         {
             throw new NotImplementedException();
@@ -108,60 +137,63 @@ namespace Project.Services.Service
                 };
 
                 // ── Pet Scan Logs (Dashboard) — only "matched" rows, paginated ─────────
-                var petScanLogsQuery = from s in _unitOfWork.Instance.PetScans
-                                       where s.MatchResult != null &&
-                                             (s.MatchResult.ToLower() == "matched" ||
-                                              s.MatchResult.ToLower() == "match" ||
-                                              s.MatchResult.ToLower() == "possible_match")
-                                       join p in _unitOfWork.Instance.PetInfo on s.PetId equals p.Id into petGroup
-                                       from pet in petGroup.DefaultIfEmpty()
-                                       orderby s.CreatedOn descending
-                                       select new
-                                       {
-                                           s.Id,
-                                           s.Species,
-                                           s.MatchResult,
-                                           s.RouteDecision,
-                                           s.Status,
-                                           s.MatchConfidence,
-                                           s.ClassifierConfidence,
-                                           s.CreatedOn,
-                                           s.ScanType,
-                                           s.Notes,
-                                           PetName = pet != null ? pet.PName : "Unknown",
-                                           PetFullBodyImagePath = pet != null ? pet.FullBodyImagePath : null,
-                                       };
+                var petScanLogsQuery = _unitOfWork.Instance.PetScans
+                    .Where(s => s.MatchResult != null &&
+                                (s.MatchResult.ToLower() == "matched" ||
+                                 s.MatchResult.ToLower() == "match" ||
+                                 s.MatchResult.ToLower() == "possible_match"))
+                    .OrderByDescending(s => s.CreatedOn);
 
                 var totalScanLogs = await petScanLogsQuery.CountAsync();
                 var petScanLogs = await petScanLogsQuery
                     .Skip((currentPage - 1) * pageSize)
                     .Take(pageSize)
+                    .Select(s => new
+                    {
+                        s.Id,
+                        s.Species,
+                        s.MatchResult,
+                        s.RouteDecision,
+                        s.Status,
+                        s.MatchConfidence,
+                        s.ClassifierConfidence,
+                        s.CreatedOn,
+                        s.ScanType,
+                        s.Notes,
+                        s.PetId,
+                        s.MatchedDsId,
+                    })
                     .ToListAsync();
 
-                var petScanLogViewModels = petScanLogs.Select(s => new PetScanLogViewModel
+                var petInfoLookup = await GetPetInfoLookupAsync(
+                    petScanLogs.Select(s => (s.PetId, s.MatchedDsId)));
+
+                var petScanLogViewModels = petScanLogs.Select(s =>
                 {
-                    Id = s.Id,
-                    PetName = s.PetName,
-                    PetType = s.Species.ToString(),
-                    // Use the pet's FullBodyImagePath from petinfo table (not the scan image)
-                    PetImagePath = !string.IsNullOrWhiteSpace(s.PetFullBodyImagePath)
-                        ? ResolveImageUrl(s.PetFullBodyImagePath)
-                        : "/images/pet-placeholder.svg",
-                    Result = s.MatchResult,
-                    Confidence = (s.MatchConfidence ?? s.ClassifierConfidence ?? 0m) * 100m,
-                    ScanDate = s.CreatedOn,
-                    ScanType = s.ScanType.ToString(),
-                    Notes = s.Notes,
+                    var effectivePetId = GetEffectivePetId(s.PetId, s.MatchedDsId);
+                    var pet = effectivePetId.HasValue && petInfoLookup.TryGetValue(effectivePetId.Value, out var p) ? p : null;
+
+                    return new PetScanLogViewModel
+                    {
+                        Id = s.Id,
+                        PetName = pet?.PName ?? "Unknown",
+                        PetType = s.Species.ToString(),
+                        // Use the pet's FullBodyImagePath from petinfo table (not the scan image)
+                        PetImagePath = !string.IsNullOrWhiteSpace(pet?.FullBodyImagePath)
+                            ? ResolveImageUrl(pet.FullBodyImagePath)
+                            : "/images/pet-placeholder.svg",
+                        Result = s.MatchResult,
+                        Confidence = (s.MatchConfidence ?? s.ClassifierConfidence ?? 0m) * 100m,
+                        ScanDate = s.CreatedOn,
+                        ScanType = s.ScanType.ToString(),
+                        Notes = s.Notes,
+                    };
                 }).ToList();
 
                 // ── Match rate across all scan types ───────────────────────────────────
                 var matchRate = totalScans > 0
                     ? (decimal)matchedScans / totalScans * 100m
                     : 0m;
-
-                // Static FAR / FRR benchmark counts for the daily missing pet scan
-                const int missingPetScanFAR = 12;  // False Accept Rate  — count of incorrectly accepted scans
-                const int missingPetScanFRR = 5;   // False Rejection Rate — count of incorrectly rejected scans
 
                 var dashboardDetails = new DashboardViewModel
                 {
@@ -174,9 +206,11 @@ namespace Project.Services.Service
                     TopUnmatchedScans = unmatchedScans,
                     ErrorBreakdown = errorTotal,
 
-                    // FAR / FRR — daily missing pet scan
-                    DailyMissingPetScanFAR = missingPetScanFAR,
-                    DailyMissingPetScanFRR = missingPetScanFRR,
+                    // FAR / FRR tiles show matched/unmatched scan counts (not true False
+                    // Accept/Reject rates — those require a verified ground-truth label per
+                    // scan, which this system doesn't capture).
+                    DailyMissingPetScanFAR = matchedScans,
+                    DailyMissingPetScanFRR = unmatchedScans,
 
                     TotalScans = totalScans,
                     MatchedScans = matchedScans,
@@ -205,9 +239,9 @@ namespace Project.Services.Service
                     TopUnmatchedScans = 0,
                     ErrorBreakdown = 0,
 
-                    // FAR / FRR — daily missing pet scan (static counts, returned even on error)
-                    DailyMissingPetScanFAR = 12,
-                    DailyMissingPetScanFRR = 5,
+                    // FAR / FRR tiles — no data available on error
+                    DailyMissingPetScanFAR = 0,
+                    DailyMissingPetScanFRR = 0,
 
                     TotalScans = 0,
                     MatchedScans = 0,
@@ -306,39 +340,46 @@ namespace Project.Services.Service
                     query = query.Where(s => s.CreatedOn <= toDateEnd);
                 }
 
-                var petScanLogsQuery = from s in query
-                                       join p in _unitOfWork.Instance.PetInfo on s.PetId equals p.Id into petGroup
-                                       from pet in petGroup.DefaultIfEmpty()
-                                       orderby s.CreatedOn descending
-                                       select new
-                                       {
-                                           s.Id,
-                                           s.Species,
-                                           s.MatchResult,
-                                           s.MatchConfidence,
-                                           s.ClassifierConfidence,
-                                           s.CreatedOn,
-                                           s.ScanType,
-                                           s.Notes,
-                                           PetName = pet != null ? pet.PName : "Unknown",
-                                           PetFullBodyImagePath = pet != null ? pet.FullBodyImagePath : null,
-                                       };
+                var petScanLogsQuery = query
+                    .OrderByDescending(s => s.CreatedOn)
+                    .Select(s => new
+                    {
+                        s.Id,
+                        s.Species,
+                        s.MatchResult,
+                        s.MatchConfidence,
+                        s.ClassifierConfidence,
+                        s.CreatedOn,
+                        s.ScanType,
+                        s.Notes,
+                        s.PetId,
+                        s.MatchedDsId,
+                    });
 
                 var petScanLogs = await petScanLogsQuery.ToListAsync();
 
-                var petScanLogViewModels = petScanLogs.Select(s => new PetScanLogViewModel
+                var petInfoLookup = await GetPetInfoLookupAsync(
+                    petScanLogs.Select(s => (s.PetId, s.MatchedDsId)));
+
+                var petScanLogViewModels = petScanLogs.Select(s =>
                 {
-                    Id = s.Id,
-                    PetName = s.PetName,
-                    PetType = s.Species.ToString(),
-                    PetImagePath = !string.IsNullOrWhiteSpace(s.PetFullBodyImagePath)
-                        ? ResolveImageUrl(s.PetFullBodyImagePath)
-                        : "/images/pet-placeholder.svg",
-                    Result = s.MatchResult,
-                    Confidence = (s.MatchConfidence ?? s.ClassifierConfidence ?? 0m) * 100m,
-                    ScanDate = s.CreatedOn,
-                    ScanType = s.ScanType.ToString(),
-                    Notes = s.Notes,
+                    var effectivePetId = GetEffectivePetId(s.PetId, s.MatchedDsId);
+                    var pet = effectivePetId.HasValue && petInfoLookup.TryGetValue(effectivePetId.Value, out var p) ? p : null;
+
+                    return new PetScanLogViewModel
+                    {
+                        Id = s.Id,
+                        PetName = pet?.PName ?? "Unknown",
+                        PetType = s.Species.ToString(),
+                        PetImagePath = !string.IsNullOrWhiteSpace(pet?.FullBodyImagePath)
+                            ? ResolveImageUrl(pet.FullBodyImagePath)
+                            : "/images/pet-placeholder.svg",
+                        Result = s.MatchResult,
+                        Confidence = (s.MatchConfidence ?? s.ClassifierConfidence ?? 0m) * 100m,
+                        ScanDate = s.CreatedOn,
+                        ScanType = s.ScanType.ToString(),
+                        Notes = s.Notes,
+                    };
                 }).ToList();
 
                 if (!string.IsNullOrWhiteSpace(search))
@@ -398,39 +439,46 @@ namespace Project.Services.Service
                     query = query.Where(s => s.CreatedOn <= toDateEnd);
                 }
 
-                var petScanLogsQuery = from s in query
-                                       join p in _unitOfWork.Instance.PetInfo on s.PetId equals p.Id into petGroup
-                                       from pet in petGroup.DefaultIfEmpty()
-                                       orderby s.CreatedOn descending
-                                       select new
-                                       {
-                                           s.Id,
-                                           s.Species,
-                                           s.MatchResult,
-                                           s.MatchConfidence,
-                                           s.ClassifierConfidence,
-                                           s.CreatedOn,
-                                           s.ScanType,
-                                           s.Notes,
-                                           PetName = pet != null ? pet.PName : "Unknown",
-                                           PetFullBodyImagePath = pet != null ? pet.FullBodyImagePath : null,
-                                       };
+                var petScanLogsQuery = query
+                    .OrderByDescending(s => s.CreatedOn)
+                    .Select(s => new
+                    {
+                        s.Id,
+                        s.Species,
+                        s.MatchResult,
+                        s.MatchConfidence,
+                        s.ClassifierConfidence,
+                        s.CreatedOn,
+                        s.ScanType,
+                        s.Notes,
+                        s.PetId,
+                        s.MatchedDsId,
+                    });
 
                 var petScanLogs = await petScanLogsQuery.ToListAsync();
 
-                var petScanLogViewModels = petScanLogs.Select(s => new PetScanLogViewModel
+                var petInfoLookup = await GetPetInfoLookupAsync(
+                    petScanLogs.Select(s => (s.PetId, s.MatchedDsId)));
+
+                var petScanLogViewModels = petScanLogs.Select(s =>
                 {
-                    Id = s.Id,
-                    PetName = s.PetName,
-                    PetType = s.Species.ToString(),
-                    PetImagePath = !string.IsNullOrWhiteSpace(s.PetFullBodyImagePath)
-                        ? ResolveImageUrl(s.PetFullBodyImagePath)
-                        : "/images/pet-placeholder.svg",
-                    Result = s.MatchResult,
-                    Confidence = (s.MatchConfidence ?? s.ClassifierConfidence ?? 0m) * 100m,
-                    ScanDate = s.CreatedOn,
-                    ScanType = s.ScanType.ToString(),
-                    Notes = s.Notes,
+                    var effectivePetId = GetEffectivePetId(s.PetId, s.MatchedDsId);
+                    var pet = effectivePetId.HasValue && petInfoLookup.TryGetValue(effectivePetId.Value, out var p) ? p : null;
+
+                    return new PetScanLogViewModel
+                    {
+                        Id = s.Id,
+                        PetName = pet?.PName ?? "Unknown",
+                        PetType = s.Species.ToString(),
+                        PetImagePath = !string.IsNullOrWhiteSpace(pet?.FullBodyImagePath)
+                            ? ResolveImageUrl(pet.FullBodyImagePath)
+                            : "/images/pet-placeholder.svg",
+                        Result = s.MatchResult,
+                        Confidence = (s.MatchConfidence ?? s.ClassifierConfidence ?? 0m) * 100m,
+                        ScanDate = s.CreatedOn,
+                        ScanType = s.ScanType.ToString(),
+                        Notes = s.Notes,
+                    };
                 }).ToList();
 
                 if (!string.IsNullOrWhiteSpace(search))

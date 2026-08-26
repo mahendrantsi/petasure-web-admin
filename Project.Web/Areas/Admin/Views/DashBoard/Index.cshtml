@@ -75,7 +75,7 @@
                         <div class="mini-stat-label">Matched</div>
                         <div class="mini-stat-value">@matchedScans</div>
                     </div>
-                    @* FAR / FRR — static benchmark counts for the daily missing pet scan *@
+                    @* FAR / FRR — matched/unmatched scan counts *@
                     <div class="mini-stat-card c1">
                         <div class="mini-stat-label">FAR (False Acceptance Rate)</div>
                         <div class="mini-stat-value">@Model.DailyMissingPetScanFAR</div>
@@ -180,7 +180,6 @@
                                 <thead>
                                     <tr>
                                         <th>Pet</th>
-                                        <th>Name</th>
                                         <th>Type</th>
                                         <th>Result</th>
                                         <th>Confidence</th>
@@ -199,7 +198,6 @@
                                                          class="pet-avatar"
                                                          onerror="this.onerror=null;this.outerHTML='<div class=\'pet-avatar\' style=\'display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#64748b;font-size:16px;\'><i class=\'fas fa-@(log.PetType.ToLower() == "cat" ? "cat" : "dog")\'></i></div>';" />
                                                 </td>
-                                                <td><span class="pet-name-strong">@log.PetName</span></td>
                                                 <td>
                                                     @if (log.PetType == "Cat")
                                                     {
@@ -256,7 +254,7 @@
                                     }
                                     else
                                     {
-                                        <tr><td colspan="6"><div class="empty-state"><i class="fas fa-inbox"></i><p>No scan logs available</p></div></td></tr>
+                                        <tr><td colspan="5"><div class="empty-state"><i class="fas fa-inbox"></i><p>No scan logs available</p></div></td></tr>
                                     }
                                 </tbody>
                             </table>
