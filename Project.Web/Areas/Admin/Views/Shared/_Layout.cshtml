@@ -39,29 +39,6 @@
 <body>
     <style>
         .loaderflex { display: flex; }
-
-        /* Alert Centre sidebar badge */
-        .ac-nav-badge {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            min-width: 20px;
-            height: 20px;
-            padding: 0 5px;
-            background: #ef4444;
-            color: #fff;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 700;
-            line-height: 1;
-            margin-left: auto;
-            animation: ac-badge-pulse 2s ease-in-out infinite;
-        }
-
-        @@keyframes ac-badge-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
-            50%       { box-shadow: 0 0 0 5px rgba(239,68,68,0); }
-        }
     </style>
     <div class="page-wrapper null compact-wrapper" id="pageWrapper">
 
@@ -188,14 +165,6 @@
                                                     <span class="menu-txt">Content Management</span>
                                                 </a>
                                             </li>
-
-                                        <li class="nav-item dropdown menu-icons">
-                                            <a id="a9" class="nav-link menu-title d-flex align-items-center" href="~/Admin/AlertCentre/Index">
-                                                <span class="fas fa-bell"></span>
-                                                <span class="menu-txt">Alert Centre</span>
-                                                <span class="ac-nav-badge alert-centre-badge">0</span>
-                                            </a>
-                                        </li>
                                         }
 
                                         <li class="nav-item dropdown menu-icons">
@@ -303,29 +272,7 @@
             $('.sidebar-icon header.main-nav').removeClass('active');
         });
 
-        // Load Alert Centre Badge Count
-        function loadAlertBadgeCount() {
-            fetch('@Url.Content("~/Admin/AlertCentre/GetNewAlertsCount")')
-                .then(response => response.json())
-                .then(data => {
-                    const badge = document.querySelector('.alert-centre-badge');
-                    if (badge && data.count > 0) {
-                        badge.textContent = data.count;
-                        badge.style.display = 'inline-flex';
-                    }
-                })
-                .catch(error => console.log('Alert badge loading deferred'));
-        }
 
-        // Load badge on page load
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadAlertBadgeCount);
-        } else {
-            loadAlertBadgeCount();
-        }
-
-        // Reload badge every 30 seconds
-        setInterval(loadAlertBadgeCount, 30000);
     </script>
     @RenderSection("Scripts", required: false)
     @await Component.InvokeAsync("NToastNotify")

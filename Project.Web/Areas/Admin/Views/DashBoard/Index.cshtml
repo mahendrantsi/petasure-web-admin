@@ -2,13 +2,10 @@
 @{
     ViewData["BodyClass"] = "dashboard-page-body";
 
-    // ── Recognition analytics helpers ────────────────────────────────────────
     var totalScans   = Model.TotalScans;
     var matchedScans = Model.MatchedScans;
     var unmatchedScans = Model.UnmatchedScans;
-    var illedPetsCount = Model.IlledPetsCount;
 
-    // Circumference of the donut ring  (r=38)  ≈ 238.76
     const double circumference = 238.76;
     double matchedArc   = totalScans > 0 ? Math.Round((double)matchedScans   / totalScans * circumference, 2) : 0;
     double unmatchedArc = totalScans > 0 ? Math.Round((double)unmatchedScans / totalScans * circumference, 2) : 0;
@@ -66,7 +63,7 @@
                 <h3 class="panel-title"><span class="panel-title-dot"></span> Recognition Analytics</h3>
             </div>
 
-            <!-- Scrollable content matching tab-ill-health table-scroll-container behavior -->
+            <!-- Scrollable content for analytics display -->
             <div style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:14px; padding-right:2px;">
                 <!-- Mini Stats — real data -->
                 <div class="mini-stats-grid">
@@ -74,19 +71,11 @@
                         <div class="mini-stat-label">Total Missing Scans</div>
                         <div class="mini-stat-value">@totalScans</div>
                     </div>
-                    <div class="mini-stat-card c4">
-                        <div class="mini-stat-label">Total Health Scans</div>
-                        <div class="mini-stat-value">@Model.TotalIllHealthScans</div>
-                    </div>
                     <div class="mini-stat-card c2">
                         <div class="mini-stat-label">Matched</div>
                         <div class="mini-stat-value">@matchedScans</div>
                     </div>
-                    <div class="mini-stat-card c3">
-                        <div class="mini-stat-label">Ill-Pets Count</div>
-                        <div class="mini-stat-value">@illedPetsCount</div>
-                    </div>
-                    @* FAR / FRR — static benchmark counts for the daily missing pet scan *@
+                    @* FAR / FRR — matched/unmatched scan counts *@
                     <div class="mini-stat-card c1">
                         <div class="mini-stat-label">FAR (False Acceptance Rate)</div>
                         <div class="mini-stat-value">@Model.DailyMissingPetScanFAR</div>
@@ -176,7 +165,6 @@
             <div class="tp-header">
                 <div class="tabs-nav">
                     <button class="tab-btn active" data-tab="tab-scan-logs"><i class="fas fa-qrcode" style="margin-right:5px;font-size:11px;"></i>Pet Scan Logs</button>
-                    <button class="tab-btn" data-tab="tab-ill-health"><i class="fas fa-heartbeat" style="margin-right:5px;font-size:11px;"></i>Ill-health Logs</button>
                 </div>
             </div>
             <div class="tp-body">
@@ -192,7 +180,6 @@
                                 <thead>
                                     <tr>
                                         <th>Pet</th>
-                                        <th>Name</th>
                                         <th>Type</th>
                                         <th>Result</th>
                                         <th>Confidence</th>
@@ -211,7 +198,6 @@
                                                          class="pet-avatar"
                                                          onerror="this.onerror=null;this.outerHTML='<div class=\'pet-avatar\' style=\'display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#64748b;font-size:16px;\'><i class=\'fas fa-@(log.PetType.ToLower() == "cat" ? "cat" : "dog")\'></i></div>';" />
                                                 </td>
-                                                <td><span class="pet-name-strong">@log.PetName</span></td>
                                                 <td>
                                                     @if (log.PetType == "Cat")
                                                     {
@@ -268,7 +254,7 @@
                                     }
                                     else
                                     {
-                                        <tr><td colspan="6"><div class="empty-state"><i class="fas fa-inbox"></i><p>No scan logs available</p></div></td></tr>
+                                        <tr><td colspan="5"><div class="empty-state"><i class="fas fa-inbox"></i><p>No scan logs available</p></div></td></tr>
                                     }
                                 </tbody>
                             </table>
@@ -279,107 +265,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab 2: Ill-health Reviews -->
-                    <div class="tab-pane" id="tab-ill-health">
-
-                        <!-- Table scroll container -->
-                        <div class="table-scroll-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Pet</th>
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th class="col-obs-cond">Observable Symptoms</th>
-                                        <th>Confidence</th>
-                                        <th>Status</th>
-                                        <th>AI Verdict</th>
-                                        <th>Date and Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (Model.IllHealthReviews != null && Model.IllHealthReviews.Count > 0)
-                                    {
-                                        @foreach (var review in Model.IllHealthReviews)
-                                        {
-                                            <tr>
-                                                <td><img src="@review.PetImagePath" alt="@review.PetName" class="pet-avatar" onerror="this.onerror=null;this.outerHTML='<div class=\'pet-avatar\' style=\'display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#64748b;font-size:16px;\'><i class=\'fas fa-@(review.PetType.ToLower() == "cat" ? "cat" : "dog")\'></i></div>';" /></td>
-                                                <td><span class="pet-name-strong">@review.PetName</span></td>
-                                                <td>
-                                                    @if (review.PetType == "Cat")
-                                                    {
-                                                        <span class="type-pill cat"><i class="fas fa-cat"></i> Cat</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="type-pill dog"><i class="fas fa-dog"></i> Dog</span>
-                                                    }
-                                                </td>
-                                                <td class="col-obs-cond" style="color:#475569;">
-                                                     <div class="col-obs-cond-inner">@review.AISuggestedCondition</div>
-                                                 </td>
-                                                <td>
-                                                    <div class="conf-wrap">
-                                                        <span class="conf-num">@review.Confidence.ToString("F0")%</span>
-                                                        <div class="conf-bar"><div class="conf-fill @(review.Confidence >= 50 ? "low" : "")" 
-                                                            style="width:@($"{review.Confidence:F0}%")"></div>
-                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    @if (review.Status == "Flagged Submission")
-                                                    {
-                                                        <span class="badge-custom danger"><i class="fas fa-flag"></i> Flagged</span>
-                                                    }
-                                                    else if (review.Status == "Reviewed")
-                                                    {
-                                                        <span class="badge-custom info"><i class="fas fa-eye"></i> Reviewed</span>
-                                                    }
-                                                    else if (review.Status == "Resolved")
-                                                    {
-                                                        <span class="badge-custom success"><i class="fas fa-check"></i> Resolved</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge-custom warning"><i class="fas fa-hourglass-half"></i> @review.Status</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (!string.IsNullOrEmpty(review.AIVerdict) && (review.AIVerdict.ToLower() == "ill" || review.AIVerdict.ToLower() == "unhealthy"))
-                                                    {
-                                                        <span class="verdict-ill"><i class="fas fa-exclamation-triangle" style="font-size:10px;margin-right:3px;"></i>@review.AIVerdict</span>
-                                                    }
-                                                    else if (!string.IsNullOrEmpty(review.AIVerdict))
-                                                    {
-                                                        <span class="verdict-healthy"><i class="fas fa-check-circle" style="font-size:10px;margin-right:3px;"></i>@review.AIVerdict</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span style="color:#94a3b8;">—</span>
-                                                    }
-                                                </td>
-                                                <td>@review.SubmissionDate.ToString("dd MMM yyyy HH:mm")</td>
-                                            </tr>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="10">
-                                                <div class="empty-state">
-                                                    <i class="fas fa-clipboard-check"></i>
-                                                    <p>No reviews available</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="table-footer">
-                            <a href="@Url.Action("IllHealthSubmissions", "DashBoard")" class="view-logs-link" style="margin:0;">View all ill-health submissions <i class="fas fa-arrow-right" style="font-size:9px;"></i></a>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -84,7 +84,6 @@
             <table aria-describedby="mydesc" id="ScanLogs_tbl" class="table tableCutom table-th-nowrap w-100">
                 <thead>
                     <tr>
-                        <th>Pet Name</th>
                         <th>Type</th>
                         <th>Scan Type</th>
                         <th>Result</th>
@@ -98,12 +97,6 @@
                     @foreach (var log in Model.PetScanLogs)
                     {
                         <tr>
-                            <td>
-                                <div class="flaxCenter">
-                                    <span>@log.PetName</span>
-                                </div>
-                            </td>
-
                             <td>
                                 <div class="flaxCenter">
                                     <span>@log.PetType</span>

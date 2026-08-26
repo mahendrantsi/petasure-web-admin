@@ -96,7 +96,6 @@ namespace Project.Web
             services.AddTransient<ISystemSetting, SystemSetting>();
             services.AddTransient<IExceptionLoggerService, ExceptionLoggerService>();
             services.AddTransient<ISubscriptionService, SubscriptionService>();
-            services.AddTransient<IAlertCentreService, AlertCentreService>();
 
 
             services.AddRazorPages();

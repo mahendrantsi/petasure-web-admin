@@ -80,13 +80,12 @@ namespace Project.WebAPI
             services.AddTransient<ISettingService, SettingService>();
             services.AddTransient<IExceptionLoggerService, ExceptionLoggerService>();
             services.AddTransient<ISubscriptionService, SubscriptionService>();
-           
+
             //Created By Manthan tak
             services.AddTransient<IContentService, ContentService>();
             //Created By Manthan Tak
             services.AddTransient<IPetService, PetService>();
             services.AddTransient<IMissingService, MissingService>();
-            services.AddTransient<IIllHealthService, IllHealthService>();
 
             services.AddTransient<ISystemSetting, SystemSetting>();
 
@@ -204,6 +203,11 @@ namespace Project.WebAPI
                 //    (serviceScope.ServiceProvider.GetRequiredService<ISystemSetting>()).SetSystemVariables(response.Data);
 
             }
+<<<<<<< HEAD
+=======
+
+            // Serve uploaded images from disk via /uploads route.
+>>>>>>> 7fe60f4dff399caf4bb3adc366187dc388bd661f
             var webProjectRootPath = Configuration["WebProjectRootPath"];
 
             // If not configured, use the application's root folder
