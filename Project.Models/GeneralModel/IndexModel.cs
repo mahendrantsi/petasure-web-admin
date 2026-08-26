@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace Project.Models.GeneralModel
 {
@@ -34,6 +34,10 @@ namespace Project.Models.GeneralModel
     {
         public IFormFile NoseImage { get; set; }
         public IFormFile DogImage { get; set; }
+        // Optional: 3-view images added in new mobile app version
+        public IFormFile LeftViewImage { get; set; }
+        public IFormFile RightViewImage { get; set; }
+        public IFormFile TopViewImage { get; set; }
         public string PetId { get; set; }
         public string Species { get; set; }
     }
@@ -57,6 +61,10 @@ namespace Project.Models.GeneralModel
         // auto-classifies the species. NoseImage = close-up nose crop, CatImage = full-body photo.
         public IFormFile NoseImage { get; set; }
         public IFormFile CatImage { get; set; }
+        // Optional: 3-view images added in new mobile app version
+        public IFormFile LeftViewImage { get; set; }
+        public IFormFile RightViewImage { get; set; }
+        public IFormFile TopViewImage { get; set; }
         public string PetId { get; set; }
         public string Species { get; set; }
     }

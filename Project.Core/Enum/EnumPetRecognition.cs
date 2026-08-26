@@ -43,6 +43,12 @@ namespace Project.Core.Enum
         FullBodyImage = 2,
         [Description("Face Image")]
         FaceImage = 3,
+        [Description("Left View Image")]
+        LeftViewImage = 4,
+        [Description("Right View Image")]
+        RightViewImage = 5,
+        [Description("Top View Image")]
+        TopViewImage = 6,
     }
 
     /// <summary>

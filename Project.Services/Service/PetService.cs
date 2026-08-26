@@ -1,4 +1,4 @@
-﻿using Project.Data.DBEntities;
+using Project.Data.DBEntities;
 using Project.Services.IService;
 using Project.Services.Resources;
 using Project.Services.ServiceEntities;
@@ -702,6 +702,24 @@ namespace Project.Services.Service
                 return await FailImageSaveAsync(scan, ex);
             }
 
+            // Save optional 3-view images to disk (nullable — old clients won't send them)
+            string leftViewPath = null, rightViewPath = null, topViewPath = null;
+            try
+            {
+                if (model.LeftViewImage != null)
+                    leftViewPath = (await SaveImageAsync(model.LeftViewImage, EnumImageKind.LeftViewImage, petId)).StoragePath;
+                if (model.RightViewImage != null)
+                    rightViewPath = (await SaveImageAsync(model.RightViewImage, EnumImageKind.RightViewImage, petId)).StoragePath;
+                if (model.TopViewImage != null)
+                    topViewPath = (await SaveImageAsync(model.TopViewImage, EnumImageKind.TopViewImage, petId)).StoragePath;
+            }
+            catch (Exception ex)
+            {
+                // View images are supplementary — log and continue; do not fail the registration
+                _logger.LogWarning(ex, "Failed to save one or more view images for Dog Register petId={PetId}", petId);
+                _exceptionLoggerService.LogException(ex);
+            }
+
             var responseContent = await ExecuteRecognitionScanAsync(scan, "register", form =>
             {
                 var noseContent = new ByteArrayContent(ReadAllBytes(model.NoseImage));
@@ -713,6 +731,26 @@ namespace Project.Services.Service
                 // here it is important that second parameter matches with name given in API.
                 form.Add(dogContent, "dog_image", model.PetId + "_dog_image" + Path.GetExtension(model.DogImage.FileName));
 
+                // Forward optional 3-view images to the AI service when provided
+                if (model.LeftViewImage != null)
+                {
+                    var leftContent = new ByteArrayContent(ReadAllBytes(model.LeftViewImage));
+                    leftContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                    form.Add(leftContent, "left_view_image", model.PetId + "_left_view_image" + Path.GetExtension(model.LeftViewImage.FileName));
+                }
+                if (model.RightViewImage != null)
+                {
+                    var rightContent = new ByteArrayContent(ReadAllBytes(model.RightViewImage));
+                    rightContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                    form.Add(rightContent, "right_view_image", model.PetId + "_right_view_image" + Path.GetExtension(model.RightViewImage.FileName));
+                }
+                if (model.TopViewImage != null)
+                {
+                    var topContent = new ByteArrayContent(ReadAllBytes(model.TopViewImage));
+                    topContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                    form.Add(topContent, "top_view_image", model.PetId + "_top_view_image" + Path.GetExtension(model.TopViewImage.FileName));
+                }
+
                 form.AddParam("ds_id", model.PetId);
                 form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "dog" : model.Species);
             });
@@ -720,6 +758,27 @@ namespace Project.Services.Service
             if (scan.Status == EnumPetScanStatus.Success)
             {
                 await SeedIllHealthBaselineAsync(petId, EnumHealthCheckSpecies.Dog, scan.SecondaryImage?.StoragePath, scan.Id);
+
+                // Persist the new view image paths back onto the pet's PetInfo row
+                if (leftViewPath != null || rightViewPath != null || topViewPath != null)
+                {
+                    try
+                    {
+                        var petEntity = await _unitOfWork.Instance.PetInfo.FindAsync(petId);
+                        if (petEntity != null)
+                        {
+                            if (leftViewPath != null) petEntity.LeftViewImagePath = leftViewPath;
+                            if (rightViewPath != null) petEntity.RightViewImagePath = rightViewPath;
+                            if (topViewPath != null) petEntity.TopViewImagePath = topViewPath;
+                            await _unitOfWork.SaveChangesAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to persist view image paths to PetInfo for petId={PetId}", petId);
+                        _exceptionLoggerService.LogException(ex);
+                    }
+                }
             }
 
             return responseContent;
@@ -844,6 +903,24 @@ namespace Project.Services.Service
                 return await FailImageSaveAsync(scan, ex);
             }
 
+            // Save optional 3-view images to disk (nullable — old clients won't send them)
+            string leftViewPath = null, rightViewPath = null, topViewPath = null;
+            try
+            {
+                if (model.LeftViewImage != null)
+                    leftViewPath = (await SaveImageAsync(model.LeftViewImage, EnumImageKind.LeftViewImage, petId)).StoragePath;
+                if (model.RightViewImage != null)
+                    rightViewPath = (await SaveImageAsync(model.RightViewImage, EnumImageKind.RightViewImage, petId)).StoragePath;
+                if (model.TopViewImage != null)
+                    topViewPath = (await SaveImageAsync(model.TopViewImage, EnumImageKind.TopViewImage, petId)).StoragePath;
+            }
+            catch (Exception ex)
+            {
+                // View images are supplementary — log and continue; do not fail the registration
+                _logger.LogWarning(ex, "Failed to save one or more view images for Cat Register petId={PetId}", petId);
+                _exceptionLoggerService.LogException(ex);
+            }
+
             var responseContent = await ExecuteRecognitionScanAsync(scan, "register", form =>
             {
                 var noseContent = new ByteArrayContent(ReadAllBytes(model.NoseImage));
@@ -854,6 +931,26 @@ namespace Project.Services.Service
                 catContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
                 form.Add(catContent, "dog_image", model.PetId + "_dog_image" + Path.GetExtension(model.CatImage.FileName));
 
+                // Forward optional 3-view images to the AI service when provided
+                if (model.LeftViewImage != null)
+                {
+                    var leftContent = new ByteArrayContent(ReadAllBytes(model.LeftViewImage));
+                    leftContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                    form.Add(leftContent, "left_view_image", model.PetId + "_left_view_image" + Path.GetExtension(model.LeftViewImage.FileName));
+                }
+                if (model.RightViewImage != null)
+                {
+                    var rightContent = new ByteArrayContent(ReadAllBytes(model.RightViewImage));
+                    rightContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                    form.Add(rightContent, "right_view_image", model.PetId + "_right_view_image" + Path.GetExtension(model.RightViewImage.FileName));
+                }
+                if (model.TopViewImage != null)
+                {
+                    var topContent = new ByteArrayContent(ReadAllBytes(model.TopViewImage));
+                    topContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+                    form.Add(topContent, "top_view_image", model.PetId + "_top_view_image" + Path.GetExtension(model.TopViewImage.FileName));
+                }
+
                 form.AddParam("ds_id", model.PetId);
                 form.AddParam("species", string.IsNullOrWhiteSpace(model.Species) ? "cat" : model.Species);
             });
@@ -861,6 +958,27 @@ namespace Project.Services.Service
             if (scan.Status == EnumPetScanStatus.Success)
             {
                 await SeedIllHealthBaselineAsync(petId, EnumHealthCheckSpecies.Cat, scan.SecondaryImage?.StoragePath, scan.Id);
+
+                // Persist the new view image paths back onto the pet's PetInfo row
+                if (leftViewPath != null || rightViewPath != null || topViewPath != null)
+                {
+                    try
+                    {
+                        var petEntity = await _unitOfWork.Instance.PetInfo.FindAsync(petId);
+                        if (petEntity != null)
+                        {
+                            if (leftViewPath != null) petEntity.LeftViewImagePath = leftViewPath;
+                            if (rightViewPath != null) petEntity.RightViewImagePath = rightViewPath;
+                            if (topViewPath != null) petEntity.TopViewImagePath = topViewPath;
+                            await _unitOfWork.SaveChangesAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to persist view image paths to PetInfo for petId={PetId}", petId);
+                        _exceptionLoggerService.LogException(ex);
+                    }
+                }
             }
 
             return responseContent;

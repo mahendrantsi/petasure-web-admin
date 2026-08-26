@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Project.Data.DBEntities;
 using Project.Models.Pets;
 using ServiceStack;
@@ -70,6 +70,9 @@ namespace Project.Persistence.Repository
                         NoseImagePath = x.NoseImagePath,
                         FullBodyImagePath = x.FullBodyImagePath,
                         FaceImagePath = x.FaceImagePath,
+                        LeftViewImagePath = x.LeftViewImagePath,
+                        RightViewImagePath = x.RightViewImagePath,
+                        TopViewImagePath = x.TopViewImagePath,
                         CreatedOn = x.CreatedOn,
                         MicrochipNumber = x.MicrochipNumber,
                         PetTypeId = x.PetTypeId,
@@ -109,6 +112,9 @@ namespace Project.Persistence.Repository
                     NoseImagePath = petData.NoseImagePath,
                     FullBodyImagePath = petData.FullBodyImagePath,
                     FaceImagePath = petData.FaceImagePath,
+                    LeftViewImagePath = petData.LeftViewImagePath,
+                    RightViewImagePath = petData.RightViewImagePath,
+                    TopViewImagePath = petData.TopViewImagePath,
                     MicrochipNumber = petData.MicrochipNumber,
                     PetTypeId = petData.PetTypeId,
                     LicenceNumber = petData.LicenceNumber,
@@ -157,7 +163,10 @@ namespace Project.Persistence.Repository
                     BreedDescription = petData.BreedDescription,
                     DateOfBirth = petData.DateOfBirth,
                     NoseImagePath = baseURL + petData.NoseImagePath,
-                    FullBodyImagePath = baseURL + petData.FullBodyImagePath
+                    FullBodyImagePath = baseURL + petData.FullBodyImagePath,
+                    LeftViewImagePath = baseURL + petData.LeftViewImagePath,
+                    RightViewImagePath = baseURL + petData.RightViewImagePath,
+                    TopViewImagePath = baseURL + petData.TopViewImagePath
                 };
             }
             else
@@ -286,6 +295,9 @@ namespace Project.Persistence.Repository
                 NoseImagePath = petData.NoseImagePath,
                 FullBodyImagePath = petData.FullBodyImagePath,
                 FaceImagePath = petData.FaceImagePath,
+                LeftViewImagePath = petData.LeftViewImagePath,
+                RightViewImagePath = petData.RightViewImagePath,
+                TopViewImagePath = petData.TopViewImagePath,
                 Lat = petData.Lat,
                 Long = petData.Long,
                 MicrochipNumber = petData.MicrochipNumber,
@@ -340,6 +352,9 @@ namespace Project.Persistence.Repository
             petModel.FaceImagePath = petData.FaceImagePath;
             petModel.NoseImagePath = petData.NoseImagePath;
             petModel.FullBodyImagePath = petData.FullBodyImagePath;
+            petModel.LeftViewImagePath = petData.LeftViewImagePath;
+            petModel.RightViewImagePath = petData.RightViewImagePath;
+            petModel.TopViewImagePath = petData.TopViewImagePath;
 
             // Save changes
             var affectedRows = await _db.SaveChangesAsync();

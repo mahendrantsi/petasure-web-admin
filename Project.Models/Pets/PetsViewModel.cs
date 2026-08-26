@@ -1,4 +1,4 @@
-﻿using Project.Core.Settings;
+using Project.Core.Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -49,6 +49,9 @@ namespace Project.Models.Pets
         public string NoseImagePath { get; set; }
         public string FullBodyImagePath { get; set; }
         public string FaceImagePath { get; set; }
+        public string LeftViewImagePath { get; set; }
+        public string RightViewImagePath { get; set; }
+        public string TopViewImagePath { get; set; }
 
         public Decimal Lat { get; set; }
         public Decimal Long { get; set; }
